@@ -1,0 +1,189 @@
+<?xml version='1.0' encoding='UTF-8' ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <h:head>
+        <title>Sistema Inventario</title>
+
+        <link rel="stylesheet" href="resources/css/bootstrap.css"/>
+        <link rel="stylesheet" href="resources/css/bootstrap-responsive.css"/>
+        <link rel="stylesheet" href="resources/css/prettyPhoto.css" />
+        <link rel="stylesheet" href="resources/css/flexslider.css" />
+        <link rel="stylesheet" href="resources/css/custom-styles.css"/>
+
+        <link rel="shortcut icon" href="resources/img/icono.jpg"/>
+        <link rel="apple-touch-icon" href="resources/img/apple-touch-icon.png"/>
+        <link rel="apple-touch-icon" sizes="72x72" href="resources/img/apple-touch-icon-72x72.png"/>
+        <link rel="apple-touch-icon" sizes="114x114" href="resources/img/apple-touch-icon-114x114.png"/>
+
+        <script src="resources/js/bootstrap.js"></script>
+        <script src="resources/js/jquery.prettyPhoto.js"></script>
+        <script src="resources/js/jquery.flexslider.js"></script>
+        <script src="resources/js/jquery.custom.js"></script>
+        <script type="text/javascript"/>
+    </h:head>
+    <h:form>
+        <p:growl id="messages"/>
+
+        <p:menubar id="menu-bar">
+            <p:menuitem value="Pc" icon="pi pi-fw pi-desktop"/>
+            <p:menuitem value="Impresora" icon="pi pi-fw pi-print"/>
+            <p:menuitem value="Usuarios" icon="pi pi-fw pi-user"/>
+            <p:submenu label="Administración" icon="pi pi-fw pi-server" >
+                <p:menuitem value="Area" url="pages/invarea.faces" />
+                <p:menuitem value="Componentes" />
+                <p:menuitem value="Departamento" />
+                <p:menuitem value="Entidad" url="pages/inventidad.faces"/>
+                <p:menuitem value="Marca" />
+                <p:menuitem value="Modelo" />
+                <p:menuitem value="Programas" />
+                <p:menuitem value="SO" />
+                <p:submenu label="Tipos de entradas" >
+                    <p:menuitem value="Tipo accesorio" />
+                    <p:menuitem value="Tipo componente" />
+                    <p:menuitem value="Tipo conexión" />
+                    <p:menuitem value="Tipo equipo" />
+                    <p:menuitem value="Tipo modicación" />
+                    <p:menuitem value="Tipo tonner" />
+                </p:submenu>
+
+            </p:submenu>
+
+            <p:divider layout="vertical"/>
+
+            <f:facet name="options">
+                <div class="ui-input-icon-left mr-2">
+                    <i class="pi pi-fw pi-search" />
+                    <p:inputText placeholder="Search"/>
+                </div>
+                <p:button value="Logout" icon="pi pi-fw pi-sign-out" styleClass="ui-button-info"/>
+            </f:facet>
+        </p:menubar>
+
+    </h:form>
+    <h:body>
+        #{entidadBeans.init()}
+        <div class="card crud-demo">
+            <h:form id="form">
+                <p:growl id="messages" showDetail="true" />
+
+                <p:toolbar>
+                    <p:toolbarGroup>
+                        <p:commandButton value="Nuevo" icon="pi pi-plus" actionListener="#{entidadBeans.nuevo()}"
+                                         update=":dialogs:manage-product-content" oncomplete="PF('manageProductDialog').show()"
+                                         styleClass="ui-button-success" style="margin-right: .5rem">
+                            <p:resetInput target=":dialogs:manage-product-content" />
+                        </p:commandButton>
+                        <p:commandButton id="delete-products-button" value="#{entidadBeans.getdeleteButtonMessage()}"
+                                         icon="pi pi-trash" actionListener="#{entidadBeans.deleteSelectedProducts}"
+                                         styleClass="ui-button-danger" disabled="#{!entidadBeans.hasSeleccionadoElementos()}" update="@this">
+                            <p:confirm header="Confirmación" message="¿Eliminar entidades seleccionadas?"
+                                       icon="pi pi-exclamation-triangle" />
+                        </p:commandButton>
+                    </p:toolbarGroup>
+                </p:toolbar>
+
+                <p:dataTable id="dt-entidades" widgetVar="dtEntidades" var="entidad" value="#{entidadBeans.entidades}"
+                             reflow="true" styleClass="products-table" selection="#{entidadBeans.seleccionadas}"
+                             rowKey="#{entidad.idEntidad}" paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
+                    <f:facet name="header">
+                        <div class="products-table-header">
+                            <span style="font-weight: bold">Entidades</span> <span
+                                class="filter-container ui-input-icon-left"> <i class="pi pi-search"></i> <p:inputText
+                                    id="globalFilter" onkeyup="PF('dtEntidades').filter()" placeholder="Buscar" />
+                            </span>
+
+                        </div>
+                    </f:facet>
+
+                    <p:ajax event="rowSelect" update=":form:delete-products-button" />
+                    <p:ajax event="rowUnselect" update=":form:delete-products-button" />
+                    <p:ajax event="rowSelectCheckbox" update=":form:delete-products-button" />
+                    <p:ajax event="rowUnselectCheckbox" update=":form:delete-products-button" />
+                    <p:ajax event="toggleSelect" update=":form:delete-products-button" />
+
+                    <p:column selectionMode="multiple" exportable="false"></p:column>
+
+                    <p:column headerText="ID" sortBy="#{entidad.idEntidad}" filterBy="#{entidad.idEntidad}">
+                        <h:outputText value="#{entidad.idEntidad}" />
+                    </p:column>
+                    <p:column headerText="Nombre" sortBy="#{entidad.nombreEntidad}" filterBy="#{entidad.nombreEntidad}">
+                        <h:outputText value="#{entidad.nombreEntidad}" />
+                    </p:column>
+                    <p:column headerText="Dirección" sortBy="#{entidad.direccionEntidad}">
+                        <h:outputText value="#{entidad.direccionEntidad}" />
+                    </p:column>
+                    <p:column headerText="Telefono" sortBy="#{entidad.notelefono}">
+                        <h:outputText value="#{entidad.notelefono}" />    
+                    </p:column>
+                    <p:column exportable="false">
+                        <p:commandButton icon="pi pi-pencil" update=":dialogs:manage-product-content"
+                                         oncomplete="PF('manageProductDialog').show()"
+                                         styleClass="edit-button rounded-button ui-button-success" process="@this">
+                            <f:setPropertyActionListener value="#{entidad}" target="#{entidadBeans.entidadseleccionada}" />
+                            <p:resetInput target=":dialogs:manage-product-content" />
+                        </p:commandButton>
+                        <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash" process="@this"
+                                         oncomplete="PF('deleteProductDialog').show()">
+                            <f:setPropertyActionListener value="#{entidad}" target="#{entidadBeans.entidadseleccionada}" />
+                        </p:commandButton>
+                    </p:column>
+
+                </p:dataTable>
+            </h:form>
+
+            <h:form id="dialogs">
+                <p:dialog header="Detalles de la Entidad" showEffect="fade" modal="true" widgetVar="manageProductDialog"
+                          responsive="true">
+                    <p:outputPanel id="manage-product-content" class="ui-fluid">
+                        <p:outputPanel rendered="#{not empty entidadBeans.entidadseleccionada}">
+                            <div class="field">
+                                <p:outputLabel for="idEntidad">ID</p:outputLabel>
+                                <p:inputText id="idEntidad" value="#{entidadBeans.entidadseleccionada.idEntidad}" required="true" validatorMessage="ERRO: Número de Telefono Incorrecto"/>
+                            </div>
+                            <div class="field">
+                                <p:outputLabel for="nombreEntidad">Nombre</p:outputLabel>
+                                <p:inputText id="nombreEntidad" value="#{entidadBeans.entidadseleccionada.nombreEntidad}" validatorMessage="ERRO: Número de Telefono Incorrecto"/>
+                            </div>
+                            <div class="field">
+                                <p:outputLabel for="direccionEntidad">Direccion</p:outputLabel>
+                                <p:inputText id="direccionEntidad" value="#{entidadBeans.entidadseleccionada.direccionEntidad}" validatorMessage="ERRO: Número de Telefono Incorrecto"/>
+                            </div>
+                            <div class="field">
+                                <p:outputLabel for="notelefono">Telefono</p:outputLabel>
+                                <p:inputMask id="notelefono" value="#{entidadBeans.entidadseleccionada.notelefono}"  mask="99999999"/>
+
+                            </div>
+                        </p:outputPanel>
+                    </p:outputPanel>
+
+                    <f:facet name="footer">
+                        <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{entidadBeans.guardar}"
+                                         update="manage-product-content" process="manage-product-content @this" />
+                        <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('manageProductDialog').hide()"
+                                         class="ui-button-secondary" type="button" />
+                    </f:facet>
+                </p:dialog>
+
+                <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300"
+                                 message="¿Eliminar la entidad?" header="Confirmar" severity="warn">
+                    <p:commandButton value="SI" icon="pi pi-check" actionListener="#{entidadBeans.deleteProduct}"
+                                     process="@this" oncomplete="PF('deleteProductDialog').hide()" />
+                    <p:commandButton value="NO" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
+                                     onclick="PF('deleteProductDialog').hide()" />
+                </p:confirmDialog>
+
+                <p:confirmDialog global="true" showEffect="fade" width="300">
+                    <p:commandButton value="SI" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+                    <p:commandButton value="NO" type="button" styleClass="ui-confirmdialog-no ui-button-secondary"
+                                     icon="pi pi-times" />
+                </p:confirmDialog>
+            </h:form>
+        </div>
+
+    </h:body>
+
+</html>

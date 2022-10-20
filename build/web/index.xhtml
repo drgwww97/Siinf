@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>Sistema Inventario</title>
+
+        <link rel="stylesheet" href="resources/css/bootstrap.css"/>
+        <link rel="stylesheet" href="resources/css/bootstrap-responsive.css"/>
+        <link rel="stylesheet" href="resources/css/prettyPhoto.css" />
+        <link rel="stylesheet" href="resources/css/flexslider.css" />
+        <link rel="stylesheet" href="resources/css/custom-styles.css"/>
+
+        <link rel="shortcut icon" href="resources/img/icono.jpg"/>
+        <link rel="apple-touch-icon" href="resources/img/apple-touch-icon.png"/>
+        <link rel="apple-touch-icon" sizes="72x72" href="resources/img/apple-touch-icon-72x72.png"/>
+        <link rel="apple-touch-icon" sizes="114x114" href="resources/img/apple-touch-icon-114x114.png"/>
+
+        <script src="resources/js/bootstrap.js"></script>
+        <script src="resources/js/jquery.prettyPhoto.js"></script>
+        <script src="resources/js/jquery.flexslider.js"></script>
+        <script src="resources/js/jquery.custom.js"></script>
+        <script type="text/javascript"/>
+    </h:head>
+    <h:body>
+
+
+        <h:form>
+            <p:growl id="messages"/>
+
+            <p:menubar id="menu-bar">
+                <p:menuitem value="Inicio" icon="pi pi-fw pi-home" />
+                <p:menuitem value="Pc" icon="pi pi-fw pi-desktop"/>
+                <p:menuitem value="Impresora" icon="pi pi-fw pi-print"/>
+                <p:menuitem value="Usuarios" icon="pi pi-fw pi-user"/>
+                <p:submenu label="Administración" icon="pi pi-fw pi-server" >
+                    <p:menuitem value="Area" url="pages/invarea.faces" />
+                    <p:menuitem value="Componentes" />
+                    <p:menuitem value="Departamento" />
+                    <p:menuitem value="Entidad" url="pages/inventidad.faces"/>
+                    <p:menuitem value="Marca" />
+                    <p:menuitem value="Modelo" />
+                    <p:menuitem value="Programas" />
+                    <p:menuitem value="SO" />
+                    <p:submenu label="Tipos de entradas" >
+                        <p:menuitem value="Tipo accesorio" />
+                        <p:menuitem value="Tipo componente" />
+                        <p:menuitem value="Tipo conexión" />
+                        <p:menuitem value="Tipo equipo" />
+                        <p:menuitem value="Tipo modicación" />
+                        <p:menuitem value="Tipo tonner" />
+                    </p:submenu>
+
+                </p:submenu>
+
+                <p:divider layout="vertical"/>
+
+                <f:facet name="options">
+                    <div class="ui-input-icon-left mr-2">
+                        <i class="pi pi-fw pi-search" />
+                        <p:inputText placeholder="Search"/>
+                    </div>
+                    <p:button value="Logout" icon="pi pi-fw pi-sign-out" styleClass="ui-button-info"/>
+                </f:facet>
+            </p:menubar>
+
+        </h:form>
+    </h:body>
+</html>
+
