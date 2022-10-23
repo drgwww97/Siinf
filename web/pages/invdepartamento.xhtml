@@ -1,5 +1,10 @@
-<?xml version='1.0' encoding='UTF-8' ?> 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:p="http://primefaces.org/ui"
@@ -65,35 +70,35 @@
 
     </h:form>
     <h:body>
-        #{areaBeans.init()}
+        #{departamentoBeans.init()}
         <div class="card crud-demo">
             <h:form id="form">
                 <p:growl id="messages" showDetail="true" />
 
                 <p:toolbar>
                     <p:toolbarGroup>
-                        <p:commandButton value="Nuevo" icon="pi pi-plus" actionListener="#{areaBeans.nuevo()}"
+                        <p:commandButton value="Nuevo" icon="pi pi-plus" actionListener="#{departamentoBeans.nuevo()}"
                                          update=":dialogs:manage-product-content" oncomplete="PF('manageProductDialog').show()"
                                          styleClass="ui-button-success" style="margin-right: .5rem">
                             <p:resetInput target=":dialogs:manage-product-content" />
                         </p:commandButton>
-                        <p:commandButton id="delete-products-button" value="#{areaBeans.getdeleteButtonMessage()}"
-                                         icon="pi pi-trash" actionListener="#{areaBeans.deleteSelectedProducts}"
-                                         styleClass="ui-button-danger" disabled="#{!areaBeans.hasSeleccionadoElementos()}" update="@this">
-                            <p:confirm header="Confirmación" message="¿Eliminar areas seleccionadas?"
+                        <p:commandButton id="delete-products-button" value="#{departamentoBeans.getdeleteButtonMessage()}"
+                                         icon="pi pi-trash" actionListener="#{departamentoBeans.deleteSelectedProducts}"
+                                         styleClass="ui-button-danger" disabled="#{!departamentoBeans.hasSeleccionadoElementos()}" update="@this">
+                            <p:confirm header="Confirmación" message="¿Eliminar departamentos seleccionados?"
                                        icon="pi pi-exclamation-triangle" />
                         </p:commandButton>
                     </p:toolbarGroup>
                 </p:toolbar>
 
-                <p:dataTable id="dt-areas" widgetVar="dtAreas" var="area" value="#{areaBeans.areas}"
-                             reflow="true" styleClass="products-table" selection="#{areaBeans.seleccionadas}"
-                             rowKey="#{area.idArea}" paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
+                <p:dataTable id="dt-departamentos" widgetVar="dtDepartamentos" var="departamento" value="#{departamentoBeans.departamentos}"
+                             reflow="true" styleClass="products-table" selection="#{departamentoBeans.seleccionados}"
+                             rowKey="#{departamento.idDepartamento}" paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
                     <f:facet name="header">
                         <div class="products-table-header">
-                            <span style="font-weight: bold">Areas</span> <span
+                            <span style="font-weight: bold">Departamentoa</span> <span
                                 class="filter-container ui-input-icon-left"> <i class="pi pi-search"></i> <p:inputText
-                                    id="globalFilter" onkeyup="PF('dtAreas').filter()" placeholder="Buscar" />
+                                    id="globalFilter" onkeyup="PF('dtDepartamentos').filter()" placeholder="Buscar" />
                             </span>
 
                         </div>
@@ -107,25 +112,25 @@
 
                     <p:column selectionMode="multiple" exportable="false"></p:column>
 
-                    <p:column headerText="ID" sortBy="#{area.idArea}" filterBy="#{area.idArea}">
-                        <h:outputText value="#{area.idArea}" />
+                    <p:column headerText="ID" sortBy="#{departamento.idDepartamento}" filterBy="#{departamento.idDepartamento}">
+                        <h:outputText value="#{departamento.idDepartamento}" />
                     </p:column>
-                    <p:column headerText="Nombre" sortBy="#{area.nombreArea}" filterBy="#{area.nombreArea}">
-                        <h:outputText value="#{area.nombreArea}" />
+                    <p:column headerText="Nombre" sortBy="#{departamento.nombreDepartamento}" filterBy="#{departamento.nombreDepartamento}">
+                        <h:outputText value="#{departamento.nombreDepartamento}" />
                     </p:column>
-                    <p:column headerText="Departamento" sortBy="#{area.departamentoidDepartamento.nombreDepartamento}">
-                        <h:outputText value="#{area.departamentoidDepartamento.nombreDepartamento}" />
+                    <p:column headerText="Entidad" sortBy="#{departamento.entidadidEntidad.nombreEntidad}">
+                        <h:outputText value="#{departamento.entidadidEntidad.nombreEntidad}" />
                     </p:column>
                     <p:column exportable="false">
                         <p:commandButton icon="pi pi-pencil" update=":dialogs:manage-product-content"
                                          oncomplete="PF('manageProductDialog').show()"
                                          styleClass="edit-button rounded-button ui-button-success" process="@this">
-                            <f:setPropertyActionListener value="#{area}" target="#{areaBeans.areaseleccionada}" />
+                            <f:setPropertyActionListener value="#{departamento}" target="#{departamentoBeans.deparatamentoleccionado}" />
                             <p:resetInput target=":dialogs:manage-product-content" />
                         </p:commandButton>
                         <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash" process="@this"
                                          oncomplete="PF('deleteProductDialog').show()">
-                            <f:setPropertyActionListener value="#{area}" target="#{areaBeans.areaseleccionada}" />
+                            <f:setPropertyActionListener value="#{departamento}" target="#{departamentoBeans.deparatamentoleccionado}" />
                         </p:commandButton> 
                     </p:column>
 
@@ -133,17 +138,17 @@
             </h:form>
 
             <h:form id="dialogs">
-                <p:dialog header="Detalles de la Area" showEffect="fade" modal="true" widgetVar="manageProductDialog"
+                <p:dialog header="Detalles del Departamentos" showEffect="fade" modal="true" widgetVar="manageProductDialog"
                           responsive="true">
                     <p:outputPanel id="manage-product-content" class="ui-fluid">
-                        <p:outputPanel rendered="#{not empty areaBeans.areaseleccionada}">
+                        <p:outputPanel rendered="#{not empty departamentoBeans.deparatamentoleccionado}">
                             <div class="field">
-                                <p:outputLabel for="idArea">ID</p:outputLabel>
-                                <p:inputText id="idArea" value="#{areaBeans.areaseleccionada.idArea}" required="true" />
+                                <p:outputLabel for="idDepartamento">ID</p:outputLabel>
+                                <p:inputText id="idDepartamento" value="#{departamentoBeans.deparatamentoleccionado.idDepartamento}" required="true" />
                             </div>
                             <div class="field">
-                                <p:outputLabel for="nombreArea">Nombre</p:outputLabel>
-                                <p:inputText id="nombreArea" value="#{areaBeans.areaseleccionada.nombreArea}" required="true"/>
+                                <p:outputLabel for="nombreDepartamento">Nombre</p:outputLabel>
+                                <p:inputText id="nombreDepartamento" value="#{departamentoBeans.deparatamentoleccionado.nombreDepartamento}" required="true"/>
                             </div>
                             <div class="card">
                                 <h:form>
@@ -152,26 +157,18 @@
 
                                     <h:panelGrid columns="2" cellpadding="7" styleClass="mb-3">
                                         <p:outputLabel for="entidad" value="Entidad"/>
-                                        <p:selectOneMenu id="entidad" value="#{areaBeans.entidad}" style="width:12rem">
+                                        <p:selectOneMenu id="entidad" value="#{departamentoBeans.deparatamentoleccionado.entidadidEntidad}" style="width:12rem">
                                             <f:selectItem itemLabel="Seleccione Entidad" itemValue="" noSelectionOption="true"/>
-                                            <f:selectItems value="#{areaBeans.entidades}"/>
-                                            <p:ajax listener="#{areaBeans.onCountryChange()}" update="departamento"/>
-                                        </p:selectOneMenu>
-                                         <p:outputLabel for="departamento" value="Departamento"/>
-                                        <p:selectOneMenu id="departamento" value="#{areaBeans.departamento}" style="width:12rem">
-                                            <f:selectItem itemLabel="Seleccione Departamento" itemValue="" noSelectionOption="true"/>
-                                            <f:selectItems value="#{areaBeans.departamentos}"/>
+                                            <f:selectItems value="#{departamentoBeans.entidades}"/>
                                         </p:selectOneMenu>
                                     </h:panelGrid>
-
-                                    <p:commandButton value="Submit" update="msgs" action="#{areaBeans.displayLocation}" icon="pi pi-check"/>
-                                </h:form>
+                                  </h:form>
                             </div>
                         </p:outputPanel>
                     </p:outputPanel>
 
                     <f:facet name="footer">
-                        <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{areaBeans.guardar}"
+                        <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{departamentoBeans.guardar}"
                                          update="manage-product-content" process="manage-product-content @this" />
                         <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('manageProductDialog').hide()"
                                          class="ui-button-secondary" type="button" />
@@ -179,8 +176,8 @@
                 </p:dialog>
 
                 <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300"
-                                 message="¿Eliminar la entidad?" header="Confirmar" severity="warn">
-                    <p:commandButton value="SI" icon="pi pi-check" actionListener="#{areaBeans.deleteProduct}"
+                                 message="¿Eliminar el Departamento?" header="Confirmar" severity="warn">
+                    <p:commandButton value="SI" icon="pi pi-check" actionListener="#{departamentoBeans.deleteProduct}"
                                      process="@this" oncomplete="PF('deleteProductDialog').hide()" />
                     <p:commandButton value="NO" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
                                      onclick="PF('deleteProductDialog').hide()" />

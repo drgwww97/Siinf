@@ -151,16 +151,15 @@
                                     <p:growl id="msgs" showDetail="true" skipDetailIfEqualsSummary="true"/>
 
                                     <h:panelGrid columns="2" cellpadding="7" styleClass="mb-3">
-                                        <p:outputLabel for="entidad" value="Country"/>
+                                        <p:outputLabel for="entidad" value="Entidad"/>
                                         <p:selectOneMenu id="entidad" value="#{areaBeans.entidad}" style="width:12rem">
-                                            <f:selectItem itemLabel="Select Country" itemValue="" noSelectionOption="true"/>
+                                            <f:selectItem itemLabel="Seleccione Entidad" itemValue="" noSelectionOption="true"/>
                                             <f:selectItems value="#{areaBeans.entidades}"/>
-                                            <p:ajax listener="#{areaBeans.onCountryChange}" update="city"/>
+                                            <p:ajax listener="#{areaBeans.onCountryChange()}" update="departamento"/>
                                         </p:selectOneMenu>
-                                        <p:commandButton value="Submit" update="city" actionListener="#{areaBeans.onCountryChange}" icon="pi pi-check"/>
-                                        <p:outputLabel for="city" value="City"/>
-                                        <p:selectOneMenu id="city" value="#{areaBeans.departamento}" style="width:12rem">
-                                            <f:selectItem itemLabel="Select City" itemValue="" noSelectionOption="true"/>
+                                         <p:outputLabel for="departamento" value="Departamento"/>
+                                        <p:selectOneMenu id="departamento" value="#{areaBeans.departamento}" style="width:12rem">
+                                            <f:selectItem itemLabel="Seleccione Departamento" itemValue="" noSelectionOption="true"/>
                                             <f:selectItems value="#{areaBeans.departamentos}"/>
                                         </p:selectOneMenu>
                                     </h:panelGrid>
