@@ -150,14 +150,14 @@ and open the template in the editor.
                                 <p:outputLabel for="nombreDepartamento">Nombre</p:outputLabel>
                                 <p:inputText id="nombreDepartamento" value="#{departamentoBeans.deparatamentoleccionado.nombreDepartamento}" required="true"/>
                             </div>
-                            <div class="card">
+                            <div class="field">
                                 <h:form>
                                     <h5 class="mt-0">Advanced</h5>
                                     <p:growl id="msgs" showDetail="true" skipDetailIfEqualsSummary="true"/>
 
                                     <h:panelGrid columns="2" cellpadding="7" styleClass="mb-3">
                                         <p:outputLabel for="entidad" value="Entidad"/>
-                                        <p:selectOneMenu id="entidad" value="#{departamentoBeans.deparatamentoleccionado.entidadidEntidad}" style="width:12rem">
+                                        <p:selectOneMenu id="entidad" value="#{departamentoBeans.entidad}" style="width:12rem">
                                             <f:selectItem itemLabel="Seleccione Entidad" itemValue="" noSelectionOption="true"/>
                                             <f:selectItems value="#{departamentoBeans.entidades}"/>
                                         </p:selectOneMenu>

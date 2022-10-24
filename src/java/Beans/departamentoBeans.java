@@ -29,6 +29,7 @@ public class departamentoBeans {
     public List<Departamento> seleccionados;
     public Departamento deparatamentoleccionado;
     public List<Entidad> entidades;
+    public Entidad entidad;
 
     @PostConstruct
     public void init() {
@@ -69,18 +70,30 @@ public class departamentoBeans {
         this.deparatamentoleccionado = deparatamentoleccionado;
     }
 
+    public Entidad getEntidad() {
+        return entidad;
+    }
+
+    public void setEntidad(Entidad entidad) {
+        this.entidad = entidad;
+    }
+
     public void nuevo() {
         this.deparatamentoleccionado = new Departamento();
     }
 
-    public void guardar() throws Exception {
+    public void guardar() throws NullPointerException, Exception{
+        System.out.println("entida"+ entidad.getNombreEntidad());
         Departamento nuevo = new Departamento();
         System.out.println(this.deparatamentoleccionado.getEntidadidEntidad().getNombreEntidad());
-
+      
         if (!yaexiste()) {
             nuevo.setIdDepartamento(this.deparatamentoleccionado.getIdDepartamento());
             nuevo.setNombreDepartamento(this.deparatamentoleccionado.getNombreDepartamento());
-            nuevo.setEntidadidEntidad(this.deparatamentoleccionado.getEntidadidEntidad());
+            if (this.entidad!=null) {
+                nuevo.setEntidadidEntidad(Ctrl.ctrlEntidad.findEntidad(entidad.getIdEntidad()));
+            }
+            
             Ctrl.ctrlDepartamento.create(nuevo);
             System.out.println("creo");
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Departamento Añadido"));
