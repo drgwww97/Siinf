@@ -5,24 +5,23 @@
  */
 package Controladores;
 
-import Controladores.exceptions.IllegalOrphanException;
 import Controladores.exceptions.NonexistentEntityException;
 import Controladores.exceptions.PreexistingEntityException;
 import Entidades.Login;
+import Entidades.LoginPK;
 import java.io.Serializable;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import Entidades.Usuario;
-import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
 /**
  *
- * @author Dayana
+ * @author David
  */
 public class LoginJpaController implements Serializable {
 
@@ -35,21 +34,11 @@ public class LoginJpaController implements Serializable {
         return emf.createEntityManager();
     }
 
-    public void create(Login login) throws IllegalOrphanException, PreexistingEntityException, Exception {
-        List<String> illegalOrphanMessages = null;
-        Usuario usuarioOrphanCheck = login.getUsuario();
-        if (usuarioOrphanCheck != null) {
-            Login oldLoginOfUsuario = usuarioOrphanCheck.getLogin();
-            if (oldLoginOfUsuario != null) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("The Usuario " + usuarioOrphanCheck + " already has an item of type Login whose usuario column cannot be null. Please make another selection for the usuario field.");
-            }
+    public void create(Login login) throws PreexistingEntityException, Exception {
+        if (login.getLoginPK() == null) {
+            login.setLoginPK(new LoginPK());
         }
-        if (illegalOrphanMessages != null) {
-            throw new IllegalOrphanException(illegalOrphanMessages);
-        }
+        login.getLoginPK().setUsuariousuario(login.getUsuario().getUsuario());
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -61,12 +50,12 @@ public class LoginJpaController implements Serializable {
             }
             em.persist(login);
             if (usuario != null) {
-                usuario.setLogin(login);
+                usuario.getLoginList().add(login);
                 usuario = em.merge(usuario);
             }
             em.getTransaction().commit();
         } catch (Exception ex) {
-            if (findLogin(login.getUsuariousuario()) != null) {
+            if (findLogin(login.getLoginPK()) != null) {
                 throw new PreexistingEntityException("Login " + login + " already exists.", ex);
             }
             throw ex;
@@ -77,45 +66,33 @@ public class LoginJpaController implements Serializable {
         }
     }
 
-    public void edit(Login login) throws IllegalOrphanException, NonexistentEntityException, Exception {
+    public void edit(Login login) throws NonexistentEntityException, Exception {
+        login.getLoginPK().setUsuariousuario(login.getUsuario().getUsuario());
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            Login persistentLogin = em.find(Login.class, login.getUsuariousuario());
+            Login persistentLogin = em.find(Login.class, login.getLoginPK());
             Usuario usuarioOld = persistentLogin.getUsuario();
             Usuario usuarioNew = login.getUsuario();
-            List<String> illegalOrphanMessages = null;
-            if (usuarioNew != null && !usuarioNew.equals(usuarioOld)) {
-                Login oldLoginOfUsuario = usuarioNew.getLogin();
-                if (oldLoginOfUsuario != null) {
-                    if (illegalOrphanMessages == null) {
-                        illegalOrphanMessages = new ArrayList<String>();
-                    }
-                    illegalOrphanMessages.add("The Usuario " + usuarioNew + " already has an item of type Login whose usuario column cannot be null. Please make another selection for the usuario field.");
-                }
-            }
-            if (illegalOrphanMessages != null) {
-                throw new IllegalOrphanException(illegalOrphanMessages);
-            }
             if (usuarioNew != null) {
                 usuarioNew = em.getReference(usuarioNew.getClass(), usuarioNew.getUsuario());
                 login.setUsuario(usuarioNew);
             }
             login = em.merge(login);
             if (usuarioOld != null && !usuarioOld.equals(usuarioNew)) {
-                usuarioOld.setLogin(null);
+                usuarioOld.getLoginList().remove(login);
                 usuarioOld = em.merge(usuarioOld);
             }
             if (usuarioNew != null && !usuarioNew.equals(usuarioOld)) {
-                usuarioNew.setLogin(login);
+                usuarioNew.getLoginList().add(login);
                 usuarioNew = em.merge(usuarioNew);
             }
             em.getTransaction().commit();
         } catch (Exception ex) {
             String msg = ex.getLocalizedMessage();
             if (msg == null || msg.length() == 0) {
-                String id = login.getUsuariousuario();
+                LoginPK id = login.getLoginPK();
                 if (findLogin(id) == null) {
                     throw new NonexistentEntityException("The login with id " + id + " no longer exists.");
                 }
@@ -128,7 +105,7 @@ public class LoginJpaController implements Serializable {
         }
     }
 
-    public void destroy(String id) throws NonexistentEntityException {
+    public void destroy(LoginPK id) throws NonexistentEntityException {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -136,13 +113,13 @@ public class LoginJpaController implements Serializable {
             Login login;
             try {
                 login = em.getReference(Login.class, id);
-                login.getUsuariousuario();
+                login.getLoginPK();
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The login with id " + id + " no longer exists.", enfe);
             }
             Usuario usuario = login.getUsuario();
             if (usuario != null) {
-                usuario.setLogin(null);
+                usuario.getLoginList().remove(login);
                 usuario = em.merge(usuario);
             }
             em.remove(login);
@@ -178,7 +155,7 @@ public class LoginJpaController implements Serializable {
         }
     }
 
-    public Login findLogin(String id) {
+    public Login findLogin(LoginPK id) {
         EntityManager em = getEntityManager();
         try {
             return em.find(Login.class, id);

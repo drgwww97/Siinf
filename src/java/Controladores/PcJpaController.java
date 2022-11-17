@@ -12,25 +12,27 @@ import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import Entidades.Modificacion;
-import Entidades.Accesorio;
 import Entidades.Area;
-import Entidades.Componente;
 import Entidades.Departamento;
 import Entidades.Entidad;
+import Entidades.Estado;
 import Entidades.Marca;
 import Entidades.Modelo;
-import Entidades.Pc;
-import Entidades.Programas;
 import Entidades.SO;
 import Entidades.TEquipo;
+import Entidades.Programas;
+import java.util.ArrayList;
 import java.util.List;
+import Entidades.Accesorio;
+import Entidades.Componente;
+import Entidades.Modificacion;
+import Entidades.Pc;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
 /**
  *
- * @author Dayana
+ * @author David
  */
 public class PcJpaController implements Serializable {
 
@@ -44,29 +46,26 @@ public class PcJpaController implements Serializable {
     }
 
     public void create(Pc pc) throws PreexistingEntityException, Exception {
+        if (pc.getProgramasList() == null) {
+            pc.setProgramasList(new ArrayList<Programas>());
+        }
+        if (pc.getAccesorioList() == null) {
+            pc.setAccesorioList(new ArrayList<Accesorio>());
+        }
+        if (pc.getComponenteList() == null) {
+            pc.setComponenteList(new ArrayList<Componente>());
+        }
+        if (pc.getModificacionList() == null) {
+            pc.setModificacionList(new ArrayList<Modificacion>());
+        }
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            Modificacion modificaciontModificacionidTmodificacion = pc.getModificaciontModificacionidTmodificacion();
-            if (modificaciontModificacionidTmodificacion != null) {
-                modificaciontModificacionidTmodificacion = em.getReference(modificaciontModificacionidTmodificacion.getClass(), modificaciontModificacionidTmodificacion.getTModificacionidTmodificacion());
-                pc.setModificaciontModificacionidTmodificacion(modificaciontModificacionidTmodificacion);
-            }
-            Accesorio accesoriosnAccesorio = pc.getAccesoriosnAccesorio();
-            if (accesoriosnAccesorio != null) {
-                accesoriosnAccesorio = em.getReference(accesoriosnAccesorio.getClass(), accesoriosnAccesorio.getSnAccesorio());
-                pc.setAccesoriosnAccesorio(accesoriosnAccesorio);
-            }
             Area areaidArea = pc.getAreaidArea();
             if (areaidArea != null) {
                 areaidArea = em.getReference(areaidArea.getClass(), areaidArea.getIdArea());
                 pc.setAreaidArea(areaidArea);
-            }
-            Componente componentesnComponente = pc.getComponentesnComponente();
-            if (componentesnComponente != null) {
-                componentesnComponente = em.getReference(componentesnComponente.getClass(), componentesnComponente.getSnComponente());
-                pc.setComponentesnComponente(componentesnComponente);
             }
             Departamento departamentoidDepartamento = pc.getDepartamentoidDepartamento();
             if (departamentoidDepartamento != null) {
@@ -78,6 +77,11 @@ public class PcJpaController implements Serializable {
                 entidadidEntidad = em.getReference(entidadidEntidad.getClass(), entidadidEntidad.getIdEntidad());
                 pc.setEntidadidEntidad(entidadidEntidad);
             }
+            Estado estadoidEstado = pc.getEstadoidEstado();
+            if (estadoidEstado != null) {
+                estadoidEstado = em.getReference(estadoidEstado.getClass(), estadoidEstado.getIdEstado());
+                pc.setEstadoidEstado(estadoidEstado);
+            }
             Marca marcaidMarca = pc.getMarcaidMarca();
             if (marcaidMarca != null) {
                 marcaidMarca = em.getReference(marcaidMarca.getClass(), marcaidMarca.getIdMarca());
@@ -87,11 +91,6 @@ public class PcJpaController implements Serializable {
             if (modeloidModelo != null) {
                 modeloidModelo = em.getReference(modeloidModelo.getClass(), modeloidModelo.getIdModelo());
                 pc.setModeloidModelo(modeloidModelo);
-            }
-            Programas programasidProgramas = pc.getProgramasidProgramas();
-            if (programasidProgramas != null) {
-                programasidProgramas = em.getReference(programasidProgramas.getClass(), programasidProgramas.getIdProgramas());
-                pc.setProgramasidProgramas(programasidProgramas);
             }
             SO SOidSo = pc.getSOidSo();
             if (SOidSo != null) {
@@ -103,22 +102,34 @@ public class PcJpaController implements Serializable {
                 TEquipoidEquipo = em.getReference(TEquipoidEquipo.getClass(), TEquipoidEquipo.getIdEquipo());
                 pc.setTEquipoidEquipo(TEquipoidEquipo);
             }
+            List<Programas> attachedProgramasList = new ArrayList<Programas>();
+            for (Programas programasListProgramasToAttach : pc.getProgramasList()) {
+                programasListProgramasToAttach = em.getReference(programasListProgramasToAttach.getClass(), programasListProgramasToAttach.getIdProgramas());
+                attachedProgramasList.add(programasListProgramasToAttach);
+            }
+            pc.setProgramasList(attachedProgramasList);
+            List<Accesorio> attachedAccesorioList = new ArrayList<Accesorio>();
+            for (Accesorio accesorioListAccesorioToAttach : pc.getAccesorioList()) {
+                accesorioListAccesorioToAttach = em.getReference(accesorioListAccesorioToAttach.getClass(), accesorioListAccesorioToAttach.getSnAccesorio());
+                attachedAccesorioList.add(accesorioListAccesorioToAttach);
+            }
+            pc.setAccesorioList(attachedAccesorioList);
+            List<Componente> attachedComponenteList = new ArrayList<Componente>();
+            for (Componente componenteListComponenteToAttach : pc.getComponenteList()) {
+                componenteListComponenteToAttach = em.getReference(componenteListComponenteToAttach.getClass(), componenteListComponenteToAttach.getSnComponente());
+                attachedComponenteList.add(componenteListComponenteToAttach);
+            }
+            pc.setComponenteList(attachedComponenteList);
+            List<Modificacion> attachedModificacionList = new ArrayList<Modificacion>();
+            for (Modificacion modificacionListModificacionToAttach : pc.getModificacionList()) {
+                modificacionListModificacionToAttach = em.getReference(modificacionListModificacionToAttach.getClass(), modificacionListModificacionToAttach.getTModificacionidTmodificacion());
+                attachedModificacionList.add(modificacionListModificacionToAttach);
+            }
+            pc.setModificacionList(attachedModificacionList);
             em.persist(pc);
-            if (modificaciontModificacionidTmodificacion != null) {
-                modificaciontModificacionidTmodificacion.getPcList().add(pc);
-                modificaciontModificacionidTmodificacion = em.merge(modificaciontModificacionidTmodificacion);
-            }
-            if (accesoriosnAccesorio != null) {
-                accesoriosnAccesorio.getPcList().add(pc);
-                accesoriosnAccesorio = em.merge(accesoriosnAccesorio);
-            }
             if (areaidArea != null) {
                 areaidArea.getPcList().add(pc);
                 areaidArea = em.merge(areaidArea);
-            }
-            if (componentesnComponente != null) {
-                componentesnComponente.getPcList().add(pc);
-                componentesnComponente = em.merge(componentesnComponente);
             }
             if (departamentoidDepartamento != null) {
                 departamentoidDepartamento.getPcList().add(pc);
@@ -128,6 +139,10 @@ public class PcJpaController implements Serializable {
                 entidadidEntidad.getPcList().add(pc);
                 entidadidEntidad = em.merge(entidadidEntidad);
             }
+            if (estadoidEstado != null) {
+                estadoidEstado.getPcList().add(pc);
+                estadoidEstado = em.merge(estadoidEstado);
+            }
             if (marcaidMarca != null) {
                 marcaidMarca.getPcList().add(pc);
                 marcaidMarca = em.merge(marcaidMarca);
@@ -136,10 +151,6 @@ public class PcJpaController implements Serializable {
                 modeloidModelo.getPcList().add(pc);
                 modeloidModelo = em.merge(modeloidModelo);
             }
-            if (programasidProgramas != null) {
-                programasidProgramas.getPcList().add(pc);
-                programasidProgramas = em.merge(programasidProgramas);
-            }
             if (SOidSo != null) {
                 SOidSo.getPcList().add(pc);
                 SOidSo = em.merge(SOidSo);
@@ -147,6 +158,37 @@ public class PcJpaController implements Serializable {
             if (TEquipoidEquipo != null) {
                 TEquipoidEquipo.getPcList().add(pc);
                 TEquipoidEquipo = em.merge(TEquipoidEquipo);
+            }
+            for (Programas programasListProgramas : pc.getProgramasList()) {
+                programasListProgramas.getPcList().add(pc);
+                programasListProgramas = em.merge(programasListProgramas);
+            }
+            for (Accesorio accesorioListAccesorio : pc.getAccesorioList()) {
+                Pc oldPcnoInventarioOfAccesorioListAccesorio = accesorioListAccesorio.getPcnoInventario();
+                accesorioListAccesorio.setPcnoInventario(pc);
+                accesorioListAccesorio = em.merge(accesorioListAccesorio);
+                if (oldPcnoInventarioOfAccesorioListAccesorio != null) {
+                    oldPcnoInventarioOfAccesorioListAccesorio.getAccesorioList().remove(accesorioListAccesorio);
+                    oldPcnoInventarioOfAccesorioListAccesorio = em.merge(oldPcnoInventarioOfAccesorioListAccesorio);
+                }
+            }
+            for (Componente componenteListComponente : pc.getComponenteList()) {
+                Pc oldPcnoInventarioOfComponenteListComponente = componenteListComponente.getPcnoInventario();
+                componenteListComponente.setPcnoInventario(pc);
+                componenteListComponente = em.merge(componenteListComponente);
+                if (oldPcnoInventarioOfComponenteListComponente != null) {
+                    oldPcnoInventarioOfComponenteListComponente.getComponenteList().remove(componenteListComponente);
+                    oldPcnoInventarioOfComponenteListComponente = em.merge(oldPcnoInventarioOfComponenteListComponente);
+                }
+            }
+            for (Modificacion modificacionListModificacion : pc.getModificacionList()) {
+                Pc oldPcnoInventarioOfModificacionListModificacion = modificacionListModificacion.getPcnoInventario();
+                modificacionListModificacion.setPcnoInventario(pc);
+                modificacionListModificacion = em.merge(modificacionListModificacion);
+                if (oldPcnoInventarioOfModificacionListModificacion != null) {
+                    oldPcnoInventarioOfModificacionListModificacion.getModificacionList().remove(modificacionListModificacion);
+                    oldPcnoInventarioOfModificacionListModificacion = em.merge(oldPcnoInventarioOfModificacionListModificacion);
+                }
             }
             em.getTransaction().commit();
         } catch (Exception ex) {
@@ -167,43 +209,33 @@ public class PcJpaController implements Serializable {
             em = getEntityManager();
             em.getTransaction().begin();
             Pc persistentPc = em.find(Pc.class, pc.getNoInventario());
-            Modificacion modificaciontModificacionidTmodificacionOld = persistentPc.getModificaciontModificacionidTmodificacion();
-            Modificacion modificaciontModificacionidTmodificacionNew = pc.getModificaciontModificacionidTmodificacion();
-            Accesorio accesoriosnAccesorioOld = persistentPc.getAccesoriosnAccesorio();
-            Accesorio accesoriosnAccesorioNew = pc.getAccesoriosnAccesorio();
             Area areaidAreaOld = persistentPc.getAreaidArea();
             Area areaidAreaNew = pc.getAreaidArea();
-            Componente componentesnComponenteOld = persistentPc.getComponentesnComponente();
-            Componente componentesnComponenteNew = pc.getComponentesnComponente();
             Departamento departamentoidDepartamentoOld = persistentPc.getDepartamentoidDepartamento();
             Departamento departamentoidDepartamentoNew = pc.getDepartamentoidDepartamento();
             Entidad entidadidEntidadOld = persistentPc.getEntidadidEntidad();
             Entidad entidadidEntidadNew = pc.getEntidadidEntidad();
+            Estado estadoidEstadoOld = persistentPc.getEstadoidEstado();
+            Estado estadoidEstadoNew = pc.getEstadoidEstado();
             Marca marcaidMarcaOld = persistentPc.getMarcaidMarca();
             Marca marcaidMarcaNew = pc.getMarcaidMarca();
             Modelo modeloidModeloOld = persistentPc.getModeloidModelo();
             Modelo modeloidModeloNew = pc.getModeloidModelo();
-            Programas programasidProgramasOld = persistentPc.getProgramasidProgramas();
-            Programas programasidProgramasNew = pc.getProgramasidProgramas();
             SO SOidSoOld = persistentPc.getSOidSo();
             SO SOidSoNew = pc.getSOidSo();
             TEquipo TEquipoidEquipoOld = persistentPc.getTEquipoidEquipo();
             TEquipo TEquipoidEquipoNew = pc.getTEquipoidEquipo();
-            if (modificaciontModificacionidTmodificacionNew != null) {
-                modificaciontModificacionidTmodificacionNew = em.getReference(modificaciontModificacionidTmodificacionNew.getClass(), modificaciontModificacionidTmodificacionNew.getTModificacionidTmodificacion());
-                pc.setModificaciontModificacionidTmodificacion(modificaciontModificacionidTmodificacionNew);
-            }
-            if (accesoriosnAccesorioNew != null) {
-                accesoriosnAccesorioNew = em.getReference(accesoriosnAccesorioNew.getClass(), accesoriosnAccesorioNew.getSnAccesorio());
-                pc.setAccesoriosnAccesorio(accesoriosnAccesorioNew);
-            }
+            List<Programas> programasListOld = persistentPc.getProgramasList();
+            List<Programas> programasListNew = pc.getProgramasList();
+            List<Accesorio> accesorioListOld = persistentPc.getAccesorioList();
+            List<Accesorio> accesorioListNew = pc.getAccesorioList();
+            List<Componente> componenteListOld = persistentPc.getComponenteList();
+            List<Componente> componenteListNew = pc.getComponenteList();
+            List<Modificacion> modificacionListOld = persistentPc.getModificacionList();
+            List<Modificacion> modificacionListNew = pc.getModificacionList();
             if (areaidAreaNew != null) {
                 areaidAreaNew = em.getReference(areaidAreaNew.getClass(), areaidAreaNew.getIdArea());
                 pc.setAreaidArea(areaidAreaNew);
-            }
-            if (componentesnComponenteNew != null) {
-                componentesnComponenteNew = em.getReference(componentesnComponenteNew.getClass(), componentesnComponenteNew.getSnComponente());
-                pc.setComponentesnComponente(componentesnComponenteNew);
             }
             if (departamentoidDepartamentoNew != null) {
                 departamentoidDepartamentoNew = em.getReference(departamentoidDepartamentoNew.getClass(), departamentoidDepartamentoNew.getIdDepartamento());
@@ -213,6 +245,10 @@ public class PcJpaController implements Serializable {
                 entidadidEntidadNew = em.getReference(entidadidEntidadNew.getClass(), entidadidEntidadNew.getIdEntidad());
                 pc.setEntidadidEntidad(entidadidEntidadNew);
             }
+            if (estadoidEstadoNew != null) {
+                estadoidEstadoNew = em.getReference(estadoidEstadoNew.getClass(), estadoidEstadoNew.getIdEstado());
+                pc.setEstadoidEstado(estadoidEstadoNew);
+            }
             if (marcaidMarcaNew != null) {
                 marcaidMarcaNew = em.getReference(marcaidMarcaNew.getClass(), marcaidMarcaNew.getIdMarca());
                 pc.setMarcaidMarca(marcaidMarcaNew);
@@ -220,10 +256,6 @@ public class PcJpaController implements Serializable {
             if (modeloidModeloNew != null) {
                 modeloidModeloNew = em.getReference(modeloidModeloNew.getClass(), modeloidModeloNew.getIdModelo());
                 pc.setModeloidModelo(modeloidModeloNew);
-            }
-            if (programasidProgramasNew != null) {
-                programasidProgramasNew = em.getReference(programasidProgramasNew.getClass(), programasidProgramasNew.getIdProgramas());
-                pc.setProgramasidProgramas(programasidProgramasNew);
             }
             if (SOidSoNew != null) {
                 SOidSoNew = em.getReference(SOidSoNew.getClass(), SOidSoNew.getIdSo());
@@ -233,23 +265,35 @@ public class PcJpaController implements Serializable {
                 TEquipoidEquipoNew = em.getReference(TEquipoidEquipoNew.getClass(), TEquipoidEquipoNew.getIdEquipo());
                 pc.setTEquipoidEquipo(TEquipoidEquipoNew);
             }
+            List<Programas> attachedProgramasListNew = new ArrayList<Programas>();
+            for (Programas programasListNewProgramasToAttach : programasListNew) {
+                programasListNewProgramasToAttach = em.getReference(programasListNewProgramasToAttach.getClass(), programasListNewProgramasToAttach.getIdProgramas());
+                attachedProgramasListNew.add(programasListNewProgramasToAttach);
+            }
+            programasListNew = attachedProgramasListNew;
+            pc.setProgramasList(programasListNew);
+            List<Accesorio> attachedAccesorioListNew = new ArrayList<Accesorio>();
+            for (Accesorio accesorioListNewAccesorioToAttach : accesorioListNew) {
+                accesorioListNewAccesorioToAttach = em.getReference(accesorioListNewAccesorioToAttach.getClass(), accesorioListNewAccesorioToAttach.getSnAccesorio());
+                attachedAccesorioListNew.add(accesorioListNewAccesorioToAttach);
+            }
+            accesorioListNew = attachedAccesorioListNew;
+            pc.setAccesorioList(accesorioListNew);
+            List<Componente> attachedComponenteListNew = new ArrayList<Componente>();
+            for (Componente componenteListNewComponenteToAttach : componenteListNew) {
+                componenteListNewComponenteToAttach = em.getReference(componenteListNewComponenteToAttach.getClass(), componenteListNewComponenteToAttach.getSnComponente());
+                attachedComponenteListNew.add(componenteListNewComponenteToAttach);
+            }
+            componenteListNew = attachedComponenteListNew;
+            pc.setComponenteList(componenteListNew);
+            List<Modificacion> attachedModificacionListNew = new ArrayList<Modificacion>();
+            for (Modificacion modificacionListNewModificacionToAttach : modificacionListNew) {
+                modificacionListNewModificacionToAttach = em.getReference(modificacionListNewModificacionToAttach.getClass(), modificacionListNewModificacionToAttach.getTModificacionidTmodificacion());
+                attachedModificacionListNew.add(modificacionListNewModificacionToAttach);
+            }
+            modificacionListNew = attachedModificacionListNew;
+            pc.setModificacionList(modificacionListNew);
             pc = em.merge(pc);
-            if (modificaciontModificacionidTmodificacionOld != null && !modificaciontModificacionidTmodificacionOld.equals(modificaciontModificacionidTmodificacionNew)) {
-                modificaciontModificacionidTmodificacionOld.getPcList().remove(pc);
-                modificaciontModificacionidTmodificacionOld = em.merge(modificaciontModificacionidTmodificacionOld);
-            }
-            if (modificaciontModificacionidTmodificacionNew != null && !modificaciontModificacionidTmodificacionNew.equals(modificaciontModificacionidTmodificacionOld)) {
-                modificaciontModificacionidTmodificacionNew.getPcList().add(pc);
-                modificaciontModificacionidTmodificacionNew = em.merge(modificaciontModificacionidTmodificacionNew);
-            }
-            if (accesoriosnAccesorioOld != null && !accesoriosnAccesorioOld.equals(accesoriosnAccesorioNew)) {
-                accesoriosnAccesorioOld.getPcList().remove(pc);
-                accesoriosnAccesorioOld = em.merge(accesoriosnAccesorioOld);
-            }
-            if (accesoriosnAccesorioNew != null && !accesoriosnAccesorioNew.equals(accesoriosnAccesorioOld)) {
-                accesoriosnAccesorioNew.getPcList().add(pc);
-                accesoriosnAccesorioNew = em.merge(accesoriosnAccesorioNew);
-            }
             if (areaidAreaOld != null && !areaidAreaOld.equals(areaidAreaNew)) {
                 areaidAreaOld.getPcList().remove(pc);
                 areaidAreaOld = em.merge(areaidAreaOld);
@@ -257,14 +301,6 @@ public class PcJpaController implements Serializable {
             if (areaidAreaNew != null && !areaidAreaNew.equals(areaidAreaOld)) {
                 areaidAreaNew.getPcList().add(pc);
                 areaidAreaNew = em.merge(areaidAreaNew);
-            }
-            if (componentesnComponenteOld != null && !componentesnComponenteOld.equals(componentesnComponenteNew)) {
-                componentesnComponenteOld.getPcList().remove(pc);
-                componentesnComponenteOld = em.merge(componentesnComponenteOld);
-            }
-            if (componentesnComponenteNew != null && !componentesnComponenteNew.equals(componentesnComponenteOld)) {
-                componentesnComponenteNew.getPcList().add(pc);
-                componentesnComponenteNew = em.merge(componentesnComponenteNew);
             }
             if (departamentoidDepartamentoOld != null && !departamentoidDepartamentoOld.equals(departamentoidDepartamentoNew)) {
                 departamentoidDepartamentoOld.getPcList().remove(pc);
@@ -282,6 +318,14 @@ public class PcJpaController implements Serializable {
                 entidadidEntidadNew.getPcList().add(pc);
                 entidadidEntidadNew = em.merge(entidadidEntidadNew);
             }
+            if (estadoidEstadoOld != null && !estadoidEstadoOld.equals(estadoidEstadoNew)) {
+                estadoidEstadoOld.getPcList().remove(pc);
+                estadoidEstadoOld = em.merge(estadoidEstadoOld);
+            }
+            if (estadoidEstadoNew != null && !estadoidEstadoNew.equals(estadoidEstadoOld)) {
+                estadoidEstadoNew.getPcList().add(pc);
+                estadoidEstadoNew = em.merge(estadoidEstadoNew);
+            }
             if (marcaidMarcaOld != null && !marcaidMarcaOld.equals(marcaidMarcaNew)) {
                 marcaidMarcaOld.getPcList().remove(pc);
                 marcaidMarcaOld = em.merge(marcaidMarcaOld);
@@ -298,14 +342,6 @@ public class PcJpaController implements Serializable {
                 modeloidModeloNew.getPcList().add(pc);
                 modeloidModeloNew = em.merge(modeloidModeloNew);
             }
-            if (programasidProgramasOld != null && !programasidProgramasOld.equals(programasidProgramasNew)) {
-                programasidProgramasOld.getPcList().remove(pc);
-                programasidProgramasOld = em.merge(programasidProgramasOld);
-            }
-            if (programasidProgramasNew != null && !programasidProgramasNew.equals(programasidProgramasOld)) {
-                programasidProgramasNew.getPcList().add(pc);
-                programasidProgramasNew = em.merge(programasidProgramasNew);
-            }
             if (SOidSoOld != null && !SOidSoOld.equals(SOidSoNew)) {
                 SOidSoOld.getPcList().remove(pc);
                 SOidSoOld = em.merge(SOidSoOld);
@@ -321,6 +357,69 @@ public class PcJpaController implements Serializable {
             if (TEquipoidEquipoNew != null && !TEquipoidEquipoNew.equals(TEquipoidEquipoOld)) {
                 TEquipoidEquipoNew.getPcList().add(pc);
                 TEquipoidEquipoNew = em.merge(TEquipoidEquipoNew);
+            }
+            for (Programas programasListOldProgramas : programasListOld) {
+                if (!programasListNew.contains(programasListOldProgramas)) {
+                    programasListOldProgramas.getPcList().remove(pc);
+                    programasListOldProgramas = em.merge(programasListOldProgramas);
+                }
+            }
+            for (Programas programasListNewProgramas : programasListNew) {
+                if (!programasListOld.contains(programasListNewProgramas)) {
+                    programasListNewProgramas.getPcList().add(pc);
+                    programasListNewProgramas = em.merge(programasListNewProgramas);
+                }
+            }
+            for (Accesorio accesorioListOldAccesorio : accesorioListOld) {
+                if (!accesorioListNew.contains(accesorioListOldAccesorio)) {
+                    accesorioListOldAccesorio.setPcnoInventario(null);
+                    accesorioListOldAccesorio = em.merge(accesorioListOldAccesorio);
+                }
+            }
+            for (Accesorio accesorioListNewAccesorio : accesorioListNew) {
+                if (!accesorioListOld.contains(accesorioListNewAccesorio)) {
+                    Pc oldPcnoInventarioOfAccesorioListNewAccesorio = accesorioListNewAccesorio.getPcnoInventario();
+                    accesorioListNewAccesorio.setPcnoInventario(pc);
+                    accesorioListNewAccesorio = em.merge(accesorioListNewAccesorio);
+                    if (oldPcnoInventarioOfAccesorioListNewAccesorio != null && !oldPcnoInventarioOfAccesorioListNewAccesorio.equals(pc)) {
+                        oldPcnoInventarioOfAccesorioListNewAccesorio.getAccesorioList().remove(accesorioListNewAccesorio);
+                        oldPcnoInventarioOfAccesorioListNewAccesorio = em.merge(oldPcnoInventarioOfAccesorioListNewAccesorio);
+                    }
+                }
+            }
+            for (Componente componenteListOldComponente : componenteListOld) {
+                if (!componenteListNew.contains(componenteListOldComponente)) {
+                    componenteListOldComponente.setPcnoInventario(null);
+                    componenteListOldComponente = em.merge(componenteListOldComponente);
+                }
+            }
+            for (Componente componenteListNewComponente : componenteListNew) {
+                if (!componenteListOld.contains(componenteListNewComponente)) {
+                    Pc oldPcnoInventarioOfComponenteListNewComponente = componenteListNewComponente.getPcnoInventario();
+                    componenteListNewComponente.setPcnoInventario(pc);
+                    componenteListNewComponente = em.merge(componenteListNewComponente);
+                    if (oldPcnoInventarioOfComponenteListNewComponente != null && !oldPcnoInventarioOfComponenteListNewComponente.equals(pc)) {
+                        oldPcnoInventarioOfComponenteListNewComponente.getComponenteList().remove(componenteListNewComponente);
+                        oldPcnoInventarioOfComponenteListNewComponente = em.merge(oldPcnoInventarioOfComponenteListNewComponente);
+                    }
+                }
+            }
+            for (Modificacion modificacionListOldModificacion : modificacionListOld) {
+                if (!modificacionListNew.contains(modificacionListOldModificacion)) {
+                    modificacionListOldModificacion.setPcnoInventario(null);
+                    modificacionListOldModificacion = em.merge(modificacionListOldModificacion);
+                }
+            }
+            for (Modificacion modificacionListNewModificacion : modificacionListNew) {
+                if (!modificacionListOld.contains(modificacionListNewModificacion)) {
+                    Pc oldPcnoInventarioOfModificacionListNewModificacion = modificacionListNewModificacion.getPcnoInventario();
+                    modificacionListNewModificacion.setPcnoInventario(pc);
+                    modificacionListNewModificacion = em.merge(modificacionListNewModificacion);
+                    if (oldPcnoInventarioOfModificacionListNewModificacion != null && !oldPcnoInventarioOfModificacionListNewModificacion.equals(pc)) {
+                        oldPcnoInventarioOfModificacionListNewModificacion.getModificacionList().remove(modificacionListNewModificacion);
+                        oldPcnoInventarioOfModificacionListNewModificacion = em.merge(oldPcnoInventarioOfModificacionListNewModificacion);
+                    }
+                }
             }
             em.getTransaction().commit();
         } catch (Exception ex) {
@@ -351,25 +450,10 @@ public class PcJpaController implements Serializable {
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The pc with id " + id + " no longer exists.", enfe);
             }
-            Modificacion modificaciontModificacionidTmodificacion = pc.getModificaciontModificacionidTmodificacion();
-            if (modificaciontModificacionidTmodificacion != null) {
-                modificaciontModificacionidTmodificacion.getPcList().remove(pc);
-                modificaciontModificacionidTmodificacion = em.merge(modificaciontModificacionidTmodificacion);
-            }
-            Accesorio accesoriosnAccesorio = pc.getAccesoriosnAccesorio();
-            if (accesoriosnAccesorio != null) {
-                accesoriosnAccesorio.getPcList().remove(pc);
-                accesoriosnAccesorio = em.merge(accesoriosnAccesorio);
-            }
             Area areaidArea = pc.getAreaidArea();
             if (areaidArea != null) {
                 areaidArea.getPcList().remove(pc);
                 areaidArea = em.merge(areaidArea);
-            }
-            Componente componentesnComponente = pc.getComponentesnComponente();
-            if (componentesnComponente != null) {
-                componentesnComponente.getPcList().remove(pc);
-                componentesnComponente = em.merge(componentesnComponente);
             }
             Departamento departamentoidDepartamento = pc.getDepartamentoidDepartamento();
             if (departamentoidDepartamento != null) {
@@ -381,6 +465,11 @@ public class PcJpaController implements Serializable {
                 entidadidEntidad.getPcList().remove(pc);
                 entidadidEntidad = em.merge(entidadidEntidad);
             }
+            Estado estadoidEstado = pc.getEstadoidEstado();
+            if (estadoidEstado != null) {
+                estadoidEstado.getPcList().remove(pc);
+                estadoidEstado = em.merge(estadoidEstado);
+            }
             Marca marcaidMarca = pc.getMarcaidMarca();
             if (marcaidMarca != null) {
                 marcaidMarca.getPcList().remove(pc);
@@ -391,11 +480,6 @@ public class PcJpaController implements Serializable {
                 modeloidModelo.getPcList().remove(pc);
                 modeloidModelo = em.merge(modeloidModelo);
             }
-            Programas programasidProgramas = pc.getProgramasidProgramas();
-            if (programasidProgramas != null) {
-                programasidProgramas.getPcList().remove(pc);
-                programasidProgramas = em.merge(programasidProgramas);
-            }
             SO SOidSo = pc.getSOidSo();
             if (SOidSo != null) {
                 SOidSo.getPcList().remove(pc);
@@ -405,6 +489,26 @@ public class PcJpaController implements Serializable {
             if (TEquipoidEquipo != null) {
                 TEquipoidEquipo.getPcList().remove(pc);
                 TEquipoidEquipo = em.merge(TEquipoidEquipo);
+            }
+            List<Programas> programasList = pc.getProgramasList();
+            for (Programas programasListProgramas : programasList) {
+                programasListProgramas.getPcList().remove(pc);
+                programasListProgramas = em.merge(programasListProgramas);
+            }
+            List<Accesorio> accesorioList = pc.getAccesorioList();
+            for (Accesorio accesorioListAccesorio : accesorioList) {
+                accesorioListAccesorio.setPcnoInventario(null);
+                accesorioListAccesorio = em.merge(accesorioListAccesorio);
+            }
+            List<Componente> componenteList = pc.getComponenteList();
+            for (Componente componenteListComponente : componenteList) {
+                componenteListComponente.setPcnoInventario(null);
+                componenteListComponente = em.merge(componenteListComponente);
+            }
+            List<Modificacion> modificacionList = pc.getModificacionList();
+            for (Modificacion modificacionListModificacion : modificacionList) {
+                modificacionListModificacion.setPcnoInventario(null);
+                modificacionListModificacion = em.merge(modificacionListModificacion);
             }
             em.remove(pc);
             em.getTransaction().commit();

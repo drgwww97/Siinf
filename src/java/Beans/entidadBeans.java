@@ -9,10 +9,15 @@ import Controladores.exceptions.IllegalOrphanException;
 import Controladores.exceptions.NonexistentEntityException;
 import Entidades.Entidad;
 import java.io.Serializable;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
+
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
+
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import org.primefaces.PrimeFaces;
@@ -22,16 +27,19 @@ import org.primefaces.PrimeFaces;
  * @author David Ruiz
  */
 @ManagedBean
+
 @ViewScoped
+
 public class entidadBeans implements Serializable {
 
     public List<Entidad> Entidades;
     public List<Entidad> seleccionadas;
     public Entidad entidadseleccionada;
-
+    
     @PostConstruct
     public void init() {
         this.Entidades = Ctrl.ctrlEntidad.findEntidadEntities();
+     
     }
 
     public List<Entidad> getEntidades() {
@@ -46,8 +54,8 @@ public class entidadBeans implements Serializable {
         return seleccionadas;
     }
 
-    public void setSeleccionadas(List<Entidad> seleccionadas) {
-        this.seleccionadas = seleccionadas;
+    public void setSeleccionadas(List<Entidad> Seleccionadas) {
+        this.seleccionadas = Seleccionadas;
     }
 
     public Entidad getEntidadseleccionada() {
@@ -62,37 +70,35 @@ public class entidadBeans implements Serializable {
         this.entidadseleccionada = new Entidad();
     }
 
-    public void guardar() throws Exception {
+    public void guardar() throws Exception, NonexistentEntityException {
+        System.out.println("entro a guardar");
         Entidad nueva = new Entidad();
- 
-            
-        
         if (!yaexiste()) {
-            nueva.setIdEntidad(this.entidadseleccionada.getIdEntidad());
-            nueva.setNombreEntidad(this.entidadseleccionada.getNombreEntidad());
-            nueva.setDireccionEntidad(this.entidadseleccionada.getDireccionEntidad());
-            nueva.setNotelefono(this.entidadseleccionada.getNotelefono());
+            System.out.println("entro");
+            nueva.setIdEntidad(entidadseleccionada.getIdEntidad());
+            nueva.setNombreEntidad(entidadseleccionada.getNombreEntidad());
+            nueva.setDireccionEntidad(entidadseleccionada.getDireccionEntidad());
+            nueva.setNotelefono(entidadseleccionada.getNotelefono());
             Ctrl.ctrlEntidad.create(nueva);
             System.out.println("creo");
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Entidad Añadida"));
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Unidad Añadida"));
         } else {
-                   try {
-            nueva = Ctrl.ctrlEntidad.findEntidad(entidadseleccionada.getIdEntidad());
+            try {
+                nueva = Ctrl.ctrlEntidad.findEntidad(entidadseleccionada.getIdEntidad());
             nueva.setIdEntidad(entidadseleccionada.getIdEntidad());
             nueva.setNombreEntidad(entidadseleccionada.getNombreEntidad());
             nueva.setDireccionEntidad(entidadseleccionada.getDireccionEntidad());
             nueva.setNotelefono(entidadseleccionada.getNotelefono());
             Ctrl.ctrlEntidad.edit(nueva);
             System.out.println("edito");
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Entidad Actualizada"));
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Unidad Actualizada"));
             } catch (Exception e) {
-           FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("No es posible modificar el ID")); 
-        }
+            }
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Unidad Actualizada"));
         }
 
         PrimeFaces.current().executeScript("PF('manageProductDialog').hide()");
         PrimeFaces.current().ajax().update("form:messages", "form:dt-entidades");
-        
     }
 
     public void deleteProduct() throws IllegalOrphanException, NonexistentEntityException {
@@ -102,17 +108,17 @@ public class entidadBeans implements Serializable {
         System.out.println(entidadseleccionada.getIdEntidad());
         Ctrl.ctrlEntidad.destroy(eliminada.getIdEntidad());
         this.entidadseleccionada = null;
-        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Entidad elininada"));
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Unidad Eliminada"));
         PrimeFaces.current().ajax().update("form:messages", "form:dt-entidades");
     }
 
     public String getdeleteButtonMessage() {
         if (hasSeleccionadoElementos()) {
             int size = this.seleccionadas.size();
-            return size > 1 ? size + " Entidades selecciondas" : "1 Entidad Seleccionada";
+            return size > 1 ? size + " unidades seleccionadas" : "1 unidad seleccionada";
         }
 
-        return "Eliminar";
+        return "Borrar";
     }
 
     public boolean hasSeleccionadoElementos() {
@@ -121,8 +127,7 @@ public class entidadBeans implements Serializable {
 
     public boolean yaexiste() {
         for (int i = 0; i < Entidades.size(); i++) {
-            if (entidadseleccionada.getIdEntidad().equals(Entidades.get(i).getIdEntidad()) || entidadseleccionada.getNombreEntidad().equals(Entidades.get(i).getNombreEntidad())) {
-
+            if (entidadseleccionada.getIdEntidad().equals(Entidades.get(i).getIdEntidad())) {
                 return true;
             }
         }
@@ -136,8 +141,8 @@ public class entidadBeans implements Serializable {
         }
         this.Entidades.removeAll(this.seleccionadas);
         this.seleccionadas = null;
-        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Entidades Eliminadas"));
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Unidad Eliminada"));
         PrimeFaces.current().ajax().update("form:messages", "form:dt-entidades");
-        PrimeFaces.current().executeScript("PF('dtEntidades').clearFilters()");
+        PrimeFaces.current().executeScript("PF('dtProducts').clearFilters()");
     }
 }

@@ -1,6 +1,7 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
  */
 package Entidades;
 
@@ -10,6 +11,7 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -17,41 +19,41 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
- * @author David Ruiz
+ * @author David
  */
 @Entity
 @Table(name = "departamento")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Departamento.findAll", query = "SELECT d FROM Departamento d"),
-    @NamedQuery(name = "Departamento.findByIdDepartamento", query = "SELECT d FROM Departamento d WHERE d.idDepartamento = :idDepartamento"),
-    @NamedQuery(name = "Departamento.findByNombreDepartamento", query = "SELECT d FROM Departamento d WHERE d.nombreDepartamento = :nombreDepartamento")})
+    @NamedQuery(name = "Departamento.findAll", query = "SELECT d FROM Departamento d")
+    , @NamedQuery(name = "Departamento.findByIdDepartamento", query = "SELECT d FROM Departamento d WHERE d.idDepartamento = :idDepartamento")
+    , @NamedQuery(name = "Departamento.findByNombreDepartamento", query = "SELECT d FROM Departamento d WHERE d.nombreDepartamento = :nombreDepartamento")})
 public class Departamento implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
-    @NotNull
     @Column(name = "id_departamento")
     private Integer idDepartamento;
-    @Size(max = 255)
     @Column(name = "nombre_departamento")
     private String nombreDepartamento;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "departamentoidDepartamento")
+    @OneToMany(mappedBy = "departamentoidDepartamento", fetch = FetchType.LAZY)
+    private List<Accesorio> accesorioList;
+    @OneToMany(mappedBy = "departamentoidDepartamento", fetch = FetchType.LAZY)
+    private List<Componente> componenteList;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "departamentoidDepartamento", fetch = FetchType.LAZY)
     private List<Area> areaList;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "departamentoidDepartamento")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "departamentoidDepartamento", fetch = FetchType.LAZY)
     private List<Impresora> impresoraList;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "departamentoidDepartamento")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "departamentoidDepartamento", fetch = FetchType.LAZY)
     private List<Pc> pcList;
     @JoinColumn(name = "entidadid_entidad", referencedColumnName = "id_entidad")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Entidad entidadidEntidad;
 
     public Departamento() {
@@ -75,6 +77,24 @@ public class Departamento implements Serializable {
 
     public void setNombreDepartamento(String nombreDepartamento) {
         this.nombreDepartamento = nombreDepartamento;
+    }
+
+    @XmlTransient
+    public List<Accesorio> getAccesorioList() {
+        return accesorioList;
+    }
+
+    public void setAccesorioList(List<Accesorio> accesorioList) {
+        this.accesorioList = accesorioList;
+    }
+
+    @XmlTransient
+    public List<Componente> getComponenteList() {
+        return componenteList;
+    }
+
+    public void setComponenteList(List<Componente> componenteList) {
+        this.componenteList = componenteList;
     }
 
     @XmlTransient

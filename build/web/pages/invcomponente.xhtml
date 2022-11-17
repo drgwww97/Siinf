@@ -1,0 +1,234 @@
+<?xml version='1.0' encoding='UTF-8' ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      >
+
+    <h:head>
+        <link rel="stylesheet" href="../resources/css/bootstrap.css"/>
+        <link rel="stylesheet" href="../resources/css/bootstrap-responsive.css"/>
+        <link rel="stylesheet" href="../resources/css/prettyPhoto.css" />
+        <link rel="stylesheet" href="../resources/css/flexslider.css" />
+        <link rel="stylesheet" href="../resources/css/custom-styles.css"/>
+
+        <link rel="shortcut icon" href="../resources/img/icono.jpg"/>
+        <link rel="apple-touch-icon" href="../resources/img/apple-touch-icon.png"/>
+        <link rel="apple-touch-icon" sizes="72x72" href="../resources/img/apple-touch-icon-72x72.png"/>
+        <link rel="apple-touch-icon" sizes="114x114" href="../resources/img/apple-touch-icon-114x114.png"/>
+
+        <script src="../resources/js/bootstrap.js"></script>
+        <script src="../resources/js/jquery.prettyPhoto.js"></script>
+        <script src="../resources/js/jquery.flexslider.js"></script>
+        <script src="../resources/js/jquery.custom.js"></script>
+        <script type="text/javascript"/>
+        <title>Componentes</title>
+    </h:head>
+
+    <h:body>
+
+        <h:form>
+            <p:growl id="messages"/>
+
+            <p:menubar id="menu-bar">
+                <p:menuitem value="Inicio" icon="pi pi-fw pi-home" url="index.faces" />
+                <p:menuitem value="Equipos" icon="pi pi-fw pi-desktop" url="invpc.faces"/>
+                <p:menuitem value="Impresoras" icon="pi pi-fw pi-print" url="pages/invimpresora.faces"/>
+                <p:submenu label="Administración" icon="pi pi-fw pi-server" >
+                    <p:menuitem value="Componentes" url="invcomponente.faces"/>
+                    <p:menuitem value="Accesorios" url="invaccesorio.faces"/>
+                    <p:menuitem value="Unidad" url="inventidad.faces"/>
+                    <p:menuitem value="Departamento" url="invdepartamento.faces"/>
+                    <p:menuitem value="Area" url="invarea.faces" />
+                    <p:menuitem value="Marca" url="invmarca.faces"/>
+                    <p:menuitem value="Modelo" url="invmodelo.faces"/>
+                    <p:menuitem value="Programas" url="invprogramas.faces"/>
+                    <p:menuitem value="Sistema Operativo" url="invsoperativo.faces"/>
+                    <p:menuitem value="Modificaciones" url="invmodificacion.faces"/>
+                    <p:submenu label="Tipos" >
+                        <p:menuitem value="Tipos de accesorios" url="invtaccesorio.faces"/>
+                        <p:menuitem value="Tipos de componentes" url="invtcomponente.faces"/>
+                        <p:menuitem value="Tipos de conexiones" url="invtconexion.faces"/>
+                        <p:menuitem value="Tipos de equipos" url="invtequipo.faces"/>
+                        <p:menuitem value="Tipos de modificación" url="invtmodificacion.faces"/>
+                        <p:menuitem value="Tipos de toner" url="invttoner.faces"/>
+                    </p:submenu>
+                </p:submenu>
+                <p:menuitem value="Usuarios" icon="pi pi-fw pi-user"/>
+                <p:divider layout="vertical"/>
+
+            </p:menubar>
+
+        </h:form>
+
+
+        #{componenteBeans.init()}
+        <div class="card crud-demo">
+            <h:form id="form">
+                <p:growl id="messages" showDetail="true" />
+
+                <p:toolbar>
+                    <p:toolbarGroup>
+                        <p:commandButton value="Nuevo" icon="pi pi-plus" actionListener="#{componenteBeans.nuevo}"
+                                         update=":dialogs:manage-product-content" oncomplete="PF('manageProductDialog').show()"
+                                         styleClass="ui-button-success" style="margin-right: .5rem">
+                            <p:resetInput target=":dialogs:manage-product-content" />
+                        </p:commandButton>
+                        <p:commandButton id="delete-products-button" value="#{componenteBeans.getdeleteButtonMessage()}"
+                                         icon="pi pi-trash" actionListener="#{componenteBeans.deleteSelectedProducts}"
+                                         styleClass="ui-button-danger" disabled="#{!componenteBeans.hasSeleccionadoElementos()}" update="@this">
+                            <p:confirm header="Confirmación" message="¿Desea eliminar los componentes seleccionados?"
+                                       icon="pi pi-exclamation-triangle" />
+                        </p:commandButton>
+
+                    </p:toolbarGroup>
+
+                </p:toolbar>
+
+                <p:dataTable id="dt-componentes" widgetVar="dtComponentes" var="componente" value="#{componenteBeans.componentes}" 
+                             reflow="true" styleClass="products-table" selection="#{componenteBeans.seleccionadas}"
+                             rowKey="#{componente.snComponente}" paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
+                    <f:facet name="header">
+                        <div class="products-table-header">
+                            <span style="font-weight: bold">Componentes   </span> <span
+                                class="filter-container ui-input-icon-left"> <i class="pi pi-search"></i> <p:inputText
+                                    id="globalFilter" onkeyup="PF('dtComponentes').filter()" placeholder="Buscar" />
+                            </span>
+
+                        </div>
+                    </f:facet>
+
+                    <p:ajax event="rowSelect" update=":form:delete-products-button" />
+                    <p:ajax event="rowUnselect" update=":form:delete-products-button" />
+                    <p:ajax event="rowSelectCheckbox" update=":form:delete-products-button" />
+                    <p:ajax event="rowUnselectCheckbox" update=":form:delete-products-button" />
+                    <p:ajax event="toggleSelect" update=":form:delete-products-button" />
+
+                    <p:column selectionMode="multiple" exportable="false"></p:column>
+
+                    <p:column headerText="Nro Serie" sortBy="#{componente.snComponente}" filterBy="#{componente.snComponente}">
+                        <h:outputText value="#{componente.snComponente}" />
+                    </p:column>
+                    <p:column headerText="Tipo" sortBy="#{componente.TComponenteidComponente.nombreComponente}" filterBy="#{componente.TComponenteidComponente.nombreComponente}">
+                        <h:outputText value="#{componente.TComponenteidComponente.nombreComponente}" />    
+                    </p:column>
+                    <p:column headerText="Marca" sortBy="#{componente.marcaidMarca.nombreMarca}" filterBy="#{componente.marcaidMarca.nombreMarca}">
+                        <h:outputText value="#{componente.marcaidMarca.nombreMarca}" />
+                    </p:column>
+                    <p:column headerText="Modelo" sortBy="#{componente.modeloidModelo.nombreModelo}" filterBy="#{componente.modeloidModelo.nombreModelo}">
+                        <h:outputText value="#{componente.modeloidModelo.nombreModelo}" />
+                    </p:column>
+                    <p:column headerText="Conexión" sortBy="#{componente.TConexionidConexion.nombreConexion}" filterBy="#{componente.TConexionidConexion.nombreConexion}">
+                        <h:outputText value="#{componente.TConexionidConexion.nombreConexion}" />    
+                    </p:column>
+                    <p:column headerText="Capacidad" sortBy="#{componente.capacidad}" filterBy="#{componente.capacidad}">
+                        <h:outputText value="#{componente.capacidad}" />
+                    </p:column>
+                    <p:column headerText="Estado" sortBy="#{componente.estadoidEstado.nombreEstado}" filterBy="#{componente.estadoidEstado.nombreEstado}">
+                        <h:outputText value="#{componente.estadoidEstado.nombreEstado}" />    
+                    </p:column>
+
+
+
+                    <p:column exportable="false">
+                        <p:commandButton icon="pi pi-pencil" update=":dialogs:manage-product-content"
+                                         oncomplete="PF('manageProductDialog').show()"
+                                         styleClass="edit-button rounded-button ui-button-success" process="@this">
+                            <f:setPropertyActionListener value="#{componente}" target="#{componenteBeans.componenteseleccionado}" />
+                            <p:resetInput target=":dialogs:manage-product-content" />
+                        </p:commandButton>
+                        <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash" process="@this"
+                                         oncomplete="PF('deleteProductDialog').show()">
+                            <f:setPropertyActionListener value="#{componente}" target="#{componenteBeans.componenteseleccionado}" />
+                        </p:commandButton>
+                    </p:column>
+
+                </p:dataTable>
+            </h:form>
+            <div class="card ">
+                <h:form id="dialogs">
+                    <p:growl id="msgs" showDetail="true" skipDetailIfEqualsSummary="true"/>
+                    <h:panelGrid columns="4" cellpadding="7" cellspacing="20">
+                        <p:dialog header="Detalles de Componente" showEffect="fade" modal="true" widgetVar="manageProductDialog"
+                                  responsive="true">
+
+                            <p:outputPanel id="manage-product-content" class="ui-fluid">
+                                <p:outputPanel rendered="#{not empty componenteBeans.componenteseleccionado}">
+
+                                    <p:outputLabel for="idComponente">Nro Serie</p:outputLabel>
+                                    <p:inputText id="idComponente" value="#{componenteBeans.componenteseleccionado.snComponente}" required="true" />
+                                    <div class="grid ui-fluid">
+                                        <div class="field col-12 md:col-4">
+                                            <p:outputLabel for="nombre_tcomponente" value="Tipo de Componente"/>
+                                            <p:selectOneMenu id="nombre_tcomponente" value="#{componenteBeans.nombre_tcomponente}" style="width:12rem" required="true">
+                                                <f:selectItem itemLabel="Seleccione" itemValue="" noSelectionOption="true"/>
+                                                <f:selectItems value="#{componenteBeans.t_componente}"/>
+                                            </p:selectOneMenu>
+                                        </div>
+                                        <div class="field col-12 md:col-4">
+                                            <p:outputLabel for="nombre_marca" value="Marca"/>
+                                            <p:selectOneMenu id="nombre_marca" value="#{componenteBeans.nombre_marca}" style="width:12rem">
+                                                <f:selectItem itemLabel="Seleccione Marca" itemValue="" noSelectionOption="true"/>
+                                                <f:selectItems value="#{componenteBeans.marca}"/>
+
+                                            </p:selectOneMenu>
+                                        </div>
+                                        <div class="field col-12 md:col-4">
+                                            <p:outputLabel for="nombre_modelo" value="Modelo"/>
+                                            <p:selectOneMenu id="nombre_modelo" value="#{componenteBeans.nombre_modelo}" style="width:12rem">
+                                                <f:selectItem itemLabel="Seleccione Modelo" itemValue="" noSelectionOption="true"/>
+                                                <f:selectItems value="#{componenteBeans.modelo}"/>
+                                            </p:selectOneMenu>
+                                        </div>
+                                        <div class="field col-12 md:col-6">
+                                            <p:outputLabel for="nombre_tconexion" value="Tipo de Conexion"/>
+                                            <p:selectOneMenu id="nombre_tconexion" value="#{componenteBeans.nombre_tconexion}" style="width:12rem">
+                                                <f:selectItem itemLabel="Seleccione" itemValue="" noSelectionOption="true"/>
+                                                <f:selectItems value="#{componenteBeans.t_conexion}"/>
+                                            </p:selectOneMenu>
+
+                                            <p:outputLabel for="capacidad">Capacidad</p:outputLabel>
+                                            <p:inputText id="capacidad" value="#{componenteBeans.componenteseleccionado.capacidad}"/>
+                                        </div>
+                                        <div class="field col-12 md:col-4">
+                                            <p:outputLabel for="estadorep" value="Estado"/>
+                                            <p:selectOneMenu id="estadorep" value="#{componenteBeans.estado}" style="width:12rem">
+                                                <f:selectItem itemLabel="Seleccione" itemValue="" noSelectionOption="true"/>
+                                                <f:selectItems value="#{componenteBeans.estados}"/>               
+                                            </p:selectOneMenu>
+                                        </div>
+                                    </div>
+                                </p:outputPanel>
+                            </p:outputPanel>
+
+                            <f:facet name="footer">
+                                <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{componenteBeans.guardar}" ajax="false"
+                                                 update="manage-product-content" process="manage-product-content @this" />
+                                <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('manageProductDialog').hide()"
+                                                 class="ui-button-secondary" type="button" />
+                            </f:facet>
+                        </p:dialog>
+
+                        <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300" 
+                                         message="¿Eliminar el componente?" header="Confirmar" severity="warn">
+                            <p:commandButton value="SI" icon="pi pi-check" actionListener="#{componenteBeans.deleteProduct}" ajax="false"
+                                             process="@this" oncomplete="PF('deleteProductDialog').hide()" />
+                            <p:commandButton value="NO" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
+                                             onclick="PF('deleteProductDialog').hide()" />
+                        </p:confirmDialog>
+
+                        <p:confirmDialog global="true" showEffect="fade" width="300">
+                            <p:commandButton value="SI" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+                            <p:commandButton value="NO" type="button" styleClass="ui-confirmdialog-no ui-button-secondary"
+                                             icon="pi pi-times" />
+                        </p:confirmDialog>
+                    </h:panelGrid>
+                </h:form>
+            </div>
+        </div>
+
+    </h:body>
+
+</html>

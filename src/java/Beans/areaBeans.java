@@ -9,6 +9,7 @@ import Controladores.Ctrl;
 import Controladores.exceptions.IllegalOrphanException;
 import Controladores.exceptions.NonexistentEntityException;
 import Entidades.*;
+import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -29,22 +30,25 @@ public class areaBeans {
     public List<Area> areas;
     public List<Area> seleccionadas;
     public Area areaseleccionada;
-    public List<Departamento> departamentos;
-    public List<Entidad> entidades;
     public Departamento departamento;
     public Entidad entidad;
+    public List<String> departamentos = new ArrayList<String>();
+    public List<String> entidades;
+    private String nombre_entidad;
+    private String nombre_departamento;
 
     @PostConstruct
     public void init() {
         this.areas = Ctrl.ctrlArea.findAreaEntities();
-        this.entidades = Ctrl.ctrlEntidad.findEntidadEntities();
+        llenar_lista_entidad();
+
     }
 
-    public List<Entidad> getEntidades() {
+    public List<String> getEntidades() {
         return entidades;
     }
 
-    public void setEntidades(List<Entidad> entidades) {
+    public void setEntidades(List<String> entidades) {
         this.entidades = entidades;
     }
 
@@ -64,11 +68,11 @@ public class areaBeans {
         this.departamento = departamento;
     }
 
-    public List<Departamento> getDepartamentos() {
+    public List<String> getDepartamentos() {
         return departamentos;
     }
 
-    public void setDepartamentos(List<Departamento> departamentos) {
+    public void setDepartamentos(List<String> departamentos) {
         this.departamentos = departamentos;
     }
 
@@ -96,17 +100,46 @@ public class areaBeans {
         this.areaseleccionada = areaseleccionada;
     }
 
+    public String getNombre_entidad() {
+        return nombre_entidad;
+    }
+
+    public void setNombre_entidad(String nombre_entidad) {
+        this.nombre_entidad = nombre_entidad;
+    }
+
+    public String getNombre_departamento() {
+        return nombre_departamento;
+    }
+
+    public void setNombre_departamento(String nombre_departamento) {
+        this.nombre_departamento = nombre_departamento;
+    }
+
     public void nuevo() {
         this.areaseleccionada = new Area();
-        this.entidad = new Entidad();
+
     }
 
     public void guardar() throws Exception {
+        llenar_lista_entidad();
         Area nueva = new Area();
+        System.out.println("entro");
         if (!yaexiste()) {
             nueva.setIdArea(this.areaseleccionada.getIdArea());
             nueva.setNombreArea(this.areaseleccionada.getNombreArea());
-            nueva.setDepartamentoidDepartamento(this.areaseleccionada.getDepartamentoidDepartamento());
+            System.out.println("añadio id y nombre");
+            for (int i = 0; i < Ctrl.ctrlDepartamento.findDepartamentoEntities().size(); i++) {
+                System.out.println("entro al for");
+                if (nombre_departamento.equals(Ctrl.ctrlDepartamento.findDepartamentoEntities().get(i).getNombreDepartamento())) {
+                    System.out.println("encontro el nombre");
+//               idDpto = Ctrl.ctrlDepartamento.findDepartamentoEntities().get(i).getIdDepartamento();
+                    nueva.setDepartamentoidDepartamento(Ctrl.ctrlDepartamento.findDepartamentoEntities().get(i));
+                    break;
+                }
+            }
+
+//            nueva.setDepartamentoidDepartamento(this.nombre_departamento);
             Ctrl.ctrlArea.create(nueva);
             System.out.println("creo");
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Area Añadida"));
@@ -115,7 +148,15 @@ public class areaBeans {
                 nueva = Ctrl.ctrlArea.findArea(areaseleccionada.getIdArea());
                 nueva.setIdArea(areaseleccionada.getIdArea());
                 nueva.setNombreArea(areaseleccionada.getNombreArea());
-                nueva.setDepartamentoidDepartamento(areaseleccionada.getDepartamentoidDepartamento());
+                for (int i = 0; i < Ctrl.ctrlDepartamento.findDepartamentoEntities().size(); i++) {
+                    System.out.println("entro al for");
+                    if (nombre_departamento.equals(Ctrl.ctrlDepartamento.findDepartamentoEntities().get(i).getNombreDepartamento())) {
+                        System.out.println("encontro el nombre");
+//               idDpto = Ctrl.ctrlDepartamento.findDepartamentoEntities().get(i).getIdDepartamento();
+                        nueva.setDepartamentoidDepartamento(Ctrl.ctrlDepartamento.findDepartamentoEntities().get(i));
+                        break;
+                    }
+                }
                 Ctrl.ctrlArea.edit(nueva);
                 System.out.println("edito");
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Area Actualizada"));
@@ -123,7 +164,7 @@ public class areaBeans {
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("No es posible modificar el ID"));
             }
         }
-
+        departamentos.clear();
         PrimeFaces.current().executeScript("PF('manageProductDialog').hide()");
         PrimeFaces.current().ajax().update("form:messages", "form:dt-areas");
 
@@ -134,14 +175,14 @@ public class areaBeans {
         eliminada.setIdArea(areaseleccionada.getIdArea());
         Ctrl.ctrlArea.destroy(eliminada.getIdArea());
         this.areaseleccionada = null;
-        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Entidad elininada"));
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Área eliminada"));
         PrimeFaces.current().ajax().update("form:messages", "form:dt-areas");
     }
 
     public String getdeleteButtonMessage() {
         if (hasSeleccionadoElementos()) {
             int size = this.seleccionadas.size();
-            return size > 1 ? size + " Entidades selecciondas" : "1 Entidad Seleccionada";
+            return size > 1 ? size + " Áreas seleccionadas" : "1 Área Seleccionada";
         }
 
         return "Eliminar";
@@ -168,30 +209,61 @@ public class areaBeans {
         }
         this.areas.removeAll(this.seleccionadas);
         this.seleccionadas = null;
-        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Areas Eliminadas"));
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Area Eliminada"));
         PrimeFaces.current().ajax().update("form:messages", "form:dt-areas");
-        PrimeFaces.current().executeScript("PF('dtAreas').clearFilters()");
+        PrimeFaces.current().executeScript("PF('dtProducts').clearFilters()");
     }
 
-   public void onCountryChange() {
-       System.out.println("entro a on chance");
-       System.out.println(entidad.getNombreEntidad());
-        if (this.entidad != null && !"".equals(this.entidad)) {
-            this.departamentos = this.entidad.getDepartamentoList();
+    public void llenar_lista_entidad() {
+       this.entidades = new ArrayList<String>();
+        for (int i = 0; i < Ctrl.ctrlEntidad.findEntidadEntities().size(); i++) {
+            this.entidades.add(Ctrl.ctrlEntidad.findEntidadEntities().get(i).getNombreEntidad());
         }
-        else {
-           
+
+    }
+
+    public void llenar_lista_departamento() {
+
+        for (int i = 0; i < Ctrl.ctrlEntidad.findEntidadEntities().size(); i++) {
+            if (Ctrl.ctrlEntidad.findEntidadEntities().get(i).getNombreEntidad().equals(nombre_entidad)) {
+                for (int j = 0; j < Ctrl.ctrlEntidad.findEntidadEntities().get(i).getDepartamentoList().size(); j++) {
+                    departamentos.add(Ctrl.ctrlEntidad.findEntidadEntities().get(i).getDepartamentoList().get(j).getNombreDepartamento());
+                    System.out.println(departamentos.get(j));
+                }
+            } else {
+            }
         }
+    }
+
+    public void onCountryChange() {
+        System.out.println("entro a on chance");
+        System.out.println(nombre_entidad);
+//        if (nombre_entidad != null && !"".equals(nombre_entidad)) {
+//           for (int i = 0; i < Ctrl.ctrlEntidad.findEntidadEntities().size(); i++) {
+//               if (Ctrl.ctrlEntidad.findEntidadEntities().get(i).getNombreEntidad().equals(nombre_entidad)) {
+//                   for (int j = 0; j < Ctrl.ctrlEntidad.findEntidadEntities().get(i).getDepartamentoList().size(); j++) {
+//                       departamentos.add(Ctrl.ctrlEntidad.findEntidadEntities().get(i).getDepartamentoList().get(j).getNombreDepartamento());
+//                   }
+//               } else {
+//               }
+//           }
+//            llenar_lista_departamento();
+//        } else {
+//        }
+
+        llenar_lista_departamento();
     }
 
     public void displayLocation() {
         FacesMessage msg;
         if (entidad != null && departamento != null) {
             msg = new FacesMessage("Selected", entidad + " of " + departamento);
+            System.out.println("Selected" + entidad + " of " + departamento);
         } else {
             msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid", "City is not selected.");
         }
 
         FacesContext.getCurrentInstance().addMessage(null, msg);
     }
+
 }

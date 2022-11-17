@@ -1,82 +1,100 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
  */
 package Entidades;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
- * @author David Ruiz
+ * @author David
  */
 @Entity
 @Table(name = "pc")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Pc.findAll", query = "SELECT p FROM Pc p"),
-    @NamedQuery(name = "Pc.findByNoInventario", query = "SELECT p FROM Pc p WHERE p.noInventario = :noInventario"),
-    @NamedQuery(name = "Pc.findByResponsable", query = "SELECT p FROM Pc p WHERE p.responsable = :responsable"),
-    @NamedQuery(name = "Pc.findBySnPc", query = "SELECT p FROM Pc p WHERE p.snPc = :snPc")})
+    @NamedQuery(name = "Pc.findAll", query = "SELECT p FROM Pc p")
+    , @NamedQuery(name = "Pc.findByNoInventario", query = "SELECT p FROM Pc p WHERE p.noInventario = :noInventario")
+    , @NamedQuery(name = "Pc.findByResponsable", query = "SELECT p FROM Pc p WHERE p.responsable = :responsable")
+    , @NamedQuery(name = "Pc.findBySnPc", query = "SELECT p FROM Pc p WHERE p.snPc = :snPc")
+    , @NamedQuery(name = "Pc.findByComponentesnComponente", query = "SELECT p FROM Pc p WHERE p.componentesnComponente = :componentesnComponente")
+    , @NamedQuery(name = "Pc.findByAccesoriosnAccesorio", query = "SELECT p FROM Pc p WHERE p.accesoriosnAccesorio = :accesoriosnAccesorio")
+    , @NamedQuery(name = "Pc.findByModificaciontModificacionidTmodificacion", query = "SELECT p FROM Pc p WHERE p.modificaciontModificacionidTmodificacion = :modificaciontModificacionidTmodificacion")
+    , @NamedQuery(name = "Pc.findByProgramasidProgramas", query = "SELECT p FROM Pc p WHERE p.programasidProgramas = :programasidProgramas")
+    , @NamedQuery(name = "Pc.findBySelloPc", query = "SELECT p FROM Pc p WHERE p.selloPc = :selloPc")})
 public class Pc implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
-    @NotNull
-    @Size(min = 1, max = 255)
     @Column(name = "no_inventario")
     private String noInventario;
-    @Size(max = 255)
     @Column(name = "responsable")
     private String responsable;
-    @Size(max = 255)
     @Column(name = "sn_pc")
     private String snPc;
-    @JoinColumn(name = "componentesn_componente", referencedColumnName = "sn_componente")
-    @ManyToOne
-    private Componente componentesnComponente;
-    @JoinColumn(name = "accesoriosn_accesorio", referencedColumnName = "sn_accesorio")
-    @ManyToOne
-    private Accesorio accesoriosnAccesorio;
+    @Column(name = "componentesn_componente")
+    private String componentesnComponente;
+    @Column(name = "accesoriosn_accesorio")
+    private String accesoriosnAccesorio;
+    @Column(name = "modificaciont_modificacionid_tmodificacion")
+    private Integer modificaciontModificacionidTmodificacion;
+    @Column(name = "programasid_programas")
+    private Integer programasidProgramas;
+    @Column(name = "sello_pc")
+    private String selloPc;
+    @JoinTable(name = "pc_programas", joinColumns = {
+        @JoinColumn(name = "pcno_inventario", referencedColumnName = "no_inventario")}, inverseJoinColumns = {
+        @JoinColumn(name = "programasid_programas", referencedColumnName = "id_programas")})
+    @ManyToMany(fetch = FetchType.LAZY)
+    private List<Programas> programasList;
+    @OneToMany(mappedBy = "pcnoInventario", fetch = FetchType.LAZY)
+    private List<Accesorio> accesorioList;
+    @OneToMany(mappedBy = "pcnoInventario", fetch = FetchType.LAZY)
+    private List<Componente> componenteList;
+    @OneToMany(mappedBy = "pcnoInventario", fetch = FetchType.LAZY)
+    private List<Modificacion> modificacionList;
     @JoinColumn(name = "areaid_area", referencedColumnName = "id_area")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Area areaidArea;
     @JoinColumn(name = "departamentoid_departamento", referencedColumnName = "id_departamento")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Departamento departamentoidDepartamento;
     @JoinColumn(name = "entidadid_entidad", referencedColumnName = "id_entidad")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Entidad entidadidEntidad;
+    @JoinColumn(name = "estadoid_estado", referencedColumnName = "id_estado")
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    private Estado estadoidEstado;
     @JoinColumn(name = "marcaid_marca", referencedColumnName = "id_marca")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Marca marcaidMarca;
     @JoinColumn(name = "modeloid_modelo", referencedColumnName = "id_modelo")
-    @ManyToOne(optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Modelo modeloidModelo;
-    @JoinColumn(name = "modificaciont_modificacionid_tmodificacion", referencedColumnName = "t_modificacionid_tmodificacion")
-    @ManyToOne
-    private Modificacion modificaciontModificacionidTmodificacion;
-    @JoinColumn(name = "programasid_programas", referencedColumnName = "id_programas")
-    @ManyToOne
-    private Programas programasidProgramas;
     @JoinColumn(name = "s_oid_so", referencedColumnName = "id_so")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private SO sOidSo;
     @JoinColumn(name = "t_equipoid_equipo", referencedColumnName = "id_equipo")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private TEquipo tEquipoidEquipo;
 
     public Pc() {
@@ -110,20 +128,80 @@ public class Pc implements Serializable {
         this.snPc = snPc;
     }
 
-    public Componente getComponentesnComponente() {
+    public String getComponentesnComponente() {
         return componentesnComponente;
     }
 
-    public void setComponentesnComponente(Componente componentesnComponente) {
+    public void setComponentesnComponente(String componentesnComponente) {
         this.componentesnComponente = componentesnComponente;
     }
 
-    public Accesorio getAccesoriosnAccesorio() {
+    public String getAccesoriosnAccesorio() {
         return accesoriosnAccesorio;
     }
 
-    public void setAccesoriosnAccesorio(Accesorio accesoriosnAccesorio) {
+    public void setAccesoriosnAccesorio(String accesoriosnAccesorio) {
         this.accesoriosnAccesorio = accesoriosnAccesorio;
+    }
+
+    public Integer getModificaciontModificacionidTmodificacion() {
+        return modificaciontModificacionidTmodificacion;
+    }
+
+    public void setModificaciontModificacionidTmodificacion(Integer modificaciontModificacionidTmodificacion) {
+        this.modificaciontModificacionidTmodificacion = modificaciontModificacionidTmodificacion;
+    }
+
+    public Integer getProgramasidProgramas() {
+        return programasidProgramas;
+    }
+
+    public void setProgramasidProgramas(Integer programasidProgramas) {
+        this.programasidProgramas = programasidProgramas;
+    }
+
+    public String getSelloPc() {
+        return selloPc;
+    }
+
+    public void setSelloPc(String selloPc) {
+        this.selloPc = selloPc;
+    }
+
+    @XmlTransient
+    public List<Programas> getProgramasList() {
+        return programasList;
+    }
+
+    public void setProgramasList(List<Programas> programasList) {
+        this.programasList = programasList;
+    }
+
+    @XmlTransient
+    public List<Accesorio> getAccesorioList() {
+        return accesorioList;
+    }
+
+    public void setAccesorioList(List<Accesorio> accesorioList) {
+        this.accesorioList = accesorioList;
+    }
+
+    @XmlTransient
+    public List<Componente> getComponenteList() {
+        return componenteList;
+    }
+
+    public void setComponenteList(List<Componente> componenteList) {
+        this.componenteList = componenteList;
+    }
+
+    @XmlTransient
+    public List<Modificacion> getModificacionList() {
+        return modificacionList;
+    }
+
+    public void setModificacionList(List<Modificacion> modificacionList) {
+        this.modificacionList = modificacionList;
     }
 
     public Area getAreaidArea() {
@@ -150,6 +228,14 @@ public class Pc implements Serializable {
         this.entidadidEntidad = entidadidEntidad;
     }
 
+    public Estado getEstadoidEstado() {
+        return estadoidEstado;
+    }
+
+    public void setEstadoidEstado(Estado estadoidEstado) {
+        this.estadoidEstado = estadoidEstado;
+    }
+
     public Marca getMarcaidMarca() {
         return marcaidMarca;
     }
@@ -164,22 +250,6 @@ public class Pc implements Serializable {
 
     public void setModeloidModelo(Modelo modeloidModelo) {
         this.modeloidModelo = modeloidModelo;
-    }
-
-    public Modificacion getModificaciontModificacionidTmodificacion() {
-        return modificaciontModificacionidTmodificacion;
-    }
-
-    public void setModificaciontModificacionidTmodificacion(Modificacion modificaciontModificacionidTmodificacion) {
-        this.modificaciontModificacionidTmodificacion = modificaciontModificacionidTmodificacion;
-    }
-
-    public Programas getProgramasidProgramas() {
-        return programasidProgramas;
-    }
-
-    public void setProgramasidProgramas(Programas programasidProgramas) {
-        this.programasidProgramas = programasidProgramas;
     }
 
     public SO getSOidSo() {

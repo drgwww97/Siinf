@@ -5,6 +5,7 @@
  */
 package Controladores;
 
+import Controladores.exceptions.IllegalOrphanException;
 import Controladores.exceptions.NonexistentEntityException;
 import Controladores.exceptions.PreexistingEntityException;
 import java.io.Serializable;
@@ -12,16 +13,18 @@ import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import Entidades.Impresora;
-import Entidades.TTonner;
+import Entidades.RegDatosToner;
 import java.util.ArrayList;
 import java.util.List;
+import Entidades.Modelo;
+import Entidades.Impresora;
+import Entidades.TTonner;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
 /**
  *
- * @author Dayana
+ * @author David
  */
 public class TTonnerJpaController implements Serializable {
 
@@ -35,6 +38,12 @@ public class TTonnerJpaController implements Serializable {
     }
 
     public void create(TTonner TTonner) throws PreexistingEntityException, Exception {
+        if (TTonner.getRegDatosTonerList() == null) {
+            TTonner.setRegDatosTonerList(new ArrayList<RegDatosToner>());
+        }
+        if (TTonner.getModeloList() == null) {
+            TTonner.setModeloList(new ArrayList<Modelo>());
+        }
         if (TTonner.getImpresoraList() == null) {
             TTonner.setImpresoraList(new ArrayList<Impresora>());
         }
@@ -42,6 +51,18 @@ public class TTonnerJpaController implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
+            List<RegDatosToner> attachedRegDatosTonerList = new ArrayList<RegDatosToner>();
+            for (RegDatosToner regDatosTonerListRegDatosTonerToAttach : TTonner.getRegDatosTonerList()) {
+                regDatosTonerListRegDatosTonerToAttach = em.getReference(regDatosTonerListRegDatosTonerToAttach.getClass(), regDatosTonerListRegDatosTonerToAttach.getIdRegToner());
+                attachedRegDatosTonerList.add(regDatosTonerListRegDatosTonerToAttach);
+            }
+            TTonner.setRegDatosTonerList(attachedRegDatosTonerList);
+            List<Modelo> attachedModeloList = new ArrayList<Modelo>();
+            for (Modelo modeloListModeloToAttach : TTonner.getModeloList()) {
+                modeloListModeloToAttach = em.getReference(modeloListModeloToAttach.getClass(), modeloListModeloToAttach.getIdModelo());
+                attachedModeloList.add(modeloListModeloToAttach);
+            }
+            TTonner.setModeloList(attachedModeloList);
             List<Impresora> attachedImpresoraList = new ArrayList<Impresora>();
             for (Impresora impresoraListImpresoraToAttach : TTonner.getImpresoraList()) {
                 impresoraListImpresoraToAttach = em.getReference(impresoraListImpresoraToAttach.getClass(), impresoraListImpresoraToAttach.getNoInventario());
@@ -49,6 +70,24 @@ public class TTonnerJpaController implements Serializable {
             }
             TTonner.setImpresoraList(attachedImpresoraList);
             em.persist(TTonner);
+            for (RegDatosToner regDatosTonerListRegDatosToner : TTonner.getRegDatosTonerList()) {
+                TTonner oldTTonnersnTonnerOfRegDatosTonerListRegDatosToner = regDatosTonerListRegDatosToner.getTTonnersnTonner();
+                regDatosTonerListRegDatosToner.setTTonnersnTonner(TTonner);
+                regDatosTonerListRegDatosToner = em.merge(regDatosTonerListRegDatosToner);
+                if (oldTTonnersnTonnerOfRegDatosTonerListRegDatosToner != null) {
+                    oldTTonnersnTonnerOfRegDatosTonerListRegDatosToner.getRegDatosTonerList().remove(regDatosTonerListRegDatosToner);
+                    oldTTonnersnTonnerOfRegDatosTonerListRegDatosToner = em.merge(oldTTonnersnTonnerOfRegDatosTonerListRegDatosToner);
+                }
+            }
+            for (Modelo modeloListModelo : TTonner.getModeloList()) {
+                TTonner oldTTonnersnTonnerOfModeloListModelo = modeloListModelo.getTTonnersnTonner();
+                modeloListModelo.setTTonnersnTonner(TTonner);
+                modeloListModelo = em.merge(modeloListModelo);
+                if (oldTTonnersnTonnerOfModeloListModelo != null) {
+                    oldTTonnersnTonnerOfModeloListModelo.getModeloList().remove(modeloListModelo);
+                    oldTTonnersnTonnerOfModeloListModelo = em.merge(oldTTonnersnTonnerOfModeloListModelo);
+                }
+            }
             for (Impresora impresoraListImpresora : TTonner.getImpresoraList()) {
                 TTonner oldTTonnersnTonnerOfImpresoraListImpresora = impresoraListImpresora.getTTonnersnTonner();
                 impresoraListImpresora.setTTonnersnTonner(TTonner);
@@ -71,14 +110,52 @@ public class TTonnerJpaController implements Serializable {
         }
     }
 
-    public void edit(TTonner TTonner) throws NonexistentEntityException, Exception {
+    public void edit(TTonner TTonner) throws IllegalOrphanException, NonexistentEntityException, Exception {
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
             TTonner persistentTTonner = em.find(TTonner.class, TTonner.getSnTonner());
+            List<RegDatosToner> regDatosTonerListOld = persistentTTonner.getRegDatosTonerList();
+            List<RegDatosToner> regDatosTonerListNew = TTonner.getRegDatosTonerList();
+            List<Modelo> modeloListOld = persistentTTonner.getModeloList();
+            List<Modelo> modeloListNew = TTonner.getModeloList();
             List<Impresora> impresoraListOld = persistentTTonner.getImpresoraList();
             List<Impresora> impresoraListNew = TTonner.getImpresoraList();
+            List<String> illegalOrphanMessages = null;
+            for (RegDatosToner regDatosTonerListOldRegDatosToner : regDatosTonerListOld) {
+                if (!regDatosTonerListNew.contains(regDatosTonerListOldRegDatosToner)) {
+                    if (illegalOrphanMessages == null) {
+                        illegalOrphanMessages = new ArrayList<String>();
+                    }
+                    illegalOrphanMessages.add("You must retain RegDatosToner " + regDatosTonerListOldRegDatosToner + " since its TTonnersnTonner field is not nullable.");
+                }
+            }
+            for (Impresora impresoraListOldImpresora : impresoraListOld) {
+                if (!impresoraListNew.contains(impresoraListOldImpresora)) {
+                    if (illegalOrphanMessages == null) {
+                        illegalOrphanMessages = new ArrayList<String>();
+                    }
+                    illegalOrphanMessages.add("You must retain Impresora " + impresoraListOldImpresora + " since its TTonnersnTonner field is not nullable.");
+                }
+            }
+            if (illegalOrphanMessages != null) {
+                throw new IllegalOrphanException(illegalOrphanMessages);
+            }
+            List<RegDatosToner> attachedRegDatosTonerListNew = new ArrayList<RegDatosToner>();
+            for (RegDatosToner regDatosTonerListNewRegDatosTonerToAttach : regDatosTonerListNew) {
+                regDatosTonerListNewRegDatosTonerToAttach = em.getReference(regDatosTonerListNewRegDatosTonerToAttach.getClass(), regDatosTonerListNewRegDatosTonerToAttach.getIdRegToner());
+                attachedRegDatosTonerListNew.add(regDatosTonerListNewRegDatosTonerToAttach);
+            }
+            regDatosTonerListNew = attachedRegDatosTonerListNew;
+            TTonner.setRegDatosTonerList(regDatosTonerListNew);
+            List<Modelo> attachedModeloListNew = new ArrayList<Modelo>();
+            for (Modelo modeloListNewModeloToAttach : modeloListNew) {
+                modeloListNewModeloToAttach = em.getReference(modeloListNewModeloToAttach.getClass(), modeloListNewModeloToAttach.getIdModelo());
+                attachedModeloListNew.add(modeloListNewModeloToAttach);
+            }
+            modeloListNew = attachedModeloListNew;
+            TTonner.setModeloList(modeloListNew);
             List<Impresora> attachedImpresoraListNew = new ArrayList<Impresora>();
             for (Impresora impresoraListNewImpresoraToAttach : impresoraListNew) {
                 impresoraListNewImpresoraToAttach = em.getReference(impresoraListNewImpresoraToAttach.getClass(), impresoraListNewImpresoraToAttach.getNoInventario());
@@ -87,10 +164,32 @@ public class TTonnerJpaController implements Serializable {
             impresoraListNew = attachedImpresoraListNew;
             TTonner.setImpresoraList(impresoraListNew);
             TTonner = em.merge(TTonner);
-            for (Impresora impresoraListOldImpresora : impresoraListOld) {
-                if (!impresoraListNew.contains(impresoraListOldImpresora)) {
-                    impresoraListOldImpresora.setTTonnersnTonner(null);
-                    impresoraListOldImpresora = em.merge(impresoraListOldImpresora);
+            for (RegDatosToner regDatosTonerListNewRegDatosToner : regDatosTonerListNew) {
+                if (!regDatosTonerListOld.contains(regDatosTonerListNewRegDatosToner)) {
+                    TTonner oldTTonnersnTonnerOfRegDatosTonerListNewRegDatosToner = regDatosTonerListNewRegDatosToner.getTTonnersnTonner();
+                    regDatosTonerListNewRegDatosToner.setTTonnersnTonner(TTonner);
+                    regDatosTonerListNewRegDatosToner = em.merge(regDatosTonerListNewRegDatosToner);
+                    if (oldTTonnersnTonnerOfRegDatosTonerListNewRegDatosToner != null && !oldTTonnersnTonnerOfRegDatosTonerListNewRegDatosToner.equals(TTonner)) {
+                        oldTTonnersnTonnerOfRegDatosTonerListNewRegDatosToner.getRegDatosTonerList().remove(regDatosTonerListNewRegDatosToner);
+                        oldTTonnersnTonnerOfRegDatosTonerListNewRegDatosToner = em.merge(oldTTonnersnTonnerOfRegDatosTonerListNewRegDatosToner);
+                    }
+                }
+            }
+            for (Modelo modeloListOldModelo : modeloListOld) {
+                if (!modeloListNew.contains(modeloListOldModelo)) {
+                    modeloListOldModelo.setTTonnersnTonner(null);
+                    modeloListOldModelo = em.merge(modeloListOldModelo);
+                }
+            }
+            for (Modelo modeloListNewModelo : modeloListNew) {
+                if (!modeloListOld.contains(modeloListNewModelo)) {
+                    TTonner oldTTonnersnTonnerOfModeloListNewModelo = modeloListNewModelo.getTTonnersnTonner();
+                    modeloListNewModelo.setTTonnersnTonner(TTonner);
+                    modeloListNewModelo = em.merge(modeloListNewModelo);
+                    if (oldTTonnersnTonnerOfModeloListNewModelo != null && !oldTTonnersnTonnerOfModeloListNewModelo.equals(TTonner)) {
+                        oldTTonnersnTonnerOfModeloListNewModelo.getModeloList().remove(modeloListNewModelo);
+                        oldTTonnersnTonnerOfModeloListNewModelo = em.merge(oldTTonnersnTonnerOfModeloListNewModelo);
+                    }
                 }
             }
             for (Impresora impresoraListNewImpresora : impresoraListNew) {
@@ -121,7 +220,7 @@ public class TTonnerJpaController implements Serializable {
         }
     }
 
-    public void destroy(String id) throws NonexistentEntityException {
+    public void destroy(String id) throws IllegalOrphanException, NonexistentEntityException {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -133,10 +232,28 @@ public class TTonnerJpaController implements Serializable {
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The TTonner with id " + id + " no longer exists.", enfe);
             }
-            List<Impresora> impresoraList = TTonner.getImpresoraList();
-            for (Impresora impresoraListImpresora : impresoraList) {
-                impresoraListImpresora.setTTonnersnTonner(null);
-                impresoraListImpresora = em.merge(impresoraListImpresora);
+            List<String> illegalOrphanMessages = null;
+            List<RegDatosToner> regDatosTonerListOrphanCheck = TTonner.getRegDatosTonerList();
+            for (RegDatosToner regDatosTonerListOrphanCheckRegDatosToner : regDatosTonerListOrphanCheck) {
+                if (illegalOrphanMessages == null) {
+                    illegalOrphanMessages = new ArrayList<String>();
+                }
+                illegalOrphanMessages.add("This TTonner (" + TTonner + ") cannot be destroyed since the RegDatosToner " + regDatosTonerListOrphanCheckRegDatosToner + " in its regDatosTonerList field has a non-nullable TTonnersnTonner field.");
+            }
+            List<Impresora> impresoraListOrphanCheck = TTonner.getImpresoraList();
+            for (Impresora impresoraListOrphanCheckImpresora : impresoraListOrphanCheck) {
+                if (illegalOrphanMessages == null) {
+                    illegalOrphanMessages = new ArrayList<String>();
+                }
+                illegalOrphanMessages.add("This TTonner (" + TTonner + ") cannot be destroyed since the Impresora " + impresoraListOrphanCheckImpresora + " in its impresoraList field has a non-nullable TTonnersnTonner field.");
+            }
+            if (illegalOrphanMessages != null) {
+                throw new IllegalOrphanException(illegalOrphanMessages);
+            }
+            List<Modelo> modeloList = TTonner.getModeloList();
+            for (Modelo modeloListModelo : modeloList) {
+                modeloListModelo.setTTonnersnTonner(null);
+                modeloListModelo = em.merge(modeloListModelo);
             }
             em.remove(TTonner);
             em.getTransaction().commit();

@@ -22,7 +22,7 @@ import javax.persistence.EntityManagerFactory;
 
 /**
  *
- * @author Dayana
+ * @author David
  */
 public class UsuarioJpaController implements Serializable {
 
@@ -36,24 +36,28 @@ public class UsuarioJpaController implements Serializable {
     }
 
     public void create(Usuario usuario) throws PreexistingEntityException, Exception {
+        if (usuario.getLoginList() == null) {
+            usuario.setLoginList(new ArrayList<Login>());
+        }
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            Login login = usuario.getLogin();
-            if (login != null) {
-                login = em.getReference(login.getClass(), login.getUsuariousuario());
-                usuario.setLogin(login);
+            List<Login> attachedLoginList = new ArrayList<Login>();
+            for (Login loginListLoginToAttach : usuario.getLoginList()) {
+                loginListLoginToAttach = em.getReference(loginListLoginToAttach.getClass(), loginListLoginToAttach.getLoginPK());
+                attachedLoginList.add(loginListLoginToAttach);
             }
+            usuario.setLoginList(attachedLoginList);
             em.persist(usuario);
-            if (login != null) {
-                Usuario oldUsuarioOfLogin = login.getUsuario();
-                if (oldUsuarioOfLogin != null) {
-                    oldUsuarioOfLogin.setLogin(null);
-                    oldUsuarioOfLogin = em.merge(oldUsuarioOfLogin);
+            for (Login loginListLogin : usuario.getLoginList()) {
+                Usuario oldUsuarioOfLoginListLogin = loginListLogin.getUsuario();
+                loginListLogin.setUsuario(usuario);
+                loginListLogin = em.merge(loginListLogin);
+                if (oldUsuarioOfLoginListLogin != null) {
+                    oldUsuarioOfLoginListLogin.getLoginList().remove(loginListLogin);
+                    oldUsuarioOfLoginListLogin = em.merge(oldUsuarioOfLoginListLogin);
                 }
-                login.setUsuario(usuario);
-                login = em.merge(login);
             }
             em.getTransaction().commit();
         } catch (Exception ex) {
@@ -74,31 +78,38 @@ public class UsuarioJpaController implements Serializable {
             em = getEntityManager();
             em.getTransaction().begin();
             Usuario persistentUsuario = em.find(Usuario.class, usuario.getUsuario());
-            Login loginOld = persistentUsuario.getLogin();
-            Login loginNew = usuario.getLogin();
+            List<Login> loginListOld = persistentUsuario.getLoginList();
+            List<Login> loginListNew = usuario.getLoginList();
             List<String> illegalOrphanMessages = null;
-            if (loginOld != null && !loginOld.equals(loginNew)) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
+            for (Login loginListOldLogin : loginListOld) {
+                if (!loginListNew.contains(loginListOldLogin)) {
+                    if (illegalOrphanMessages == null) {
+                        illegalOrphanMessages = new ArrayList<String>();
+                    }
+                    illegalOrphanMessages.add("You must retain Login " + loginListOldLogin + " since its usuario field is not nullable.");
                 }
-                illegalOrphanMessages.add("You must retain Login " + loginOld + " since its usuario field is not nullable.");
             }
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);
             }
-            if (loginNew != null) {
-                loginNew = em.getReference(loginNew.getClass(), loginNew.getUsuariousuario());
-                usuario.setLogin(loginNew);
+            List<Login> attachedLoginListNew = new ArrayList<Login>();
+            for (Login loginListNewLoginToAttach : loginListNew) {
+                loginListNewLoginToAttach = em.getReference(loginListNewLoginToAttach.getClass(), loginListNewLoginToAttach.getLoginPK());
+                attachedLoginListNew.add(loginListNewLoginToAttach);
             }
+            loginListNew = attachedLoginListNew;
+            usuario.setLoginList(loginListNew);
             usuario = em.merge(usuario);
-            if (loginNew != null && !loginNew.equals(loginOld)) {
-                Usuario oldUsuarioOfLogin = loginNew.getUsuario();
-                if (oldUsuarioOfLogin != null) {
-                    oldUsuarioOfLogin.setLogin(null);
-                    oldUsuarioOfLogin = em.merge(oldUsuarioOfLogin);
+            for (Login loginListNewLogin : loginListNew) {
+                if (!loginListOld.contains(loginListNewLogin)) {
+                    Usuario oldUsuarioOfLoginListNewLogin = loginListNewLogin.getUsuario();
+                    loginListNewLogin.setUsuario(usuario);
+                    loginListNewLogin = em.merge(loginListNewLogin);
+                    if (oldUsuarioOfLoginListNewLogin != null && !oldUsuarioOfLoginListNewLogin.equals(usuario)) {
+                        oldUsuarioOfLoginListNewLogin.getLoginList().remove(loginListNewLogin);
+                        oldUsuarioOfLoginListNewLogin = em.merge(oldUsuarioOfLoginListNewLogin);
+                    }
                 }
-                loginNew.setUsuario(usuario);
-                loginNew = em.merge(loginNew);
             }
             em.getTransaction().commit();
         } catch (Exception ex) {
@@ -130,12 +141,12 @@ public class UsuarioJpaController implements Serializable {
                 throw new NonexistentEntityException("The usuario with id " + id + " no longer exists.", enfe);
             }
             List<String> illegalOrphanMessages = null;
-            Login loginOrphanCheck = usuario.getLogin();
-            if (loginOrphanCheck != null) {
+            List<Login> loginListOrphanCheck = usuario.getLoginList();
+            for (Login loginListOrphanCheckLogin : loginListOrphanCheck) {
                 if (illegalOrphanMessages == null) {
                     illegalOrphanMessages = new ArrayList<String>();
                 }
-                illegalOrphanMessages.add("This Usuario (" + usuario + ") cannot be destroyed since the Login " + loginOrphanCheck + " in its login field has a non-nullable usuario field.");
+                illegalOrphanMessages.add("This Usuario (" + usuario + ") cannot be destroyed since the Login " + loginListOrphanCheckLogin + " in its loginList field has a non-nullable usuario field.");
             }
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);

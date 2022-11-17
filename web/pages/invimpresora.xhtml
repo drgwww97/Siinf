@@ -1,0 +1,245 @@
+<?xml version='1.0' encoding='UTF-8' ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      >
+
+    <h:head>
+        <link rel="stylesheet" href="../resources/css/bootstrap.css"/>
+        <link rel="stylesheet" href="../resources/css/bootstrap-responsive.css"/>
+        <link rel="stylesheet" href="../resources/css/prettyPhoto.css" />
+        <link rel="stylesheet" href="../resources/css/flexslider.css" />
+        <link rel="stylesheet" href="../resources/css/custom-styles.css"/>
+
+        <link rel="shortcut icon" href="../resources/img/icono.jpg"/>
+        <link rel="apple-touch-icon" href="../resources/img/apple-touch-icon.png"/>
+        <link rel="apple-touch-icon" sizes="72x72" href="../resources/img/apple-touch-icon-72x72.png"/>
+        <link rel="apple-touch-icon" sizes="114x114" href="../resources/img/apple-touch-icon-114x114.png"/>
+
+        <script src="../resources/js/bootstrap.js"></script>
+        <script src="../resources/js/jquery.prettyPhoto.js"></script>
+        <script src="../resources/js/jquery.flexslider.js"></script>
+        <script src="../resources/js/jquery.custom.js"></script>
+        <script type="text/javascript"/>
+        <title>Impresoras</title>
+        <style>
+            .ui-panelgrid.showcase-text-align-center .ui-grid-responsive .ui-panelgrid-cell {
+                text-align: center;
+            }
+
+            .customPanelGrid .ui-panelgrid-content {
+                align-items: center;
+            }
+        </style>
+
+    </h:head>
+
+    <h:body>
+        <h:form>
+            <p:growl id="messages"/>
+
+            <p:menubar id="menu-bar">
+                <p:menuitem value="Inicio" icon="pi pi-fw pi-home" url="index.faces" />
+                <p:menuitem value="Equipos" icon="pi pi-fw pi-desktop" url="invpc.faces"/>
+                <p:menuitem value="Impresoras" icon="pi pi-fw pi-print" url="pages/invimpresora.faces"/>
+                <p:submenu label="Administración" icon="pi pi-fw pi-server" >
+                    <p:menuitem value="Componentes" />
+                    <p:menuitem value="Accesorios" />
+                    <p:menuitem value="Unidad" url="inventidad.faces"/>
+                    <p:menuitem value="Departamento" url="invdepartamento.faces"/>
+                    <p:menuitem value="Area" url="invarea.faces" />
+                    <p:menuitem value="Marca" url="invmarca.faces"/>
+                    <p:menuitem value="Modelo" url="invmodelo.faces"/>
+                    <p:menuitem value="Programas" url="invprogramas.faces"/>
+                    <p:menuitem value="Sistema Operativo" url="invsoperativo.faces"/>
+                    <p:menuitem value="Modificaciones" url="invmodificacion.faces"/>
+                    <p:submenu label="Tipos" >
+                        <p:menuitem value="Tipos de accesorios" url="invtaccesorio.faces"/>
+                        <p:menuitem value="Tipos de componentes" url="invtcomponente.faces"/>
+                        <p:menuitem value="Tipos de conexiones" url="invtconexion.faces"/>
+                        <p:menuitem value="Tipos de equipos" url="invtequipo.faces"/>
+                        <p:menuitem value="Tipos de modificación" url="invtmodificacion.faces"/>
+                        <p:menuitem value="Tipos de toner" url="invttoner.faces"/>
+                    </p:submenu>
+                </p:submenu>
+                <p:menuitem value="Usuarios" icon="pi pi-fw pi-user"/>
+                <p:divider layout="vertical"/>
+
+            </p:menubar>
+
+        </h:form>
+
+
+        #{impresoraBeans.init()}
+        <div class="card crud-demo">
+            <h:form id="form">
+                <p:growl id="messages" showDetail="true" />
+
+                <p:toolbar>
+                    <p:toolbarGroup>
+                        <p:commandButton value="Nuevo" icon="pi pi-plus" actionListener="#{impresoraBeans.nuevo}"
+                                         update=":dialogs:manage-product-content" oncomplete="PF('manageProductDialog').show()"
+                                         styleClass="ui-button-success" style="margin-right: .5rem">
+                            <p:resetInput target=":dialogs:manage-product-content" />
+                        </p:commandButton>
+                        <p:commandButton id="delete-products-button" value="#{impresoraBeans.getdeleteButtonMessage()}"
+                                         icon="pi pi-trash" actionListener="#{impresoraBeans.deleteSelectedProducts}"
+                                         styleClass="ui-button-danger" disabled="#{!impresoraBeans.hasSeleccionadoElementos()}" update="@this">
+                            <p:confirm header="Confirmación" message="¿Desea eliminar las impresoras seleccionadas?"
+                                       icon="pi pi-exclamation-triangle" />
+                        </p:commandButton>
+
+                    </p:toolbarGroup>
+
+                </p:toolbar>
+
+                <p:dataTable id="dt-impresoras" widgetVar="dtImpresoras" var="impresora" value="#{impresoraBeans.impresoras}" 
+                             reflow="true" styleClass="products-table" selection="#{impresoraBeans.seleccionadas}"
+                             rowKey="#{impresora.noInventario}" paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
+                    <f:facet name="header">
+                        <div class="products-table-header">
+                            <span style="font-weight: bold">Impresoras   </span> <span
+                                class="filter-container ui-input-icon-left"> <i class="pi pi-search"></i> <p:inputText
+                                    id="globalFilter" onkeyup="PF('dtImpresoras').filter()" placeholder="Buscar" />
+                            </span>
+
+                        </div>
+                    </f:facet>
+
+                    <p:ajax event="rowSelect" update=":form:delete-products-button" />
+                    <p:ajax event="rowUnselect" update=":form:delete-products-button" />
+                    <p:ajax event="rowSelectCheckbox" update=":form:delete-products-button" />
+                    <p:ajax event="rowUnselectCheckbox" update=":form:delete-products-button" />
+                    <p:ajax event="toggleSelect" update=":form:delete-products-button" />
+
+                    <p:column selectionMode="multiple" exportable="false"></p:column>
+
+                    <p:column headerText="Nro Inventario" sortBy="#{impresora.noInventario}" filterBy="#{impresora.noInventario}">
+                        <h:outputText value="#{impresora.noInventario}" />
+                    </p:column>
+                    <p:column headerText="Responsable" sortBy="#{impresora.responsable}" filterBy="#{impresora.responsable}">
+                        <h:outputText value="#{impresora.responsable}" />
+                    </p:column>
+                    <p:column headerText="Marca" sortBy="#{impresora.marcaidMarca.nombreMarca}" filterBy="#{impresora.marcaidMarca.nombreMarca}">
+                        <h:outputText value="#{impresora.marcaidMarca.nombreMarca}" />
+                    </p:column>
+                    <p:column headerText="Toner" sortBy="#{impresora.TTonnersnTonner.tipo}" filterBy="#{impresora.TTonnersnTonner.tipo}">
+                        <h:outputText value="#{impresora.TTonnersnTonner.tipo}" />
+                    </p:column>
+                    <p:column headerText="Unidad" sortBy="#{impresora.entidadidEntidad.nombreEntidad}" filterBy="#{impresora.entidadidEntidad.nombreEntidad}">
+                        <h:outputText value="#{impresora.entidadidEntidad.nombreEntidad}" />    
+                    </p:column>
+                    <p:column headerText="Departamento" sortBy="#{impresora.departamentoidDepartamento.nombreDepartamento}" filterBy="#{impresora.departamentoidDepartamento.nombreDepartamento}">
+                        <h:outputText value="#{impresora.departamentoidDepartamento.nombreDepartamento}" />    
+                    </p:column>
+
+
+                    <p:column exportable="false">
+                        <p:commandButton icon="pi pi-pencil" update=":dialogs:manage-product-content"
+                                         oncomplete="PF('manageProductDialog').show()"
+                                         styleClass="edit-button rounded-button ui-button-success" process="@this">
+                            <f:setPropertyActionListener value="#{impresora}" target="#{impresoraBeans.impresoraseleccionada}" />
+                            <p:resetInput target=":dialogs:manage-product-content" />
+                        </p:commandButton>
+                        <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash" process="@this"
+                                         oncomplete="PF('deleteProductDialog').show()">
+                            <f:setPropertyActionListener value="#{impresora}" target="#{impresoraBeans.impresoraseleccionada}" />
+                        </p:commandButton>
+                    </p:column>
+
+                </p:dataTable>
+            </h:form>
+
+            <h:form id="dialogs" >
+                <p:growl id="msgs" showDetail="true" skipDetailIfEqualsSummary="true"/>
+
+                <p:dialog header="Detalles de Impresora" showEffect="fade" modal="true" widgetVar="manageProductDialog"
+                          responsive="true">
+                    <h:panelGrid columns="8" columnClasses="col-12 md:col-3 xl:col-2, col-12 md:col-9 xl:col-4, col-12 md:col-3 xl:col-2, col-12 md:col-9 xl:col-4" >
+                        <p:outputPanel id="manage-product-content" class="ui-fluid">
+                            <p:outputPanel rendered="#{not empty impresoraBeans.impresoraseleccionada}" >
+                                <div class="card-body" >
+                                    <p:outputLabel for="idImpresora">Nro Inventario</p:outputLabel>
+                                    <p:inputText id="idImpresora" value="#{impresoraBeans.impresoraseleccionada.noInventario}" required="true" />
+
+                                    <p:outputLabel for="nombreResponsable">Responsable</p:outputLabel>
+                                    <p:inputText id="nombreResponsable" value="#{impresoraBeans.impresoraseleccionada.responsable}" />
+                                </div>
+                                <div class="card-body" >
+                                    <p:outputLabel for="nombre_marca" value="Marca"/>
+                                    <p:selectOneMenu id="nombre_marca" value="#{impresoraBeans.nombre_marca}" style="width:12rem" required="true">
+                                        <f:selectItem itemLabel="Seleccione Marca" itemValue="" noSelectionOption="true"/>
+                                        <f:selectItems value="#{impresoraBeans.marca}"/>
+                                        <!--<p:ajax listener="#{impresoraBeans.onCountryChange()}" update="nombre_departamento"/>-->
+                                    </p:selectOneMenu>
+
+
+                                    <p:outputLabel for="nombre_modelo" value="Modelo"/>
+                                    <p:selectOneMenu id="nombre_modelo" value="#{impresoraBeans.nombre_modelo}" style="width:12rem" required="true">
+                                        <f:selectItem itemLabel="Seleccione Modelo" itemValue="" noSelectionOption="true"/>
+                                        <f:selectItems value="#{impresoraBeans.modelo}"/>
+                                    </p:selectOneMenu>
+                                </div>
+                                <div class="card-body">
+                                    <p:outputLabel for="nombre_toner" value="Toner o Cinta"/>
+                                    <p:selectOneMenu id="nombre_toner" value="#{impresoraBeans.nombre_tonner}" style="width:12rem" required="true">
+                                        <f:selectItem itemLabel="Seleccione" itemValue="" noSelectionOption="true"/>
+                                        <f:selectItems value="#{impresoraBeans.tonner}"/>
+                                    </p:selectOneMenu>
+
+                                    <p:outputLabel for="nombre_unidad" value="Unidad"/>
+                                    <p:selectOneMenu id="nombre_unidad" value="#{impresoraBeans.nombre_entidad}" style="width:12rem" required="true">
+                                        <f:selectItem itemLabel="Seleccione Unidad" itemValue="" noSelectionOption="true"/>
+                                        <f:selectItems value="#{impresoraBeans.entidades}"/>
+                                        <p:ajax listener="#{impresoraBeans.llenar_lista_departamento()}" update="nombre_departamento"/>
+                                    </p:selectOneMenu>
+                                </div>
+                                <div class="card-body">
+                                    <p:outputLabel for="nombre_departamento" value="Departamento"/>
+                                    <p:selectOneMenu id="nombre_departamento" value="#{impresoraBeans.nombre_departamento}" style="width:12rem" required="true">
+                                        <f:selectItem itemLabel="Seleccione Departamento" itemValue="" noSelectionOption="true"/>
+                                        <f:selectItems value="#{impresoraBeans.departamentos}"/>
+                                        <p:ajax listener="#{impresoraBeans.llenar_lista_area()}" update="nombre_area"/>
+                                    </p:selectOneMenu>
+
+                                    <p:outputLabel for="nombre_area" value="Área"/>
+                                    <p:selectOneMenu id="nombre_area" value="#{impresoraBeans.nombre_area}" style="width:12rem">
+                                        <f:selectItem itemLabel="Seleccione Área" itemValue="" noSelectionOption="false"/>
+                                        <f:selectItems value="#{impresoraBeans.area}"/>
+                                    </p:selectOneMenu>
+                                </div>
+
+                            </p:outputPanel>
+                        </p:outputPanel>
+                    </h:panelGrid>
+                    <f:facet name="footer">
+                        <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{impresoraBeans.guardar}" ajax="false"
+                                         update="manage-product-content" process="manage-product-content @this" />
+                        <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('manageProductDialog').hide()"
+                                         class="ui-button-secondary" type="button" />
+                    </f:facet>
+
+                </p:dialog>
+
+                <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300" 
+                                 message="¿Eliminar la impresora?" header="Confirmar" severity="warn">
+                    <p:commandButton value="SI" icon="pi pi-check" actionListener="#{impresoraBeans.deleteProduct}" ajax="false"
+                                     process="@this" oncomplete="PF('deleteProductDialog').hide()" />
+                    <p:commandButton value="NO" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
+                                     onclick="PF('deleteProductDialog').hide()" />
+                </p:confirmDialog>
+
+                <p:confirmDialog global="true" showEffect="fade" width="300">
+                    <p:commandButton value="SI" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+                    <p:commandButton value="NO" type="button" styleClass="ui-confirmdialog-no ui-button-secondary"
+                                     icon="pi pi-times" />
+                </p:confirmDialog>
+
+            </h:form>
+        </div>
+
+    </h:body>
+</html>

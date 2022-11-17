@@ -1,50 +1,47 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
  */
 package Entidades;
 
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
- * @author David Ruiz
+ * @author David
  */
 @Entity
 @Table(name = "t_conexion")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "TConexion.findAll", query = "SELECT t FROM TConexion t"),
-    @NamedQuery(name = "TConexion.findByIdConexion", query = "SELECT t FROM TConexion t WHERE t.idConexion = :idConexion"),
-    @NamedQuery(name = "TConexion.findByNombreConexion", query = "SELECT t FROM TConexion t WHERE t.nombreConexion = :nombreConexion")})
+    @NamedQuery(name = "TConexion.findAll", query = "SELECT t FROM TConexion t")
+    , @NamedQuery(name = "TConexion.findByIdConexion", query = "SELECT t FROM TConexion t WHERE t.idConexion = :idConexion")
+    , @NamedQuery(name = "TConexion.findByNombreConexion", query = "SELECT t FROM TConexion t WHERE t.nombreConexion = :nombreConexion")})
 public class TConexion implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
-    @NotNull
     @Column(name = "id_conexion")
     private Integer idConexion;
-    @Size(max = 255)
     @Column(name = "nombre_conexion")
     private String nombreConexion;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "tConexionidConexion")
+    @OneToMany(mappedBy = "tConexionidConexion", fetch = FetchType.LAZY)
     private List<Accesorio> accesorioList;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "tConexionidConexion")
+    @OneToMany(mappedBy = "tConexionidConexion", fetch = FetchType.LAZY)
     private List<Componente> componenteList;
 
     public TConexion() {

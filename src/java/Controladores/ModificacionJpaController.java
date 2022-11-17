@@ -8,14 +8,15 @@ package Controladores;
 import Controladores.exceptions.IllegalOrphanException;
 import Controladores.exceptions.NonexistentEntityException;
 import Controladores.exceptions.PreexistingEntityException;
-import Entidades.Modificacion;
 import java.io.Serializable;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import Entidades.TModificacion;
+import Entidades.Componente;
+import Entidades.Modificacion;
 import Entidades.Pc;
+import Entidades.TModificacion;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
@@ -23,7 +24,7 @@ import javax.persistence.EntityManagerFactory;
 
 /**
  *
- * @author Dayana
+ * @author David
  */
 public class ModificacionJpaController implements Serializable {
 
@@ -37,9 +38,6 @@ public class ModificacionJpaController implements Serializable {
     }
 
     public void create(Modificacion modificacion) throws IllegalOrphanException, PreexistingEntityException, Exception {
-        if (modificacion.getPcList() == null) {
-            modificacion.setPcList(new ArrayList<Pc>());
-        }
         List<String> illegalOrphanMessages = null;
         TModificacion TModificacionOrphanCheck = modificacion.getTModificacion();
         if (TModificacionOrphanCheck != null) {
@@ -58,30 +56,33 @@ public class ModificacionJpaController implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
+            Componente componentesnComponente = modificacion.getComponentesnComponente();
+            if (componentesnComponente != null) {
+                componentesnComponente = em.getReference(componentesnComponente.getClass(), componentesnComponente.getSnComponente());
+                modificacion.setComponentesnComponente(componentesnComponente);
+            }
+            Pc pcnoInventario = modificacion.getPcnoInventario();
+            if (pcnoInventario != null) {
+                pcnoInventario = em.getReference(pcnoInventario.getClass(), pcnoInventario.getNoInventario());
+                modificacion.setPcnoInventario(pcnoInventario);
+            }
             TModificacion TModificacion = modificacion.getTModificacion();
             if (TModificacion != null) {
                 TModificacion = em.getReference(TModificacion.getClass(), TModificacion.getIdTmodificacion());
                 modificacion.setTModificacion(TModificacion);
             }
-            List<Pc> attachedPcList = new ArrayList<Pc>();
-            for (Pc pcListPcToAttach : modificacion.getPcList()) {
-                pcListPcToAttach = em.getReference(pcListPcToAttach.getClass(), pcListPcToAttach.getNoInventario());
-                attachedPcList.add(pcListPcToAttach);
-            }
-            modificacion.setPcList(attachedPcList);
             em.persist(modificacion);
+            if (componentesnComponente != null) {
+                componentesnComponente.getModificacionList().add(modificacion);
+                componentesnComponente = em.merge(componentesnComponente);
+            }
+            if (pcnoInventario != null) {
+                pcnoInventario.getModificacionList().add(modificacion);
+                pcnoInventario = em.merge(pcnoInventario);
+            }
             if (TModificacion != null) {
                 TModificacion.setModificacion(modificacion);
                 TModificacion = em.merge(TModificacion);
-            }
-            for (Pc pcListPc : modificacion.getPcList()) {
-                Modificacion oldModificaciontModificacionidTmodificacionOfPcListPc = pcListPc.getModificaciontModificacionidTmodificacion();
-                pcListPc.setModificaciontModificacionidTmodificacion(modificacion);
-                pcListPc = em.merge(pcListPc);
-                if (oldModificaciontModificacionidTmodificacionOfPcListPc != null) {
-                    oldModificaciontModificacionidTmodificacionOfPcListPc.getPcList().remove(pcListPc);
-                    oldModificaciontModificacionidTmodificacionOfPcListPc = em.merge(oldModificaciontModificacionidTmodificacionOfPcListPc);
-                }
             }
             em.getTransaction().commit();
         } catch (Exception ex) {
@@ -102,10 +103,12 @@ public class ModificacionJpaController implements Serializable {
             em = getEntityManager();
             em.getTransaction().begin();
             Modificacion persistentModificacion = em.find(Modificacion.class, modificacion.getTModificacionidTmodificacion());
+            Componente componentesnComponenteOld = persistentModificacion.getComponentesnComponente();
+            Componente componentesnComponenteNew = modificacion.getComponentesnComponente();
+            Pc pcnoInventarioOld = persistentModificacion.getPcnoInventario();
+            Pc pcnoInventarioNew = modificacion.getPcnoInventario();
             TModificacion TModificacionOld = persistentModificacion.getTModificacion();
             TModificacion TModificacionNew = modificacion.getTModificacion();
-            List<Pc> pcListOld = persistentModificacion.getPcList();
-            List<Pc> pcListNew = modificacion.getPcList();
             List<String> illegalOrphanMessages = null;
             if (TModificacionNew != null && !TModificacionNew.equals(TModificacionOld)) {
                 Modificacion oldModificacionOfTModificacion = TModificacionNew.getModificacion();
@@ -119,18 +122,35 @@ public class ModificacionJpaController implements Serializable {
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);
             }
+            if (componentesnComponenteNew != null) {
+                componentesnComponenteNew = em.getReference(componentesnComponenteNew.getClass(), componentesnComponenteNew.getSnComponente());
+                modificacion.setComponentesnComponente(componentesnComponenteNew);
+            }
+            if (pcnoInventarioNew != null) {
+                pcnoInventarioNew = em.getReference(pcnoInventarioNew.getClass(), pcnoInventarioNew.getNoInventario());
+                modificacion.setPcnoInventario(pcnoInventarioNew);
+            }
             if (TModificacionNew != null) {
                 TModificacionNew = em.getReference(TModificacionNew.getClass(), TModificacionNew.getIdTmodificacion());
                 modificacion.setTModificacion(TModificacionNew);
             }
-            List<Pc> attachedPcListNew = new ArrayList<Pc>();
-            for (Pc pcListNewPcToAttach : pcListNew) {
-                pcListNewPcToAttach = em.getReference(pcListNewPcToAttach.getClass(), pcListNewPcToAttach.getNoInventario());
-                attachedPcListNew.add(pcListNewPcToAttach);
-            }
-            pcListNew = attachedPcListNew;
-            modificacion.setPcList(pcListNew);
             modificacion = em.merge(modificacion);
+            if (componentesnComponenteOld != null && !componentesnComponenteOld.equals(componentesnComponenteNew)) {
+                componentesnComponenteOld.getModificacionList().remove(modificacion);
+                componentesnComponenteOld = em.merge(componentesnComponenteOld);
+            }
+            if (componentesnComponenteNew != null && !componentesnComponenteNew.equals(componentesnComponenteOld)) {
+                componentesnComponenteNew.getModificacionList().add(modificacion);
+                componentesnComponenteNew = em.merge(componentesnComponenteNew);
+            }
+            if (pcnoInventarioOld != null && !pcnoInventarioOld.equals(pcnoInventarioNew)) {
+                pcnoInventarioOld.getModificacionList().remove(modificacion);
+                pcnoInventarioOld = em.merge(pcnoInventarioOld);
+            }
+            if (pcnoInventarioNew != null && !pcnoInventarioNew.equals(pcnoInventarioOld)) {
+                pcnoInventarioNew.getModificacionList().add(modificacion);
+                pcnoInventarioNew = em.merge(pcnoInventarioNew);
+            }
             if (TModificacionOld != null && !TModificacionOld.equals(TModificacionNew)) {
                 TModificacionOld.setModificacion(null);
                 TModificacionOld = em.merge(TModificacionOld);
@@ -138,23 +158,6 @@ public class ModificacionJpaController implements Serializable {
             if (TModificacionNew != null && !TModificacionNew.equals(TModificacionOld)) {
                 TModificacionNew.setModificacion(modificacion);
                 TModificacionNew = em.merge(TModificacionNew);
-            }
-            for (Pc pcListOldPc : pcListOld) {
-                if (!pcListNew.contains(pcListOldPc)) {
-                    pcListOldPc.setModificaciontModificacionidTmodificacion(null);
-                    pcListOldPc = em.merge(pcListOldPc);
-                }
-            }
-            for (Pc pcListNewPc : pcListNew) {
-                if (!pcListOld.contains(pcListNewPc)) {
-                    Modificacion oldModificaciontModificacionidTmodificacionOfPcListNewPc = pcListNewPc.getModificaciontModificacionidTmodificacion();
-                    pcListNewPc.setModificaciontModificacionidTmodificacion(modificacion);
-                    pcListNewPc = em.merge(pcListNewPc);
-                    if (oldModificaciontModificacionidTmodificacionOfPcListNewPc != null && !oldModificaciontModificacionidTmodificacionOfPcListNewPc.equals(modificacion)) {
-                        oldModificaciontModificacionidTmodificacionOfPcListNewPc.getPcList().remove(pcListNewPc);
-                        oldModificaciontModificacionidTmodificacionOfPcListNewPc = em.merge(oldModificaciontModificacionidTmodificacionOfPcListNewPc);
-                    }
-                }
             }
             em.getTransaction().commit();
         } catch (Exception ex) {
@@ -185,15 +188,20 @@ public class ModificacionJpaController implements Serializable {
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The modificacion with id " + id + " no longer exists.", enfe);
             }
+            Componente componentesnComponente = modificacion.getComponentesnComponente();
+            if (componentesnComponente != null) {
+                componentesnComponente.getModificacionList().remove(modificacion);
+                componentesnComponente = em.merge(componentesnComponente);
+            }
+            Pc pcnoInventario = modificacion.getPcnoInventario();
+            if (pcnoInventario != null) {
+                pcnoInventario.getModificacionList().remove(modificacion);
+                pcnoInventario = em.merge(pcnoInventario);
+            }
             TModificacion TModificacion = modificacion.getTModificacion();
             if (TModificacion != null) {
                 TModificacion.setModificacion(null);
                 TModificacion = em.merge(TModificacion);
-            }
-            List<Pc> pcList = modificacion.getPcList();
-            for (Pc pcListPc : pcList) {
-                pcListPc.setModificaciontModificacionidTmodificacion(null);
-                pcListPc = em.merge(pcListPc);
             }
             em.remove(modificacion);
             em.getTransaction().commit();

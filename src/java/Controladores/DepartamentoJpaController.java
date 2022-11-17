@@ -14,10 +14,12 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import Entidades.Entidad;
-import Entidades.Area;
-import Entidades.Departamento;
+import Entidades.Accesorio;
 import java.util.ArrayList;
 import java.util.List;
+import Entidades.Componente;
+import Entidades.Area;
+import Entidades.Departamento;
 import Entidades.Impresora;
 import Entidades.Pc;
 import javax.persistence.EntityManager;
@@ -25,7 +27,7 @@ import javax.persistence.EntityManagerFactory;
 
 /**
  *
- * @author Dayana
+ * @author David
  */
 public class DepartamentoJpaController implements Serializable {
 
@@ -39,6 +41,12 @@ public class DepartamentoJpaController implements Serializable {
     }
 
     public void create(Departamento departamento) throws PreexistingEntityException, Exception {
+        if (departamento.getAccesorioList() == null) {
+            departamento.setAccesorioList(new ArrayList<Accesorio>());
+        }
+        if (departamento.getComponenteList() == null) {
+            departamento.setComponenteList(new ArrayList<Componente>());
+        }
         if (departamento.getAreaList() == null) {
             departamento.setAreaList(new ArrayList<Area>());
         }
@@ -57,6 +65,18 @@ public class DepartamentoJpaController implements Serializable {
                 entidadidEntidad = em.getReference(entidadidEntidad.getClass(), entidadidEntidad.getIdEntidad());
                 departamento.setEntidadidEntidad(entidadidEntidad);
             }
+            List<Accesorio> attachedAccesorioList = new ArrayList<Accesorio>();
+            for (Accesorio accesorioListAccesorioToAttach : departamento.getAccesorioList()) {
+                accesorioListAccesorioToAttach = em.getReference(accesorioListAccesorioToAttach.getClass(), accesorioListAccesorioToAttach.getSnAccesorio());
+                attachedAccesorioList.add(accesorioListAccesorioToAttach);
+            }
+            departamento.setAccesorioList(attachedAccesorioList);
+            List<Componente> attachedComponenteList = new ArrayList<Componente>();
+            for (Componente componenteListComponenteToAttach : departamento.getComponenteList()) {
+                componenteListComponenteToAttach = em.getReference(componenteListComponenteToAttach.getClass(), componenteListComponenteToAttach.getSnComponente());
+                attachedComponenteList.add(componenteListComponenteToAttach);
+            }
+            departamento.setComponenteList(attachedComponenteList);
             List<Area> attachedAreaList = new ArrayList<Area>();
             for (Area areaListAreaToAttach : departamento.getAreaList()) {
                 areaListAreaToAttach = em.getReference(areaListAreaToAttach.getClass(), areaListAreaToAttach.getIdArea());
@@ -79,6 +99,24 @@ public class DepartamentoJpaController implements Serializable {
             if (entidadidEntidad != null) {
                 entidadidEntidad.getDepartamentoList().add(departamento);
                 entidadidEntidad = em.merge(entidadidEntidad);
+            }
+            for (Accesorio accesorioListAccesorio : departamento.getAccesorioList()) {
+                Departamento oldDepartamentoidDepartamentoOfAccesorioListAccesorio = accesorioListAccesorio.getDepartamentoidDepartamento();
+                accesorioListAccesorio.setDepartamentoidDepartamento(departamento);
+                accesorioListAccesorio = em.merge(accesorioListAccesorio);
+                if (oldDepartamentoidDepartamentoOfAccesorioListAccesorio != null) {
+                    oldDepartamentoidDepartamentoOfAccesorioListAccesorio.getAccesorioList().remove(accesorioListAccesorio);
+                    oldDepartamentoidDepartamentoOfAccesorioListAccesorio = em.merge(oldDepartamentoidDepartamentoOfAccesorioListAccesorio);
+                }
+            }
+            for (Componente componenteListComponente : departamento.getComponenteList()) {
+                Departamento oldDepartamentoidDepartamentoOfComponenteListComponente = componenteListComponente.getDepartamentoidDepartamento();
+                componenteListComponente.setDepartamentoidDepartamento(departamento);
+                componenteListComponente = em.merge(componenteListComponente);
+                if (oldDepartamentoidDepartamentoOfComponenteListComponente != null) {
+                    oldDepartamentoidDepartamentoOfComponenteListComponente.getComponenteList().remove(componenteListComponente);
+                    oldDepartamentoidDepartamentoOfComponenteListComponente = em.merge(oldDepartamentoidDepartamentoOfComponenteListComponente);
+                }
             }
             for (Area areaListArea : departamento.getAreaList()) {
                 Departamento oldDepartamentoidDepartamentoOfAreaListArea = areaListArea.getDepartamentoidDepartamento();
@@ -128,6 +166,10 @@ public class DepartamentoJpaController implements Serializable {
             Departamento persistentDepartamento = em.find(Departamento.class, departamento.getIdDepartamento());
             Entidad entidadidEntidadOld = persistentDepartamento.getEntidadidEntidad();
             Entidad entidadidEntidadNew = departamento.getEntidadidEntidad();
+            List<Accesorio> accesorioListOld = persistentDepartamento.getAccesorioList();
+            List<Accesorio> accesorioListNew = departamento.getAccesorioList();
+            List<Componente> componenteListOld = persistentDepartamento.getComponenteList();
+            List<Componente> componenteListNew = departamento.getComponenteList();
             List<Area> areaListOld = persistentDepartamento.getAreaList();
             List<Area> areaListNew = departamento.getAreaList();
             List<Impresora> impresoraListOld = persistentDepartamento.getImpresoraList();
@@ -166,6 +208,20 @@ public class DepartamentoJpaController implements Serializable {
                 entidadidEntidadNew = em.getReference(entidadidEntidadNew.getClass(), entidadidEntidadNew.getIdEntidad());
                 departamento.setEntidadidEntidad(entidadidEntidadNew);
             }
+            List<Accesorio> attachedAccesorioListNew = new ArrayList<Accesorio>();
+            for (Accesorio accesorioListNewAccesorioToAttach : accesorioListNew) {
+                accesorioListNewAccesorioToAttach = em.getReference(accesorioListNewAccesorioToAttach.getClass(), accesorioListNewAccesorioToAttach.getSnAccesorio());
+                attachedAccesorioListNew.add(accesorioListNewAccesorioToAttach);
+            }
+            accesorioListNew = attachedAccesorioListNew;
+            departamento.setAccesorioList(accesorioListNew);
+            List<Componente> attachedComponenteListNew = new ArrayList<Componente>();
+            for (Componente componenteListNewComponenteToAttach : componenteListNew) {
+                componenteListNewComponenteToAttach = em.getReference(componenteListNewComponenteToAttach.getClass(), componenteListNewComponenteToAttach.getSnComponente());
+                attachedComponenteListNew.add(componenteListNewComponenteToAttach);
+            }
+            componenteListNew = attachedComponenteListNew;
+            departamento.setComponenteList(componenteListNew);
             List<Area> attachedAreaListNew = new ArrayList<Area>();
             for (Area areaListNewAreaToAttach : areaListNew) {
                 areaListNewAreaToAttach = em.getReference(areaListNewAreaToAttach.getClass(), areaListNewAreaToAttach.getIdArea());
@@ -195,6 +251,40 @@ public class DepartamentoJpaController implements Serializable {
             if (entidadidEntidadNew != null && !entidadidEntidadNew.equals(entidadidEntidadOld)) {
                 entidadidEntidadNew.getDepartamentoList().add(departamento);
                 entidadidEntidadNew = em.merge(entidadidEntidadNew);
+            }
+            for (Accesorio accesorioListOldAccesorio : accesorioListOld) {
+                if (!accesorioListNew.contains(accesorioListOldAccesorio)) {
+                    accesorioListOldAccesorio.setDepartamentoidDepartamento(null);
+                    accesorioListOldAccesorio = em.merge(accesorioListOldAccesorio);
+                }
+            }
+            for (Accesorio accesorioListNewAccesorio : accesorioListNew) {
+                if (!accesorioListOld.contains(accesorioListNewAccesorio)) {
+                    Departamento oldDepartamentoidDepartamentoOfAccesorioListNewAccesorio = accesorioListNewAccesorio.getDepartamentoidDepartamento();
+                    accesorioListNewAccesorio.setDepartamentoidDepartamento(departamento);
+                    accesorioListNewAccesorio = em.merge(accesorioListNewAccesorio);
+                    if (oldDepartamentoidDepartamentoOfAccesorioListNewAccesorio != null && !oldDepartamentoidDepartamentoOfAccesorioListNewAccesorio.equals(departamento)) {
+                        oldDepartamentoidDepartamentoOfAccesorioListNewAccesorio.getAccesorioList().remove(accesorioListNewAccesorio);
+                        oldDepartamentoidDepartamentoOfAccesorioListNewAccesorio = em.merge(oldDepartamentoidDepartamentoOfAccesorioListNewAccesorio);
+                    }
+                }
+            }
+            for (Componente componenteListOldComponente : componenteListOld) {
+                if (!componenteListNew.contains(componenteListOldComponente)) {
+                    componenteListOldComponente.setDepartamentoidDepartamento(null);
+                    componenteListOldComponente = em.merge(componenteListOldComponente);
+                }
+            }
+            for (Componente componenteListNewComponente : componenteListNew) {
+                if (!componenteListOld.contains(componenteListNewComponente)) {
+                    Departamento oldDepartamentoidDepartamentoOfComponenteListNewComponente = componenteListNewComponente.getDepartamentoidDepartamento();
+                    componenteListNewComponente.setDepartamentoidDepartamento(departamento);
+                    componenteListNewComponente = em.merge(componenteListNewComponente);
+                    if (oldDepartamentoidDepartamentoOfComponenteListNewComponente != null && !oldDepartamentoidDepartamentoOfComponenteListNewComponente.equals(departamento)) {
+                        oldDepartamentoidDepartamentoOfComponenteListNewComponente.getComponenteList().remove(componenteListNewComponente);
+                        oldDepartamentoidDepartamentoOfComponenteListNewComponente = em.merge(oldDepartamentoidDepartamentoOfComponenteListNewComponente);
+                    }
+                }
             }
             for (Area areaListNewArea : areaListNew) {
                 if (!areaListOld.contains(areaListNewArea)) {
@@ -287,6 +377,16 @@ public class DepartamentoJpaController implements Serializable {
             if (entidadidEntidad != null) {
                 entidadidEntidad.getDepartamentoList().remove(departamento);
                 entidadidEntidad = em.merge(entidadidEntidad);
+            }
+            List<Accesorio> accesorioList = departamento.getAccesorioList();
+            for (Accesorio accesorioListAccesorio : accesorioList) {
+                accesorioListAccesorio.setDepartamentoidDepartamento(null);
+                accesorioListAccesorio = em.merge(accesorioListAccesorio);
+            }
+            List<Componente> componenteList = departamento.getComponenteList();
+            for (Componente componenteListComponente : componenteList) {
+                componenteListComponente.setDepartamentoidDepartamento(null);
+                componenteListComponente = em.merge(componenteListComponente);
             }
             em.remove(departamento);
             em.getTransaction().commit();

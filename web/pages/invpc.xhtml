@@ -1,24 +1,265 @@
 <?xml version='1.0' encoding='UTF-8' ?> 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-      xmlns:h="http://xmlns.jcp.org/jsf/html">
-
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      >
     <h:head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <h:outputStylesheet name="./css/default.css"/>
-        <h:outputStylesheet name="./css/cssLayout.css"/>
-        <title>Facelets Template</title>
+        <title>Sistema Inventario</title>
+
+        <link rel="stylesheet" href="resources/css/bootstrap.css"/>
+        <link rel="stylesheet" href="resources/css/bootstrap-responsive.css"/>
+        <link rel="stylesheet" href="resources/css/prettyPhoto.css" />
+        <link rel="stylesheet" href="resources/css/flexslider.css" />
+        <link rel="stylesheet" href="resources/css/custom-styles.css"/>
+
+        <link rel="shortcut icon" href="resources/img/icono.jpg"/>
+        <link rel="apple-touch-icon" href="resources/img/apple-touch-icon.png"/>
+        <link rel="apple-touch-icon" sizes="72x72" href="resources/img/apple-touch-icon-72x72.png"/>
+        <link rel="apple-touch-icon" sizes="114x114" href="resources/img/apple-touch-icon-114x114.png"/>
+
+        <script src="resources/js/bootstrap.js"></script>
+        <script src="resources/js/jquery.prettyPhoto.js"></script>
+        <script src="resources/js/jquery.flexslider.js"></script>
+        <script src="resources/js/jquery.custom.js"></script>
+        <script type="text/javascript"/>
+        <title>Equipos</title>
     </h:head>
 
     <h:body>
+        <h:form>
+            <p:growl id="messages"/>
 
-        <div id="top" class="top">
-            <ui:insert name="top">Top</ui:insert>
-        </div>
+            <p:menubar id="menu-bar">
+                <p:menuitem value="Inicio" icon="pi pi-fw pi-home" url="index.faces" />
+                <p:menuitem value="Equipos" icon="pi pi-fw pi-desktop" url="invpc.faces"/>
+                <p:menuitem value="Impresoras" icon="pi pi-fw pi-print" url="pages/invpc.faces"/>
+                <p:submenu label="Administración" icon="pi pi-fw pi-server" >
+                    <p:menuitem value="Componentes" />
+                    <p:menuitem value="Accesorios" />
+                    <p:menuitem value="Entidad" url="inventidad.faces"/>
+                    <p:menuitem value="Departamento" url="invdepartamento.faces"/>
+                    <p:menuitem value="Area" url="invarea.faces" />
+                    <p:menuitem value="Marca" url="invmarca.faces"/>
+                    <p:menuitem value="Modelo" url="invmodelo.faces"/>
+                    <p:menuitem value="Programas" url="invprogramas.faces"/>
+                    <p:menuitem value="Sistema Operativo" url="invsoperativo.faces"/>
+                    <p:menuitem value="Modificaciones" url="invmodificacion.faces"/>
+                    <p:submenu label="Tipos" >
+                        <p:menuitem value="Tipos de accesorios" url="invtaccesorio.faces"/>
+                        <p:menuitem value="Tipos de componentes" url="invtcomponente.faces"/>
+                        <p:menuitem value="Tipos de conexiones" url="invtconexion.faces"/>
+                        <p:menuitem value="Tipos de equipos" url="invtequipo.faces"/>
+                        <p:menuitem value="Tipos de modificación" url="invtmodificacion.faces"/>
+                        <p:menuitem value="Tipos de toner" url="invttoner.faces"/>
+                    </p:submenu>
+                </p:submenu>
+                <p:menuitem value="Usuarios" icon="pi pi-fw pi-user"/>
+                <p:divider layout="vertical"/>
 
-        <div id="content" class="center_content">
-            <ui:insert name="content">Content</ui:insert>
+            </p:menubar>
+
+        </h:form>
+        #{pcBeans.init()}
+        <div class="card crud-demo">
+            <h:form id="form">
+                <p:growl id="messages" showDetail="true" />
+
+                <p:toolbar>
+                    <p:toolbarGroup>
+                        <p:commandButton value="Nuevo" icon="pi pi-plus" actionListener="#{pcBeans.nuevo()}"
+                                         update=":dialogs:manage-product-content" oncomplete="PF('manageProductDialog').show()"
+                                         styleClass="ui-button-success" style="margin-right: .5rem">
+                            <p:resetInput target=":dialogs:manage-product-content" />
+                        </p:commandButton>
+                        <p:commandButton id="delete-products-button" value="#{pcBeans.getdeleteButtonMessage()}"
+                                         icon="pi pi-trash" actionListener="#{pcBeans.deleteSelectedProducts}"
+                                         styleClass="ui-button-danger" disabled="#{!pcBeans.hasSeleccionadoElementos()}" update="@this">
+                            <p:confirm header="Confirmación" message="¿Eliminar equipos seleccionados?"
+                                       icon="pi pi-exclamation-triangle" />
+                        </p:commandButton>
+                    </p:toolbarGroup>
+                </p:toolbar>
+
+                <p:dataTable id="dt-pc" widgetVar="dtPc" var="pc" value="#{pcBeans.pcs}"
+                             reflow="true" styleClass="products-table" selection="#{pcBeans.seleccionadas}"
+                             rowKey="#{pc.noInventario}" paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
+                    <f:facet name="header">
+                        <div class="products-table-header">
+                            <span style="font-weight: bold">Equipos</span> <span
+                                class="filter-container ui-input-icon-left"> <i class="pi pi-search"></i> <p:inputText
+                                    id="globalFilter" onkeyup="PF('dtPc').filter()" placeholder="Buscar" />
+                            </span>
+
+                        </div>
+                    </f:facet>
+
+                    <p:ajax event="rowSelect" update=":form:delete-products-button" />
+                    <p:ajax event="rowUnselect" update=":form:delete-products-button" />
+                    <p:ajax event="rowSelectCheckbox" update=":form:delete-products-button" />
+                    <p:ajax event="rowUnselectCheckbox" update=":form:delete-products-button" />
+                    <p:ajax event="toggleSelect" update=":form:delete-products-button" />
+
+                    <p:column selectionMode="multiple" exportable="false"></p:column>
+
+                    <p:column headerText="No Inventario" sortBy="#{pc.noInventario}" filterBy="#{pc.noInventario}">
+                        <h:outputText value="#{pc.noInventario}" />
+                    </p:column>
+                    <p:column headerText="Responsable" sortBy="#{pc.responsable}" filterBy="#{pc.responsable}">
+                        <h:outputText value="#{pc.responsable}" />
+                    </p:column>
+                    <p:column headerText="Entidad" sortBy="#{pc.entidadidEntidad.nombreEntidad}" filterBy="#{pc.entidadidEntidad.nombreEntidad}">
+                        <h:outputText value="#{pc.entidadidEntidad.nombreEntidad}" />
+                    </p:column>
+                    <p:column headerText="Departamento" sortBy="#{pc.departamentoidDepartamento.nombreDepartamento}" filterBy="#{pc.departamentoidDepartamento.nombreDepartamento}">
+                        <h:outputText value="#{pc.departamentoidDepartamento.nombreDepartamento}" />
+                    </p:column>
+                    <p:column headerText="Area" sortBy="#{pc.areaidArea.nombreArea}" filterBy="#{pc.areaidArea.nombreArea}">
+                        <h:outputText value="#{pc.areaidArea.nombreArea}" />
+                    </p:column>
+
+                    <p:column exportable="false">
+                        <p:commandButton icon="pi pi-pencil" update=":dialogs:manage-product-content"
+                                         oncomplete="PF('manageProductDialog').show()"
+                                         styleClass="edit-button rounded-button ui-button-success" process="@this">
+                            <f:setPropertyActionListener value="#{pc}" target="#{pcBeans.pcseleccionada}" />
+                            <p:resetInput target=":dialogs:manage-product-content" />
+                        </p:commandButton>
+                        <p:linkButton class="edit-button rounded-button ui-button-success" href="http://localhost:8080/pages/invcompyaccPC.faces" 
+                                      icon="pi pi-plus" target="#{pcBeans.pcseleccionada}">
+                        </p:linkButton>
+                        <p:commandButton class="edit-button rounded-button ui-button-success" icon="pi pi-file-pdf" process="@this"
+                                         oncomplete="PF('deleteProductDialog').show()">
+                            <f:setPropertyActionListener value="#{pc}" target="#{pcBeans.pcseleccionada}" />
+                        </p:commandButton>
+                        <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash" process="@this"
+                                         oncomplete="PF('deleteProductDialog').show()">
+                            <f:setPropertyActionListener value="#{pc}" target="#{pcBeans.pcseleccionada}" />
+                        </p:commandButton>
+                    </p:column>
+                </p:dataTable>
+            </h:form>
+
+            <h:form id="dialogs">
+                <p:dialog header="Detalles del equipo" showEffect="fade" modal="true" widgetVar="manageProductDialog"
+                          responsive="true">
+                    <p:outputPanel id="manage-product-content" class="ui-fluid">
+                        <p:outputPanel rendered="#{not empty pcBeans.pcseleccionada}">
+                            <div class="field">
+                                <p:outputLabel for="idEquipo">Nro. Inv.</p:outputLabel>
+                                <p:inputText id="idEquipo" value="#{pcBeans.pcseleccionada.noInventario}" required="true" />
+
+
+                                <p:outputLabel for="responsable">Responsable</p:outputLabel>
+                                <p:inputText id="responsable" value="#{pcBeans.pcseleccionada.responsable}" required="true"/>
+                            </div>
+                            <div class="field">
+                                <p:outputLabel for="nombre_unidad" value="Unidad"/>
+                                <p:selectOneMenu id="nombre_unidad" value="#{pcBeans.nombre_entidad}" style="width:12rem">
+                                    <f:selectItem itemLabel="Seleccione Unidad" itemValue="" noSelectionOption="true"/>
+                                    <f:selectItems value="#{pcBeans.entidades}"/>
+                                    <p:ajax listener="#{pcBeans.llenar_lista_departamento()}" update="nombre_departamento"/>
+                                </p:selectOneMenu>
+
+                                <p:outputLabel for="nombre_departamento" value="Departamento"/>
+                                <p:selectOneMenu id="nombre_departamento" value="#{pcBeans.nombre_departamento}" style="width:12rem">
+                                    <f:selectItem itemLabel="Seleccione Departamento" itemValue="" noSelectionOption="true"/>
+                                    <f:selectItems value="#{pcBeans.departamentos}"/>
+                                    <p:ajax listener="#{pcBeans.llenar_lista_area()}" update="nombre_area"/>
+                                </p:selectOneMenu>
+                            </div>
+                            <div class="field">
+                                <p:outputLabel for="nombre_area" value="Área"/>
+                                <p:selectOneMenu id="nombre_area" value="#{pcBeans.nombre_area}" style="width:12rem">
+                                    <f:selectItem itemLabel="Seleccione Área" itemValue="" noSelectionOption="false"/>
+                                    <f:selectItems value="#{pcBeans.area}"/>
+                                </p:selectOneMenu>
+
+                                <p:outputLabel for="nombre_tequipo" value="T. Equipo"/>
+                                <p:selectOneMenu id="nombre_tequipo" value="#{pcBeans.nombre_tequipo}" style="width:12rem">
+                                    <f:selectItem itemLabel="Seleccione" itemValue="" noSelectionOption="false"/>
+                                    <f:selectItems value="#{pcBeans.t_equipo}"/>
+                                </p:selectOneMenu>
+                            </div>
+                            <div class="field">
+                                <p:outputLabel for="nro_serie">Nro. Serie</p:outputLabel>
+                                <p:inputText id="nro_serie" value="#{pcBeans.pcseleccionada.snPc}"/>
+
+                                <p:outputLabel for="nombre_marca" value="Marca"/>
+                                <p:selectOneMenu id="nombre_marca" value="#{pcBeans.nombre_marca}" style="width:12rem">
+                                    <f:selectItem itemLabel="Seleccione Marca" itemValue="" noSelectionOption="true"/>
+                                    <f:selectItems value="#{pcBeans.marca}"/>
+                                    <!--<p:ajax listener="#{pcBeans.onCountryChange()}" update="nombre_departamento"/>-->
+                                </p:selectOneMenu>
+                            </div>
+                            <div class="field">
+                                <p:outputLabel for="nombre_modelo" value="Modelo"/>
+                                <p:selectOneMenu id="nombre_modelo" value="#{pcBeans.nombre_modelo}" style="width:12rem">
+                                    <f:selectItem itemLabel="Seleccione Modelo" itemValue="" noSelectionOption="true"/>
+                                    <f:selectItems value="#{pcBeans.modelo}"/>
+                                </p:selectOneMenu>
+
+                                <p:outputLabel for="nombre_so" value="S. Operativo"/>
+                                <p:selectOneMenu id="nombre_so" value="#{pcBeans.nombre_soperativo}" style="width:12rem">
+                                    <f:selectItem itemLabel="Seleccione" itemValue="" noSelectionOption="true"/>
+                                    <f:selectItems value="#{pcBeans.s_operativo}"/>
+                                </p:selectOneMenu>
+                            </div>
+                            <div class="field">
+                                <p:outputLabel for="estado" value="Estado"/>
+                                <p:selectOneMenu id="estado" value="#{pcBeans.estado}" style="width:12rem">
+                                    <f:selectItem itemLabel="Seleccione" itemValue="" noSelectionOption="true"/>
+                                    <f:selectItems value="#{pcBeans.estados}"/>
+                                </p:selectOneMenu>
+
+                                <p:outputLabel for="nombre_programas" value="Programas"/>
+                                <p:selectManyMenu id="nombre_programas" value="#{pcBeans.programasseleccionados}" style="width:12rem" showCheckbox="true" var="p">
+                                    <f:selectItems value="#{pcBeans.programas}" var="programas" itemValue="#{programas}"/>
+
+                                </p:selectManyMenu>
+                                <!--<p:selectManyMenu id="advanced" value="#{selectManyView.selectedCountries}"
+                                                  converter="#{countryConverter}"
+                                                  var="c" filter="true" filterMatchMode="contains" showCheckbox="true" styleClass="manymenu-advanced">
+                                    <f:selectItems value="#{selectManyView.countries}" var="country" itemLabel="#{country.name}"
+                                                   itemValue="#{country}"/>
+
+                                    <p:column>
+                                        <span class="flag flag-#{c.code}" style="width: 30px; height: 20px"/>
+                                    </p:column>
+
+                                    <p:column>
+                                        <h:outputText value="#{c.name}"/>
+                                    </p:column>
+                                </p:selectManyMenu>-->
+                            </div>
+
+                        </p:outputPanel>
+
+                    </p:outputPanel>
+
+                    <f:facet name="footer">
+                        <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{pcBeans.guardar()}" ajax="false"
+                                         update="manage-product-content" process="manage-product-content @this" />
+                        <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('manageProductDialog').hide()"
+                                         class="ui-button-secondary" type="button" />
+                    </f:facet>
+                </p:dialog>
+
+                <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300"
+                                 message="¿Eliminar el equipo?" header="Confirmar" severity="warn">
+                    <p:commandButton value="SI" icon="pi pi-check" actionListener="#{pcBeans.deleteProduct}" ajax="false"
+                                     process="@this" oncomplete="PF('deleteProductDialog').hide()" />
+                    <p:commandButton value="NO" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
+                                     onclick="PF('deleteProductDialog').hide()" />
+                </p:confirmDialog>
+
+                <p:confirmDialog global="true" showEffect="fade" width="300">
+                    <p:commandButton value="SI" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+                    <p:commandButton value="NO" type="button" styleClass="ui-confirmdialog-no ui-button-secondary"
+                                     icon="pi pi-times" />
+                </p:confirmDialog>
+            </h:form>
         </div>
 
     </h:body>

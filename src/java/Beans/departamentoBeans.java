@@ -9,6 +9,7 @@ import Controladores.Ctrl;
 import Controladores.exceptions.IllegalOrphanException;
 import Controladores.exceptions.NonexistentEntityException;
 import Entidades.*;
+import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -28,23 +29,15 @@ public class departamentoBeans {
     public List<Departamento> departamentos;
     public List<Departamento> seleccionados;
     public Departamento deparatamentoleccionado;
-    public List<Entidad> entidades;
     public Entidad entidad;
+    public List<String> entidades;
+    private String nombre_entidad;
 
     @PostConstruct
     public void init() {
         this.departamentos = Ctrl.ctrlDepartamento.findDepartamentoEntities();
-        this.entidades= Ctrl.ctrlEntidad.findEntidadEntities();
+        llenar_lista_entidad();
     }
-
-    public List<Entidad> getEntidades() {
-        return entidades;
-    }
-
-    public void setEntidades(List<Entidad> entidades) {
-        this.entidades = entidades;
-    }
-    
 
     public List<Departamento> getDepartamentos() {
         return departamentos;
@@ -78,22 +71,41 @@ public class departamentoBeans {
         this.entidad = entidad;
     }
 
+    public List<String> getEntidades() {
+        return entidades;
+    }
+
+    public void setEntidades(List<String> entidades) {
+        this.entidades = entidades;
+    }
+
+    public String getNombre_entidad() {
+        return nombre_entidad;
+    }
+
+    public void setNombre_entidad(String nombre_entidad) {
+        this.nombre_entidad = nombre_entidad;
+    }
+
     public void nuevo() {
         this.deparatamentoleccionado = new Departamento();
     }
 
-    public void guardar() throws NullPointerException, Exception{
-        System.out.println("entida"+ entidad.getNombreEntidad());
+    public void guardar() throws Exception {
+        System.out.println("entro a guardar");
         Departamento nuevo = new Departamento();
-        System.out.println(this.deparatamentoleccionado.getEntidadidEntidad().getNombreEntidad());
-      
+//        System.out.println();
         if (!yaexiste()) {
             nuevo.setIdDepartamento(this.deparatamentoleccionado.getIdDepartamento());
             nuevo.setNombreDepartamento(this.deparatamentoleccionado.getNombreDepartamento());
-            if (this.entidad!=null) {
-                nuevo.setEntidadidEntidad(Ctrl.ctrlEntidad.findEntidad(entidad.getIdEntidad()));
+            for (int i = 0; i < Ctrl.ctrlEntidad.findEntidadEntities().size(); i++) {
+                System.out.println("entro al for");
+                if (nombre_entidad.equals(Ctrl.ctrlEntidad.findEntidadEntities().get(i).getNombreEntidad())) {
+                    System.out.println("encontro el nombre");
+                    nuevo.setEntidadidEntidad(Ctrl.ctrlEntidad.findEntidadEntities().get(i));
+                    break;
+                }
             }
-            
             Ctrl.ctrlDepartamento.create(nuevo);
             System.out.println("creo");
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Departamento Añadido"));
@@ -102,7 +114,14 @@ public class departamentoBeans {
                 nuevo = Ctrl.ctrlDepartamento.findDepartamento(deparatamentoleccionado.getIdDepartamento());
                 nuevo.setIdDepartamento(this.deparatamentoleccionado.getIdDepartamento());
                 nuevo.setNombreDepartamento(this.deparatamentoleccionado.getNombreDepartamento());
-                nuevo.setEntidadidEntidad(this.deparatamentoleccionado.getEntidadidEntidad());
+                for (int i = 0; i < Ctrl.ctrlEntidad.findEntidadEntities().size(); i++) {
+                System.out.println("entro al for");
+                if (nombre_entidad.equals(Ctrl.ctrlEntidad.findEntidadEntities().get(i).getNombreEntidad())) {
+                    System.out.println("encontro el nombre");
+                    nuevo.setEntidadidEntidad(Ctrl.ctrlEntidad.findEntidadEntities().get(i));
+                    break;
+                }
+            }
                 Ctrl.ctrlDepartamento.edit(nuevo);
                 System.out.println("edito");
                 FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Departamento Actualizado"));
@@ -116,6 +135,14 @@ public class departamentoBeans {
 
     }
 
+    public void llenar_lista_entidad() {
+        this.entidades = new ArrayList<String>();
+        for (int i = 0; i < Ctrl.ctrlEntidad.findEntidadEntities().size(); i++) {
+            this.entidades.add(Ctrl.ctrlEntidad.findEntidadEntities().get(i).getNombreEntidad());
+        }
+
+    }
+
     public void deleteProduct() throws IllegalOrphanException, NonexistentEntityException {
         Departamento eliminado = new Departamento();
         eliminado.setIdDepartamento(deparatamentoleccionado.getIdDepartamento());
@@ -123,14 +150,14 @@ public class departamentoBeans {
         System.out.println(deparatamentoleccionado.getIdDepartamento());
         Ctrl.ctrlDepartamento.destroy(eliminado.getIdDepartamento());
         this.deparatamentoleccionado = null;
-        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Departamento elininado"));
-        PrimeFaces.current().ajax().update("form:messages", "form:dt-entidades");
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Departamento eliminado"));
+        PrimeFaces.current().ajax().update("form:messages", "form:dt-departamentos");
     }
 
     public String getdeleteButtonMessage() {
         if (hasSeleccionadoElementos()) {
             int size = this.seleccionados.size();
-            return size > 1 ? size + " Departamentos selecciondas" : "1 Departamento Seleccionada";
+            return size > 1 ? size + " Departamentos seleccionados" : "1 Departamento Seleccionado";
         }
 
         return "Eliminar";
@@ -142,7 +169,7 @@ public class departamentoBeans {
 
     public boolean yaexiste() {
         for (int i = 0; i < departamentos.size(); i++) {
-            if (deparatamentoleccionado.getIdDepartamento().equals(departamentos.get(i).getIdDepartamento())){
+            if (deparatamentoleccionado.getIdDepartamento().equals(departamentos.get(i).getIdDepartamento())) {
 
                 return true;
             }

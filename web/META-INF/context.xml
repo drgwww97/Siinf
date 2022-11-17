@@ -1,2 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Context path="/SIINF"/>
+<Context antiJARLocking="true" path="/SIInfWeb">
+  <Resource auth="Container" driverClassName="org.postgresql.Driver" maxActive="20" maxIdle="10" maxWait="-1" name="SIInf" password="postgres" type="javax.sql.DataSource" url="jdbc:postgresql://localhost:5432/SIInf" username="postgres"/>
+</Context>

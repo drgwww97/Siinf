@@ -1,0 +1,356 @@
+<?xml version='1.0' encoding='UTF-8' ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <h:head>
+        <link rel="stylesheet" href="../resources/css/bootstrap.css"/>
+        <link rel="stylesheet" href="../resources/css/bootstrap-responsive.css"/>
+        <link rel="stylesheet" href="../resources/css/prettyPhoto.css" />
+        <link rel="stylesheet" href="../resources/css/flexslider.css" />
+        <link rel="stylesheet" href="../resources/css/custom-styles.css"/>
+
+        <link rel="shortcut icon" href="../resources/img/icono.jpg"/>
+        <link rel="apple-touch-icon" href="../resources/img/apple-touch-icon.png"/>
+        <link rel="apple-touch-icon" sizes="72x72" href="../resources/img/apple-touch-icon-72x72.png"/>
+        <link rel="apple-touch-icon" sizes="114x114" href="../resources/img/apple-touch-icon-114x114.png"/>
+
+        <script src="../resources/js/bootstrap.js"></script>
+        <script src="../resources/js/jquery.prettyPhoto.js"></script>
+        <script src="../resources/js/jquery.flexslider.js"></script>
+        <script src="../resources/js/jquery.custom.js"></script>
+        <script type="text/javascript"/>
+        <title>Componentes y Accesorios</title>
+    </h:head>
+
+    <h:body>
+
+        #{componenteBeans.init()}
+        
+        <div class="card crud-demo">
+            <h:form id="form">
+                <p:growl id="messages" showDetail="true" />
+                <p:toolbar>
+                    <p:toolbarGroup>
+                        <p:commandButton value="Nuevo" icon="pi pi-plus" actionListener="#{componenteBeans.nuevo}"
+                                         update=":dialogs:manage-product-content" oncomplete="PF('manageProductDialog').show()"
+                                         styleClass="ui-button-success" style="margin-right: .5rem">
+                            <p:resetInput target=":dialogs:manage-product-content" />
+                        </p:commandButton>
+                        <p:commandButton id="delete-products-button" value="#{componenteBeans.getdeleteButtonMessage()}"
+                                         icon="pi pi-trash" actionListener="#{componenteBeans.deleteSelectedProducts}"
+                                         styleClass="ui-button-danger" disabled="#{!componenteBeans.hasSeleccionadoElementos()}" update="@this">
+                            <p:confirm header="Confirmación" message="¿Desea eliminar los componentes seleccionados?"
+                                       icon="pi pi-exclamation-triangle" />
+                        </p:commandButton>
+                    </p:toolbarGroup>
+                </p:toolbar>
+
+                <p:dataTable id="dt-componentes" widgetVar="dtComponentes" var="componente" value="#{componenteBeans.componentes}" 
+                             reflow="true" styleClass="products-table" selection="#{componenteBeans.seleccionadas}"
+                             rowKey="#{componente.snComponente}" paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
+                    <f:facet name="header">
+                        <div class="products-table-header">
+                            <span style="font-weight: bold">Componentes   </span> <span
+                                class="filter-container ui-input-icon-left"> <i class="pi pi-search"></i> <p:inputText
+                                    id="globalFilter" onkeyup="PF('dtComponentes').filter()" placeholder="Buscar" />
+                            </span>
+                        </div>
+                    </f:facet>
+
+                    <p:ajax event="rowSelect" update=":form:delete-products-button" />
+                    <p:ajax event="rowUnselect" update=":form:delete-products-button" />
+                    <p:ajax event="rowSelectCheckbox" update=":form:delete-products-button" />
+                    <p:ajax event="rowUnselectCheckbox" update=":form:delete-products-button" />
+                    <p:ajax event="toggleSelect" update=":form:delete-products-button" />
+
+                    <p:column selectionMode="multiple" exportable="false"></p:column>
+
+                    <p:column headerText="Nro Serie" sortBy="#{componente.snComponente}" filterBy="#{componente.snComponente}">
+                        <h:outputText value="#{componente.snComponente}" />
+                    </p:column>
+                    <p:column headerText="Tipo" sortBy="#{componente.TComponenteidComponente.nombreComponente}" filterBy="#{componente.TComponenteidComponente.nombreComponente}">
+                        <h:outputText value="#{componente.TComponenteidComponente.nombreComponente}" />    
+                    </p:column>
+                    <p:column headerText="Marca" sortBy="#{componente.marcaidMarca.nombreMarca}" filterBy="#{componente.marcaidMarca.nombreMarca}">
+                        <h:outputText value="#{componente.marcaidMarca.nombreMarca}" />
+                    </p:column>
+                    <p:column headerText="Modelo" sortBy="#{componente.modeloidModelo.nombreModelo}" filterBy="#{componente.modeloidModelo.nombreModelo}">
+                        <h:outputText value="#{componente.modeloidModelo.nombreModelo}" />
+                    </p:column>
+                    <p:column headerText="Conexión" sortBy="#{componente.TConexionidConexion.nombreConexion}" filterBy="#{componente.TConexionidConexion.nombreConexion}">
+                        <h:outputText value="#{componente.TConexionidConexion.nombreConexion}" />    
+                    </p:column>
+                    <p:column headerText="Capacidad" sortBy="#{componente.capacidad}" filterBy="#{componente.capacidad}">
+                        <h:outputText value="#{componente.capacidad}" />
+                    </p:column>
+                    <p:column headerText="Estado" sortBy="#{componente.estadoidEstado.nombreEstado}" filterBy="#{componente.estadoidEstado.nombreEstado}">
+                        <h:outputText value="#{componente.estadoidEstado.nombreEstado}" />    
+                    </p:column>
+
+
+
+                    <p:column exportable="false">
+                        <p:commandButton icon="pi pi-pencil" update=":dialogs:manage-product-content"
+                                         oncomplete="PF('manageProductDialog').show()"
+                                         styleClass="edit-button rounded-button ui-button-success" process="@this">
+                            <f:setPropertyActionListener value="#{componente}" target="#{componenteBeans.componenteseleccionado}" />
+                            <p:resetInput target=":dialogs:manage-product-content" />
+                        </p:commandButton>
+                        <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash" process="@this"
+                                         oncomplete="PF('deleteProductDialog').show()">
+                            <f:setPropertyActionListener value="#{componente}" target="#{componenteBeans.componenteseleccionado}" />
+                        </p:commandButton>
+                    </p:column>
+
+                </p:dataTable>
+            </h:form>
+            <h:form id="dialogs">
+                <p:growl id="msgs" showDetail="true" skipDetailIfEqualsSummary="true"/>
+                <h:panelGrid columns="4" cellpadding="7" cellspacing="20">
+                    <p:dialog header="Detalles de Componente" showEffect="fade" modal="true" widgetVar="manageProductDialog"
+                              responsive="true">
+                        <p:outputPanel id="manage-product-content" class="ui-fluid">
+                            <p:outputPanel rendered="#{not empty componenteBeans.componenteseleccionado}">
+                                <div class="field">
+                                    <p:outputLabel for="idComponente">Nro Serie</p:outputLabel>
+                                    <p:inputText id="idComponente" value="#{componenteBeans.componenteseleccionado.snComponente}" required="true" />
+
+                                    <p:outputLabel for="nombre_tcomponente" value="Tipo de Componente"/>
+                                    <p:selectOneMenu id="nombre_tcomponente" value="#{componenteBeans.nombre_tcomponente}" style="width:12rem" required="true">
+                                        <f:selectItem itemLabel="Seleccione" itemValue="" noSelectionOption="true"/>
+                                        <f:selectItems value="#{componenteBeans.t_componente}"/>
+                                    </p:selectOneMenu>
+                                </div>
+                                <div class="field">
+                                    <p:outputLabel for="nombre_marca" value="Marca"/>
+                                    <p:selectOneMenu id="nombre_marca" value="#{componenteBeans.nombre_marca}" style="width:12rem">
+                                        <f:selectItem itemLabel="Seleccione Marca" itemValue="" noSelectionOption="true"/>
+                                        <f:selectItems value="#{componenteBeans.marca}"/>
+                                        <!--<p:ajax listener="#{componenteBeans.onCountryChange()}" update="nombre_departamento"/>-->
+                                    </p:selectOneMenu>
+
+                                    <p:outputLabel for="nombre_modelo" value="Modelo"/>
+                                    <p:selectOneMenu id="nombre_modelo" value="#{componenteBeans.nombre_modelo}" style="width:12rem">
+                                        <f:selectItem itemLabel="Seleccione Modelo" itemValue="" noSelectionOption="true"/>
+                                        <f:selectItems value="#{componenteBeans.modelo}"/>
+                                    </p:selectOneMenu>
+                                </div>
+                                <div class="field">
+                                    <p:outputLabel for="nombre_tconexion" value="Tipo de Conexion"/>
+                                    <p:selectOneMenu id="nombre_tconexion" value="#{componenteBeans.nombre_tconexion}" style="width:12rem">
+                                        <f:selectItem itemLabel="Seleccione" itemValue="" noSelectionOption="true"/>
+                                        <f:selectItems value="#{componenteBeans.t_conexion}"/>
+                                    </p:selectOneMenu>
+
+                                    <p:outputLabel for="capacidad">Capacidad</p:outputLabel>
+                                    <p:inputText id="capacidad" value="#{componenteBeans.componenteseleccionado.capacidad}"/>
+                                </div>
+                                <div class="field">
+                                    <p:outputLabel for="estadorep" value="Estado"/>
+                                    <p:selectOneMenu id="estadorep" value="#{componenteBeans.estado}" style="width:12rem">
+                                        <f:selectItem itemLabel="Seleccione" itemValue="" noSelectionOption="true"/>
+                                        <f:selectItems value="#{componenteBeans.estados}"/>               
+                                    </p:selectOneMenu>
+                                </div>
+
+                            </p:outputPanel>
+                        </p:outputPanel>
+
+                        <f:facet name="footer">
+                            <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{componenteBeans.guardar}" ajax="false"
+                                             update="manage-product-content" process="manage-product-content @this" />
+                            <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('manageProductDialog').hide()"
+                                             class="ui-button-secondary" type="button" />
+                        </f:facet>
+                    </p:dialog>
+
+                    <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300" 
+                                     message="¿Eliminar el componente?" header="Confirmar" severity="warn">
+                        <p:commandButton value="SI" icon="pi pi-check" actionListener="#{componenteBeans.deleteProduct}" ajax="false"
+                                         process="@this" oncomplete="PF('deleteProductDialog').hide()" />
+                        <p:commandButton value="NO" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
+                                         onclick="PF('deleteProductDialog').hide()" />
+                    </p:confirmDialog>
+
+                    <p:confirmDialog global="true" showEffect="fade" width="300">
+                        <p:commandButton value="SI" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+                        <p:commandButton value="NO" type="button" styleClass="ui-confirmdialog-no ui-button-secondary"
+                                         icon="pi pi-times" />
+                    </p:confirmDialog>
+                </h:panelGrid>
+            </h:form>
+        </div>
+        
+        
+        
+        <!--Accesorios
+        
+        
+        #{accesorioBeans.init()}
+        <div class="card crud-demo">
+            <h:form id="form1">
+                <p:growl id="messages" showDetail="true" />
+
+                <p:toolbar>
+                    <p:toolbarGroup>
+                        <p:commandButton value="Nuevo" icon="pi pi-plus" actionListener="#{accesorioBeans.nuevo}"
+                                         update=":dialogs:manage-product-content" oncomplete="PF('manageProductDialog1').show()"
+                                         styleClass="ui-button-success" style="margin-right: .5rem">
+                            <p:resetInput target=":dialogs:manage-product-content" />
+                        </p:commandButton>
+                        <p:commandButton id="delete-products-button1" value="#{accesorioBeans.getdeleteButtonMessage()}"
+                                         icon="pi pi-trash" actionListener="#{accesorioBeans.deleteSelectedProducts}"
+                                         styleClass="ui-button-danger" disabled="#{!accesorioBeans.hasSeleccionadoElementos()}" update="@this">
+                            <p:confirm header="Confirmación" message="¿Desea eliminar los accesorios seleccionados?"
+                                       icon="pi pi-exclamation-triangle" />
+                        </p:commandButton>
+
+                    </p:toolbarGroup>
+
+                </p:toolbar>
+
+                <p:dataTable id="dt-accesorios" widgetVar="dtAccesorios" var="accesorio" value="#{accesorioBeans.accesorios}" 
+                             reflow="true" styleClass="products-table" selection="#{accesorioBeans.seleccionadas}"
+                             rowKey="#{accesorio.snAccesorio}" paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
+                    <f:facet name="header">
+                        <div class="products-table-header">
+                            <span style="font-weight: bold">Accesorios   </span> <span
+                                class="filter-container ui-input-icon-left"> <i class="pi pi-search"></i> <p:inputText
+                                    id="globalFilter" onkeyup="PF('dtAccesorios').filter()" placeholder="Buscar" />
+                            </span>
+
+                        </div>
+                    </f:facet>
+
+                    <p:ajax event="rowSelect" update=":form:delete-products-button" />
+                    <p:ajax event="rowUnselect" update=":form:delete-products-button" />
+                    <p:ajax event="rowSelectCheckbox" update=":form:delete-products-button" />
+                    <p:ajax event="rowUnselectCheckbox" update=":form:delete-products-button" />
+                    <p:ajax event="toggleSelect" update=":form:delete-products-button" />
+
+                    <p:column selectionMode="multiple" exportable="false"></p:column>
+
+                    <p:column headerText="Nro Serie" sortBy="#{accesorio.snAccesorio}" filterBy="#{accesorio.snAccesorio}">
+                        <h:outputText value="#{accesorio.snAccesorio}" />
+                    </p:column>
+                    <p:column headerText="Tipo Accesorio" sortBy="#{accesorio.TAccesorioidAccesorio.nombreAccesorio}" filterBy="#{accesorio.TAccesorioidAccesorio.nombreAccesorio}">
+                        <h:outputText value="#{accesorio.TAccesorioidAccesorio.nombreAccesorio}" />    
+                    </p:column>
+                    <p:column headerText="Marca" sortBy="#{accesorio.marcaidMarca.nombreMarca}" filterBy="#{accesorio.marcaidMarca.nombreMarca}">
+                        <h:outputText value="#{accesorio.marcaidMarca.nombreMarca}" />
+                    </p:column>
+                    <p:column headerText="Modelo" sortBy="#{accesorio.modeloidModelo.nombreModelo}" filterBy="#{accesorio.modeloidModelo.nombreModelo}">
+                        <h:outputText value="#{accesorio.modeloidModelo.nombreModelo}" />
+                    </p:column>
+                    <p:column headerText="Conexión" sortBy="#{accesorio.TConexionidConexion.nombreConexion}" filterBy="#{accesorio.TConexionidConexion.nombreConexion}">
+                        <h:outputText value="#{accesorio.TConexionidConexion.nombreConexion}" />    
+                    </p:column>
+                    <p:column headerText="Estado" sortBy="#{accesorio.estadoidEstado.nombreEstado}" filterBy="#{accesorio.estadoidEstado.nombreEstado}">
+                        <h:outputText value="#{accesorio.estadoidEstado.nombreEstado}" />    
+                    </p:column>
+
+
+
+                    <p:column exportable="false">
+                        <p:commandButton icon="pi pi-pencil" update=":dialogs:manage-product-content1"
+                                         oncomplete="PF('manageProductDialog1').show()"
+                                         styleClass="edit-button rounded-button ui-button-success" process="@this">
+                            <f:setPropertyActionListener value="#{accesorio}" target="#{accesorioBeans.accesorioseleccionado}" />
+                            <p:resetInput target=":dialogs:manage-product-content1" />
+                        </p:commandButton>
+                        <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash" process="@this"
+                                         oncomplete="PF('deleteProductDialog').show()">
+                            <f:setPropertyActionListener value="#{accesorio}" target="#{accesorioBeans.accesorioseleccionado}" />
+                        </p:commandButton>
+                    </p:column>
+
+                </p:dataTable>
+            </h:form>
+            <div class="card">
+                <h:form id="dialogs1">
+                    <div class="ui-fluid formgrid grid">
+                        <p:growl id="msgs" showDetail="true" skipDetailIfEqualsSummary="true"/>
+                        <h:panelGrid columns="4" cellpadding="7" cellspacing="20">
+                            <p:dialog header="Detalles de Accesorio" showEffect="fade" modal="true" widgetVar="manageProductDialog1"
+                                      responsive="true">
+                                <p:outputPanel id="manage-product-content1" class="ui-fluid">
+                                    <p:outputPanel rendered="#{not empty accesorioBeans.accesorioseleccionado}">
+                                        <div class="field col-12 md:col-4">
+                                            <p:outputLabel for="idAccesorio">Nro Serie</p:outputLabel>
+                                            <p:inputText id="idAccesorio" value="#{accesorioBeans.accesorioseleccionado.snAccesorio}" required="true" />
+                                        </div>
+                                        <div class="field col-12 md:col-4">
+                                            <p:outputLabel for="nombre_taccesorio" value="Tipo de Accesorio"/>
+                                            <p:selectOneMenu id="nombre_taccesorio" value="#{accesorioBeans.nombre_taccesorio}" style="width:12rem" required="true">
+                                                <f:selectItem itemLabel="Seleccione" itemValue="" noSelectionOption="true"/>
+                                                <f:selectItems value="#{accesorioBeans.t_accesorio}"/>
+                                            </p:selectOneMenu>
+                                        </div>
+                                        <div class="field col-12 md:col-4">
+                                            <p:outputLabel for="nombre_marca" value="Marca" />
+                                            <p:selectOneMenu id="nombre_marca" value="#{accesorioBeans.nombre_marca}" style="width:12rem" required="true">
+                                                <f:selectItem itemLabel="Seleccione Marca" itemValue="" noSelectionOption="true"/>
+                                                <f:selectItems value="#{accesorioBeans.marca}"/>
+                                                <p:ajax listener="#{accesorioBeans.onCountryChange()}" update="nombre_departamento"/>
+                                            </p:selectOneMenu>
+                                        </div>
+                                        <div class="field col-12 md:col-4">
+                                            <p:outputLabel for="nombre_modelo" value="Modelo"/>
+                                            <p:selectOneMenu id="nombre_modelo" value="#{accesorioBeans.nombre_modelo}" style="width:12rem" required="true">
+                                                <f:selectItem itemLabel="Seleccione Modelo" itemValue="" noSelectionOption="true"/>
+                                                <f:selectItems value="#{accesorioBeans.modelo}"/>
+                                            </p:selectOneMenu>
+                                        </div>
+                                        <div class="field col-12 md:col-4">
+                                            <p:outputLabel for="nombre_tconexion" value="Tipo de Conexion"/>
+                                            <p:selectOneMenu id="nombre_tconexion" value="#{accesorioBeans.nombre_tconexion}" style="width:12rem">
+                                                <f:selectItem itemLabel="Seleccione" itemValue="" noSelectionOption="true"/>
+                                                <f:selectItems value="#{accesorioBeans.t_conexion}"/>
+                                            </p:selectOneMenu>
+                                        </div>
+                                        <div class="field col-12 md:col-4">
+                                            <p:outputLabel for="estado" value="Estado"/>
+                                            <p:selectOneMenu id="estado" value="#{accesorioBeans.estado}" style="width:12rem">
+                                                <f:selectItem itemLabel="Seleccione" itemValue="" noSelectionOption="true"/>
+                                                <f:selectItems value="#{accesorioBeans.estados}"/>
+                                            </p:selectOneMenu>
+                                        </div>
+
+                                    </p:outputPanel>
+                                </p:outputPanel>
+
+                                <f:facet name="footer">
+                                    <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{accesorioBeans.guardar}" ajax="false"
+                                                     update="manage-product-content1" process="manage-product-content1 @this" />
+                                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('manageProductDialog1').hide()"
+                                                     class="ui-button-secondary" type="button" />
+                                </f:facet>
+                            </p:dialog>
+
+                            <p:confirmDialog widgetVar="deleteProductDialog1" showEffect="fade" width="300" 
+                                             message="¿Eliminar el accesorio?" header="Confirmar" severity="warn">
+                                <p:commandButton value="SI" icon="pi pi-check" actionListener="#{accesorioBeans.deleteProduct}" ajax="false"
+                                                 process="@this" oncomplete="PF('deleteProductDialog1').hide()" />
+                                <p:commandButton value="NO" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
+                                                 onclick="PF('deleteProductDialog1').hide()" />
+                            </p:confirmDialog>
+
+                            <p:confirmDialog global="true" showEffect="fade" width="300">
+                                <p:commandButton value="SI" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+                                <p:commandButton value="NO" type="button" styleClass="ui-confirmdialog-no ui-button-secondary"
+                                                 icon="pi pi-times" />
+                            </p:confirmDialog>
+                        </h:panelGrid>
+                    </div>
+                </h:form>
+            </div>-->
+
+
+
+    </h:body>
+
+</html>

@@ -1,6 +1,7 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
  */
 package Entidades;
 
@@ -10,6 +11,7 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -17,39 +19,39 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
- * @author David Ruiz
+ * @author David
  */
 @Entity
 @Table(name = "area")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Area.findAll", query = "SELECT a FROM Area a"),
-    @NamedQuery(name = "Area.findByIdArea", query = "SELECT a FROM Area a WHERE a.idArea = :idArea"),
-    @NamedQuery(name = "Area.findByNombreArea", query = "SELECT a FROM Area a WHERE a.nombreArea = :nombreArea")})
+    @NamedQuery(name = "Area.findAll", query = "SELECT a FROM Area a")
+    , @NamedQuery(name = "Area.findByIdArea", query = "SELECT a FROM Area a WHERE a.idArea = :idArea")
+    , @NamedQuery(name = "Area.findByNombreArea", query = "SELECT a FROM Area a WHERE a.nombreArea = :nombreArea")})
 public class Area implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
-    @NotNull
     @Column(name = "id_area")
     private Integer idArea;
-    @Size(max = 255)
     @Column(name = "nombre_area")
     private String nombreArea;
+    @OneToMany(mappedBy = "areaidArea", fetch = FetchType.LAZY)
+    private List<Accesorio> accesorioList;
+    @OneToMany(mappedBy = "areaidArea", fetch = FetchType.LAZY)
+    private List<Componente> componenteList;
     @JoinColumn(name = "departamentoid_departamento", referencedColumnName = "id_departamento")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Departamento departamentoidDepartamento;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "areaidArea")
+    @OneToMany(mappedBy = "areaidArea", fetch = FetchType.LAZY)
     private List<Impresora> impresoraList;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "areaidArea")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "areaidArea", fetch = FetchType.LAZY)
     private List<Pc> pcList;
 
     public Area() {
@@ -73,6 +75,24 @@ public class Area implements Serializable {
 
     public void setNombreArea(String nombreArea) {
         this.nombreArea = nombreArea;
+    }
+
+    @XmlTransient
+    public List<Accesorio> getAccesorioList() {
+        return accesorioList;
+    }
+
+    public void setAccesorioList(List<Accesorio> accesorioList) {
+        this.accesorioList = accesorioList;
+    }
+
+    @XmlTransient
+    public List<Componente> getComponenteList() {
+        return componenteList;
+    }
+
+    public void setComponenteList(List<Componente> componenteList) {
+        this.componenteList = componenteList;
     }
 
     public Departamento getDepartamentoidDepartamento() {

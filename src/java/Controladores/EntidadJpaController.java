@@ -13,9 +13,11 @@ import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import Entidades.Impresora;
+import Entidades.Accesorio;
 import java.util.ArrayList;
 import java.util.List;
+import Entidades.Componente;
+import Entidades.Impresora;
 import Entidades.Pc;
 import Entidades.Departamento;
 import Entidades.Entidad;
@@ -24,7 +26,7 @@ import javax.persistence.EntityManagerFactory;
 
 /**
  *
- * @author Dayana
+ * @author David
  */
 public class EntidadJpaController implements Serializable {
 
@@ -38,6 +40,12 @@ public class EntidadJpaController implements Serializable {
     }
 
     public void create(Entidad entidad) throws PreexistingEntityException, Exception {
+        if (entidad.getAccesorioList() == null) {
+            entidad.setAccesorioList(new ArrayList<Accesorio>());
+        }
+        if (entidad.getComponenteList() == null) {
+            entidad.setComponenteList(new ArrayList<Componente>());
+        }
         if (entidad.getImpresoraList() == null) {
             entidad.setImpresoraList(new ArrayList<Impresora>());
         }
@@ -51,6 +59,18 @@ public class EntidadJpaController implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
+            List<Accesorio> attachedAccesorioList = new ArrayList<Accesorio>();
+            for (Accesorio accesorioListAccesorioToAttach : entidad.getAccesorioList()) {
+                accesorioListAccesorioToAttach = em.getReference(accesorioListAccesorioToAttach.getClass(), accesorioListAccesorioToAttach.getSnAccesorio());
+                attachedAccesorioList.add(accesorioListAccesorioToAttach);
+            }
+            entidad.setAccesorioList(attachedAccesorioList);
+            List<Componente> attachedComponenteList = new ArrayList<Componente>();
+            for (Componente componenteListComponenteToAttach : entidad.getComponenteList()) {
+                componenteListComponenteToAttach = em.getReference(componenteListComponenteToAttach.getClass(), componenteListComponenteToAttach.getSnComponente());
+                attachedComponenteList.add(componenteListComponenteToAttach);
+            }
+            entidad.setComponenteList(attachedComponenteList);
             List<Impresora> attachedImpresoraList = new ArrayList<Impresora>();
             for (Impresora impresoraListImpresoraToAttach : entidad.getImpresoraList()) {
                 impresoraListImpresoraToAttach = em.getReference(impresoraListImpresoraToAttach.getClass(), impresoraListImpresoraToAttach.getNoInventario());
@@ -70,6 +90,24 @@ public class EntidadJpaController implements Serializable {
             }
             entidad.setDepartamentoList(attachedDepartamentoList);
             em.persist(entidad);
+            for (Accesorio accesorioListAccesorio : entidad.getAccesorioList()) {
+                Entidad oldEntidadidEntidadOfAccesorioListAccesorio = accesorioListAccesorio.getEntidadidEntidad();
+                accesorioListAccesorio.setEntidadidEntidad(entidad);
+                accesorioListAccesorio = em.merge(accesorioListAccesorio);
+                if (oldEntidadidEntidadOfAccesorioListAccesorio != null) {
+                    oldEntidadidEntidadOfAccesorioListAccesorio.getAccesorioList().remove(accesorioListAccesorio);
+                    oldEntidadidEntidadOfAccesorioListAccesorio = em.merge(oldEntidadidEntidadOfAccesorioListAccesorio);
+                }
+            }
+            for (Componente componenteListComponente : entidad.getComponenteList()) {
+                Entidad oldEntidadidEntidadOfComponenteListComponente = componenteListComponente.getEntidadidEntidad();
+                componenteListComponente.setEntidadidEntidad(entidad);
+                componenteListComponente = em.merge(componenteListComponente);
+                if (oldEntidadidEntidadOfComponenteListComponente != null) {
+                    oldEntidadidEntidadOfComponenteListComponente.getComponenteList().remove(componenteListComponente);
+                    oldEntidadidEntidadOfComponenteListComponente = em.merge(oldEntidadidEntidadOfComponenteListComponente);
+                }
+            }
             for (Impresora impresoraListImpresora : entidad.getImpresoraList()) {
                 Entidad oldEntidadidEntidadOfImpresoraListImpresora = impresoraListImpresora.getEntidadidEntidad();
                 impresoraListImpresora.setEntidadidEntidad(entidad);
@@ -116,6 +154,10 @@ public class EntidadJpaController implements Serializable {
             em = getEntityManager();
             em.getTransaction().begin();
             Entidad persistentEntidad = em.find(Entidad.class, entidad.getIdEntidad());
+            List<Accesorio> accesorioListOld = persistentEntidad.getAccesorioList();
+            List<Accesorio> accesorioListNew = entidad.getAccesorioList();
+            List<Componente> componenteListOld = persistentEntidad.getComponenteList();
+            List<Componente> componenteListNew = entidad.getComponenteList();
             List<Impresora> impresoraListOld = persistentEntidad.getImpresoraList();
             List<Impresora> impresoraListNew = entidad.getImpresoraList();
             List<Pc> pcListOld = persistentEntidad.getPcList();
@@ -150,6 +192,20 @@ public class EntidadJpaController implements Serializable {
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);
             }
+            List<Accesorio> attachedAccesorioListNew = new ArrayList<Accesorio>();
+            for (Accesorio accesorioListNewAccesorioToAttach : accesorioListNew) {
+                accesorioListNewAccesorioToAttach = em.getReference(accesorioListNewAccesorioToAttach.getClass(), accesorioListNewAccesorioToAttach.getSnAccesorio());
+                attachedAccesorioListNew.add(accesorioListNewAccesorioToAttach);
+            }
+            accesorioListNew = attachedAccesorioListNew;
+            entidad.setAccesorioList(accesorioListNew);
+            List<Componente> attachedComponenteListNew = new ArrayList<Componente>();
+            for (Componente componenteListNewComponenteToAttach : componenteListNew) {
+                componenteListNewComponenteToAttach = em.getReference(componenteListNewComponenteToAttach.getClass(), componenteListNewComponenteToAttach.getSnComponente());
+                attachedComponenteListNew.add(componenteListNewComponenteToAttach);
+            }
+            componenteListNew = attachedComponenteListNew;
+            entidad.setComponenteList(componenteListNew);
             List<Impresora> attachedImpresoraListNew = new ArrayList<Impresora>();
             for (Impresora impresoraListNewImpresoraToAttach : impresoraListNew) {
                 impresoraListNewImpresoraToAttach = em.getReference(impresoraListNewImpresoraToAttach.getClass(), impresoraListNewImpresoraToAttach.getNoInventario());
@@ -172,6 +228,40 @@ public class EntidadJpaController implements Serializable {
             departamentoListNew = attachedDepartamentoListNew;
             entidad.setDepartamentoList(departamentoListNew);
             entidad = em.merge(entidad);
+            for (Accesorio accesorioListOldAccesorio : accesorioListOld) {
+                if (!accesorioListNew.contains(accesorioListOldAccesorio)) {
+                    accesorioListOldAccesorio.setEntidadidEntidad(null);
+                    accesorioListOldAccesorio = em.merge(accesorioListOldAccesorio);
+                }
+            }
+            for (Accesorio accesorioListNewAccesorio : accesorioListNew) {
+                if (!accesorioListOld.contains(accesorioListNewAccesorio)) {
+                    Entidad oldEntidadidEntidadOfAccesorioListNewAccesorio = accesorioListNewAccesorio.getEntidadidEntidad();
+                    accesorioListNewAccesorio.setEntidadidEntidad(entidad);
+                    accesorioListNewAccesorio = em.merge(accesorioListNewAccesorio);
+                    if (oldEntidadidEntidadOfAccesorioListNewAccesorio != null && !oldEntidadidEntidadOfAccesorioListNewAccesorio.equals(entidad)) {
+                        oldEntidadidEntidadOfAccesorioListNewAccesorio.getAccesorioList().remove(accesorioListNewAccesorio);
+                        oldEntidadidEntidadOfAccesorioListNewAccesorio = em.merge(oldEntidadidEntidadOfAccesorioListNewAccesorio);
+                    }
+                }
+            }
+            for (Componente componenteListOldComponente : componenteListOld) {
+                if (!componenteListNew.contains(componenteListOldComponente)) {
+                    componenteListOldComponente.setEntidadidEntidad(null);
+                    componenteListOldComponente = em.merge(componenteListOldComponente);
+                }
+            }
+            for (Componente componenteListNewComponente : componenteListNew) {
+                if (!componenteListOld.contains(componenteListNewComponente)) {
+                    Entidad oldEntidadidEntidadOfComponenteListNewComponente = componenteListNewComponente.getEntidadidEntidad();
+                    componenteListNewComponente.setEntidadidEntidad(entidad);
+                    componenteListNewComponente = em.merge(componenteListNewComponente);
+                    if (oldEntidadidEntidadOfComponenteListNewComponente != null && !oldEntidadidEntidadOfComponenteListNewComponente.equals(entidad)) {
+                        oldEntidadidEntidadOfComponenteListNewComponente.getComponenteList().remove(componenteListNewComponente);
+                        oldEntidadidEntidadOfComponenteListNewComponente = em.merge(oldEntidadidEntidadOfComponenteListNewComponente);
+                    }
+                }
+            }
             for (Impresora impresoraListNewImpresora : impresoraListNew) {
                 if (!impresoraListOld.contains(impresoraListNewImpresora)) {
                     Entidad oldEntidadidEntidadOfImpresoraListNewImpresora = impresoraListNewImpresora.getEntidadidEntidad();
@@ -258,6 +348,16 @@ public class EntidadJpaController implements Serializable {
             }
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);
+            }
+            List<Accesorio> accesorioList = entidad.getAccesorioList();
+            for (Accesorio accesorioListAccesorio : accesorioList) {
+                accesorioListAccesorio.setEntidadidEntidad(null);
+                accesorioListAccesorio = em.merge(accesorioListAccesorio);
+            }
+            List<Componente> componenteList = entidad.getComponenteList();
+            for (Componente componenteListComponente : componenteList) {
+                componenteListComponente.setEntidadidEntidad(null);
+                componenteListComponente = em.merge(componenteListComponente);
             }
             em.remove(entidad);
             em.getTransaction().commit();

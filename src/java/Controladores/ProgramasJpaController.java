@@ -21,7 +21,7 @@ import javax.persistence.EntityManagerFactory;
 
 /**
  *
- * @author Dayana
+ * @author David
  */
 public class ProgramasJpaController implements Serializable {
 
@@ -50,13 +50,8 @@ public class ProgramasJpaController implements Serializable {
             programas.setPcList(attachedPcList);
             em.persist(programas);
             for (Pc pcListPc : programas.getPcList()) {
-                Programas oldProgramasidProgramasOfPcListPc = pcListPc.getProgramasidProgramas();
-                pcListPc.setProgramasidProgramas(programas);
+                pcListPc.getProgramasList().add(programas);
                 pcListPc = em.merge(pcListPc);
-                if (oldProgramasidProgramasOfPcListPc != null) {
-                    oldProgramasidProgramasOfPcListPc.getPcList().remove(pcListPc);
-                    oldProgramasidProgramasOfPcListPc = em.merge(oldProgramasidProgramasOfPcListPc);
-                }
             }
             em.getTransaction().commit();
         } catch (Exception ex) {
@@ -89,19 +84,14 @@ public class ProgramasJpaController implements Serializable {
             programas = em.merge(programas);
             for (Pc pcListOldPc : pcListOld) {
                 if (!pcListNew.contains(pcListOldPc)) {
-                    pcListOldPc.setProgramasidProgramas(null);
+                    pcListOldPc.getProgramasList().remove(programas);
                     pcListOldPc = em.merge(pcListOldPc);
                 }
             }
             for (Pc pcListNewPc : pcListNew) {
                 if (!pcListOld.contains(pcListNewPc)) {
-                    Programas oldProgramasidProgramasOfPcListNewPc = pcListNewPc.getProgramasidProgramas();
-                    pcListNewPc.setProgramasidProgramas(programas);
+                    pcListNewPc.getProgramasList().add(programas);
                     pcListNewPc = em.merge(pcListNewPc);
-                    if (oldProgramasidProgramasOfPcListNewPc != null && !oldProgramasidProgramasOfPcListNewPc.equals(programas)) {
-                        oldProgramasidProgramasOfPcListNewPc.getPcList().remove(pcListNewPc);
-                        oldProgramasidProgramasOfPcListNewPc = em.merge(oldProgramasidProgramasOfPcListNewPc);
-                    }
                 }
             }
             em.getTransaction().commit();
@@ -135,7 +125,7 @@ public class ProgramasJpaController implements Serializable {
             }
             List<Pc> pcList = programas.getPcList();
             for (Pc pcListPc : pcList) {
-                pcListPc.setProgramasidProgramas(null);
+                pcListPc.getProgramasList().remove(programas);
                 pcListPc = em.merge(pcListPc);
             }
             em.remove(programas);

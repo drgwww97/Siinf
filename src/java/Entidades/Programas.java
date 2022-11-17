@@ -1,6 +1,7 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
  */
 package Entidades;
 
@@ -9,43 +10,39 @@ import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
- * @author David Ruiz
+ * @author David
  */
 @Entity
 @Table(name = "programas")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Programas.findAll", query = "SELECT p FROM Programas p"),
-    @NamedQuery(name = "Programas.findByIdProgramas", query = "SELECT p FROM Programas p WHERE p.idProgramas = :idProgramas"),
-    @NamedQuery(name = "Programas.findByNombreProg", query = "SELECT p FROM Programas p WHERE p.nombreProg = :nombreProg"),
-    @NamedQuery(name = "Programas.findByVersion", query = "SELECT p FROM Programas p WHERE p.version = :version")})
+    @NamedQuery(name = "Programas.findAll", query = "SELECT p FROM Programas p")
+    , @NamedQuery(name = "Programas.findByIdProgramas", query = "SELECT p FROM Programas p WHERE p.idProgramas = :idProgramas")
+    , @NamedQuery(name = "Programas.findByNombreProg", query = "SELECT p FROM Programas p WHERE p.nombreProg = :nombreProg")
+    , @NamedQuery(name = "Programas.findByVersion", query = "SELECT p FROM Programas p WHERE p.version = :version")})
 public class Programas implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
-    @NotNull
     @Column(name = "id_programas")
     private Integer idProgramas;
-    @Size(max = 255)
     @Column(name = "nombre_prog")
     private String nombreProg;
-    @Size(max = 255)
     @Column(name = "version")
     private String version;
-    @OneToMany(mappedBy = "programasidProgramas")
+    @ManyToMany(mappedBy = "programasList", fetch = FetchType.LAZY)
     private List<Pc> pcList;
 
     public Programas() {

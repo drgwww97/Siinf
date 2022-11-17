@@ -1,15 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
--->
-<!DOCTYPE html>
+<?xml version='1.0' encoding='UTF-8' ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:p="http://primefaces.org/ui"
       xmlns:f="http://xmlns.jcp.org/jsf/core"
-      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+      >
     <h:head>
         <title>Sistema Inventario</title>
 
@@ -30,42 +25,37 @@ and open the template in the editor.
         <script src="resources/js/jquery.custom.js"></script>
         <script type="text/javascript"/>
     </h:head>
+
     <h:form>
         <p:growl id="messages"/>
 
         <p:menubar id="menu-bar">
-            <p:menuitem value="Pc" icon="pi pi-fw pi-desktop"/>
-            <p:menuitem value="Impresora" icon="pi pi-fw pi-print"/>
-            <p:menuitem value="Usuarios" icon="pi pi-fw pi-user"/>
+            <p:menuitem value="Inicio" icon="pi pi-fw pi-home" url="index.faces" />
+            <p:menuitem value="Equipos" icon="pi pi-fw pi-desktop" url="invpc.faces"/>
+            <p:menuitem value="Impresoras" icon="pi pi-fw pi-print" url="pages/invpc.faces"/>
             <p:submenu label="Administración" icon="pi pi-fw pi-server" >
-                <p:menuitem value="Area" url="pages/invarea.faces" />
                 <p:menuitem value="Componentes" />
-                <p:menuitem value="Departamento" />
+                <p:menuitem value="Accesorios" />
                 <p:menuitem value="Entidad" url="inventidad.faces"/>
-                <p:menuitem value="Marca" />
-                <p:menuitem value="Modelo" />
-                <p:menuitem value="Programas" />
-                <p:menuitem value="SO" />
-                <p:submenu label="Tipos de entradas" >
-                    <p:menuitem value="Tipo accesorio" />
-                    <p:menuitem value="Tipo componente" />
-                    <p:menuitem value="Tipo conexión" />
-                    <p:menuitem value="Tipo equipo" />
-                    <p:menuitem value="Tipo modicación" />
-                    <p:menuitem value="Tipo tonner" />
+                <p:menuitem value="Departamento" url="invdepartamento.faces"/>
+                <p:menuitem value="Area" url="invarea.faces" />
+                <p:menuitem value="Marca" url="invmarca.faces"/>
+                <p:menuitem value="Modelo" url="invmodelo.faces"/>
+                <p:menuitem value="Programas" url="invprogramas.faces"/>
+                <p:menuitem value="Sistema Operativo" url="invsoperativo.faces"/>
+                <p:menuitem value="Modificaciones" url="invmodificacion.faces"/>
+                <p:submenu label="Tipos" >
+                    <p:menuitem value="Tipos de accesorios" url="invtaccesorio.faces"/>
+                    <p:menuitem value="Tipos de componentes" url="invtcomponente.faces"/>
+                    <p:menuitem value="Tipos de conexiones" url="invtconexion.faces"/>
+                    <p:menuitem value="Tipos de equipos" url="invtequipo.faces"/>
+                    <p:menuitem value="Tipos de modificación" url="invtmodificacion.faces"/>
+                    <p:menuitem value="Tipos de toner" url="invttoner.faces"/>
                 </p:submenu>
-
             </p:submenu>
-
+            <p:menuitem value="Usuarios" icon="pi pi-fw pi-user"/>
             <p:divider layout="vertical"/>
 
-            <f:facet name="options">
-                <div class="ui-input-icon-left mr-2">
-                    <i class="pi pi-fw pi-search" />
-                    <p:inputText placeholder="Search"/>
-                </div>
-                <p:button value="Logout" icon="pi pi-fw pi-sign-out" styleClass="ui-button-info"/>
-            </f:facet>
         </p:menubar>
 
     </h:form>
@@ -96,7 +86,7 @@ and open the template in the editor.
                              rowKey="#{departamento.idDepartamento}" paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
                     <f:facet name="header">
                         <div class="products-table-header">
-                            <span style="font-weight: bold">Departamentoa</span> <span
+                            <span style="font-weight: bold">Departamentos</span> <span
                                 class="filter-container ui-input-icon-left"> <i class="pi pi-search"></i> <p:inputText
                                     id="globalFilter" onkeyup="PF('dtDepartamentos').filter()" placeholder="Buscar" />
                             </span>
@@ -118,7 +108,7 @@ and open the template in the editor.
                     <p:column headerText="Nombre" sortBy="#{departamento.nombreDepartamento}" filterBy="#{departamento.nombreDepartamento}">
                         <h:outputText value="#{departamento.nombreDepartamento}" />
                     </p:column>
-                    <p:column headerText="Entidad" sortBy="#{departamento.entidadidEntidad.nombreEntidad}">
+                    <p:column headerText="Unidad" sortBy="#{departamento.entidadidEntidad.nombreEntidad}">
                         <h:outputText value="#{departamento.entidadidEntidad.nombreEntidad}" />
                     </p:column>
                     <p:column exportable="false">
@@ -138,7 +128,7 @@ and open the template in the editor.
             </h:form>
 
             <h:form id="dialogs">
-                <p:dialog header="Detalles del Departamentos" showEffect="fade" modal="true" widgetVar="manageProductDialog"
+                <p:dialog header="Detalles " showEffect="fade" modal="true" widgetVar="manageProductDialog"
                           responsive="true">
                     <p:outputPanel id="manage-product-content" class="ui-fluid">
                         <p:outputPanel rendered="#{not empty departamentoBeans.deparatamentoleccionado}">
@@ -148,36 +138,34 @@ and open the template in the editor.
                             </div>
                             <div class="field">
                                 <p:outputLabel for="nombreDepartamento">Nombre</p:outputLabel>
-                                <p:inputText id="nombreDepartamento" value="#{departamentoBeans.deparatamentoleccionado.nombreDepartamento}" required="true"/>
+                                <p:inputText id="nombreDepartamento" value="#{departamentoBeans.deparatamentoleccionado.nombreDepartamento}"/>
                             </div>
                             <div class="field">
-                                <h:form>
-                                    <h5 class="mt-0">Advanced</h5>
-                                    <p:growl id="msgs" showDetail="true" skipDetailIfEqualsSummary="true"/>
+                                <p:growl id="msgs" showDetail="true" skipDetailIfEqualsSummary="true"/>
+                                <h:panelGrid columns="2" cellpadding="7" styleClass="mb-3">
+                                    <p:outputLabel for="nombre_unidad" value="Unidad"/>
+                                    <p:selectOneMenu id="nombre_unidad" value="#{departamentoBeans.nombre_entidad}" style="width:12rem" required="true">
+                                        <f:selectItem itemLabel="Seleccione Unidad" itemValue=""/>
+                                        <f:selectItems value="#{departamentoBeans.entidades}"/>
+                                    </p:selectOneMenu>
 
-                                    <h:panelGrid columns="2" cellpadding="7" styleClass="mb-3">
-                                        <p:outputLabel for="entidad" value="Entidad"/>
-                                        <p:selectOneMenu id="entidad" value="#{departamentoBeans.entidad}" style="width:12rem">
-                                            <f:selectItem itemLabel="Seleccione Entidad" itemValue="" noSelectionOption="true"/>
-                                            <f:selectItems value="#{departamentoBeans.entidades}"/>
-                                        </p:selectOneMenu>
-                                    </h:panelGrid>
-                                  </h:form>
+                                </h:panelGrid>
                             </div>
                         </p:outputPanel>
                     </p:outputPanel>
 
                     <f:facet name="footer">
-                        <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{departamentoBeans.guardar}"
+                        <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{departamentoBeans.guardar}" ajax="false"
                                          update="manage-product-content" process="manage-product-content @this" />
                         <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('manageProductDialog').hide()"
                                          class="ui-button-secondary" type="button" />
                     </f:facet>
                 </p:dialog>
-
+            </h:form>
+            <h:form>
                 <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300"
                                  message="¿Eliminar el Departamento?" header="Confirmar" severity="warn">
-                    <p:commandButton value="SI" icon="pi pi-check" actionListener="#{departamentoBeans.deleteProduct}"
+                    <p:commandButton value="SI" icon="pi pi-check" actionListener="#{departamentoBeans.deleteProduct}" ajax="false"
                                      process="@this" oncomplete="PF('deleteProductDialog').hide()" />
                     <p:commandButton value="NO" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
                                      onclick="PF('deleteProductDialog').hide()" />

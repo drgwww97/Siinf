@@ -8,23 +8,25 @@ package Controladores;
 import Controladores.exceptions.IllegalOrphanException;
 import Controladores.exceptions.NonexistentEntityException;
 import Controladores.exceptions.PreexistingEntityException;
-import Entidades.Area;
 import java.io.Serializable;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import Entidades.Departamento;
-import Entidades.Impresora;
+import Entidades.Accesorio;
+import Entidades.Area;
 import java.util.ArrayList;
 import java.util.List;
+import Entidades.Componente;
+import Entidades.Impresora;
 import Entidades.Pc;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
 /**
  *
- * @author Dayana
+ * @author David
  */
 public class AreaJpaController implements Serializable {
 
@@ -38,6 +40,12 @@ public class AreaJpaController implements Serializable {
     }
 
     public void create(Area area) throws PreexistingEntityException, Exception {
+        if (area.getAccesorioList() == null) {
+            area.setAccesorioList(new ArrayList<Accesorio>());
+        }
+        if (area.getComponenteList() == null) {
+            area.setComponenteList(new ArrayList<Componente>());
+        }
         if (area.getImpresoraList() == null) {
             area.setImpresoraList(new ArrayList<Impresora>());
         }
@@ -53,6 +61,18 @@ public class AreaJpaController implements Serializable {
                 departamentoidDepartamento = em.getReference(departamentoidDepartamento.getClass(), departamentoidDepartamento.getIdDepartamento());
                 area.setDepartamentoidDepartamento(departamentoidDepartamento);
             }
+            List<Accesorio> attachedAccesorioList = new ArrayList<Accesorio>();
+            for (Accesorio accesorioListAccesorioToAttach : area.getAccesorioList()) {
+                accesorioListAccesorioToAttach = em.getReference(accesorioListAccesorioToAttach.getClass(), accesorioListAccesorioToAttach.getSnAccesorio());
+                attachedAccesorioList.add(accesorioListAccesorioToAttach);
+            }
+            area.setAccesorioList(attachedAccesorioList);
+            List<Componente> attachedComponenteList = new ArrayList<Componente>();
+            for (Componente componenteListComponenteToAttach : area.getComponenteList()) {
+                componenteListComponenteToAttach = em.getReference(componenteListComponenteToAttach.getClass(), componenteListComponenteToAttach.getSnComponente());
+                attachedComponenteList.add(componenteListComponenteToAttach);
+            }
+            area.setComponenteList(attachedComponenteList);
             List<Impresora> attachedImpresoraList = new ArrayList<Impresora>();
             for (Impresora impresoraListImpresoraToAttach : area.getImpresoraList()) {
                 impresoraListImpresoraToAttach = em.getReference(impresoraListImpresoraToAttach.getClass(), impresoraListImpresoraToAttach.getNoInventario());
@@ -69,6 +89,24 @@ public class AreaJpaController implements Serializable {
             if (departamentoidDepartamento != null) {
                 departamentoidDepartamento.getAreaList().add(area);
                 departamentoidDepartamento = em.merge(departamentoidDepartamento);
+            }
+            for (Accesorio accesorioListAccesorio : area.getAccesorioList()) {
+                Area oldAreaidAreaOfAccesorioListAccesorio = accesorioListAccesorio.getAreaidArea();
+                accesorioListAccesorio.setAreaidArea(area);
+                accesorioListAccesorio = em.merge(accesorioListAccesorio);
+                if (oldAreaidAreaOfAccesorioListAccesorio != null) {
+                    oldAreaidAreaOfAccesorioListAccesorio.getAccesorioList().remove(accesorioListAccesorio);
+                    oldAreaidAreaOfAccesorioListAccesorio = em.merge(oldAreaidAreaOfAccesorioListAccesorio);
+                }
+            }
+            for (Componente componenteListComponente : area.getComponenteList()) {
+                Area oldAreaidAreaOfComponenteListComponente = componenteListComponente.getAreaidArea();
+                componenteListComponente.setAreaidArea(area);
+                componenteListComponente = em.merge(componenteListComponente);
+                if (oldAreaidAreaOfComponenteListComponente != null) {
+                    oldAreaidAreaOfComponenteListComponente.getComponenteList().remove(componenteListComponente);
+                    oldAreaidAreaOfComponenteListComponente = em.merge(oldAreaidAreaOfComponenteListComponente);
+                }
             }
             for (Impresora impresoraListImpresora : area.getImpresoraList()) {
                 Area oldAreaidAreaOfImpresoraListImpresora = impresoraListImpresora.getAreaidArea();
@@ -109,19 +147,15 @@ public class AreaJpaController implements Serializable {
             Area persistentArea = em.find(Area.class, area.getIdArea());
             Departamento departamentoidDepartamentoOld = persistentArea.getDepartamentoidDepartamento();
             Departamento departamentoidDepartamentoNew = area.getDepartamentoidDepartamento();
+            List<Accesorio> accesorioListOld = persistentArea.getAccesorioList();
+            List<Accesorio> accesorioListNew = area.getAccesorioList();
+            List<Componente> componenteListOld = persistentArea.getComponenteList();
+            List<Componente> componenteListNew = area.getComponenteList();
             List<Impresora> impresoraListOld = persistentArea.getImpresoraList();
             List<Impresora> impresoraListNew = area.getImpresoraList();
             List<Pc> pcListOld = persistentArea.getPcList();
             List<Pc> pcListNew = area.getPcList();
             List<String> illegalOrphanMessages = null;
-            for (Impresora impresoraListOldImpresora : impresoraListOld) {
-                if (!impresoraListNew.contains(impresoraListOldImpresora)) {
-                    if (illegalOrphanMessages == null) {
-                        illegalOrphanMessages = new ArrayList<String>();
-                    }
-                    illegalOrphanMessages.add("You must retain Impresora " + impresoraListOldImpresora + " since its areaidArea field is not nullable.");
-                }
-            }
             for (Pc pcListOldPc : pcListOld) {
                 if (!pcListNew.contains(pcListOldPc)) {
                     if (illegalOrphanMessages == null) {
@@ -137,6 +171,20 @@ public class AreaJpaController implements Serializable {
                 departamentoidDepartamentoNew = em.getReference(departamentoidDepartamentoNew.getClass(), departamentoidDepartamentoNew.getIdDepartamento());
                 area.setDepartamentoidDepartamento(departamentoidDepartamentoNew);
             }
+            List<Accesorio> attachedAccesorioListNew = new ArrayList<Accesorio>();
+            for (Accesorio accesorioListNewAccesorioToAttach : accesorioListNew) {
+                accesorioListNewAccesorioToAttach = em.getReference(accesorioListNewAccesorioToAttach.getClass(), accesorioListNewAccesorioToAttach.getSnAccesorio());
+                attachedAccesorioListNew.add(accesorioListNewAccesorioToAttach);
+            }
+            accesorioListNew = attachedAccesorioListNew;
+            area.setAccesorioList(accesorioListNew);
+            List<Componente> attachedComponenteListNew = new ArrayList<Componente>();
+            for (Componente componenteListNewComponenteToAttach : componenteListNew) {
+                componenteListNewComponenteToAttach = em.getReference(componenteListNewComponenteToAttach.getClass(), componenteListNewComponenteToAttach.getSnComponente());
+                attachedComponenteListNew.add(componenteListNewComponenteToAttach);
+            }
+            componenteListNew = attachedComponenteListNew;
+            area.setComponenteList(componenteListNew);
             List<Impresora> attachedImpresoraListNew = new ArrayList<Impresora>();
             for (Impresora impresoraListNewImpresoraToAttach : impresoraListNew) {
                 impresoraListNewImpresoraToAttach = em.getReference(impresoraListNewImpresoraToAttach.getClass(), impresoraListNewImpresoraToAttach.getNoInventario());
@@ -159,6 +207,46 @@ public class AreaJpaController implements Serializable {
             if (departamentoidDepartamentoNew != null && !departamentoidDepartamentoNew.equals(departamentoidDepartamentoOld)) {
                 departamentoidDepartamentoNew.getAreaList().add(area);
                 departamentoidDepartamentoNew = em.merge(departamentoidDepartamentoNew);
+            }
+            for (Accesorio accesorioListOldAccesorio : accesorioListOld) {
+                if (!accesorioListNew.contains(accesorioListOldAccesorio)) {
+                    accesorioListOldAccesorio.setAreaidArea(null);
+                    accesorioListOldAccesorio = em.merge(accesorioListOldAccesorio);
+                }
+            }
+            for (Accesorio accesorioListNewAccesorio : accesorioListNew) {
+                if (!accesorioListOld.contains(accesorioListNewAccesorio)) {
+                    Area oldAreaidAreaOfAccesorioListNewAccesorio = accesorioListNewAccesorio.getAreaidArea();
+                    accesorioListNewAccesorio.setAreaidArea(area);
+                    accesorioListNewAccesorio = em.merge(accesorioListNewAccesorio);
+                    if (oldAreaidAreaOfAccesorioListNewAccesorio != null && !oldAreaidAreaOfAccesorioListNewAccesorio.equals(area)) {
+                        oldAreaidAreaOfAccesorioListNewAccesorio.getAccesorioList().remove(accesorioListNewAccesorio);
+                        oldAreaidAreaOfAccesorioListNewAccesorio = em.merge(oldAreaidAreaOfAccesorioListNewAccesorio);
+                    }
+                }
+            }
+            for (Componente componenteListOldComponente : componenteListOld) {
+                if (!componenteListNew.contains(componenteListOldComponente)) {
+                    componenteListOldComponente.setAreaidArea(null);
+                    componenteListOldComponente = em.merge(componenteListOldComponente);
+                }
+            }
+            for (Componente componenteListNewComponente : componenteListNew) {
+                if (!componenteListOld.contains(componenteListNewComponente)) {
+                    Area oldAreaidAreaOfComponenteListNewComponente = componenteListNewComponente.getAreaidArea();
+                    componenteListNewComponente.setAreaidArea(area);
+                    componenteListNewComponente = em.merge(componenteListNewComponente);
+                    if (oldAreaidAreaOfComponenteListNewComponente != null && !oldAreaidAreaOfComponenteListNewComponente.equals(area)) {
+                        oldAreaidAreaOfComponenteListNewComponente.getComponenteList().remove(componenteListNewComponente);
+                        oldAreaidAreaOfComponenteListNewComponente = em.merge(oldAreaidAreaOfComponenteListNewComponente);
+                    }
+                }
+            }
+            for (Impresora impresoraListOldImpresora : impresoraListOld) {
+                if (!impresoraListNew.contains(impresoraListOldImpresora)) {
+                    impresoraListOldImpresora.setAreaidArea(null);
+                    impresoraListOldImpresora = em.merge(impresoraListOldImpresora);
+                }
             }
             for (Impresora impresoraListNewImpresora : impresoraListNew) {
                 if (!impresoraListOld.contains(impresoraListNewImpresora)) {
@@ -212,13 +300,6 @@ public class AreaJpaController implements Serializable {
                 throw new NonexistentEntityException("The area with id " + id + " no longer exists.", enfe);
             }
             List<String> illegalOrphanMessages = null;
-            List<Impresora> impresoraListOrphanCheck = area.getImpresoraList();
-            for (Impresora impresoraListOrphanCheckImpresora : impresoraListOrphanCheck) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("This Area (" + area + ") cannot be destroyed since the Impresora " + impresoraListOrphanCheckImpresora + " in its impresoraList field has a non-nullable areaidArea field.");
-            }
             List<Pc> pcListOrphanCheck = area.getPcList();
             for (Pc pcListOrphanCheckPc : pcListOrphanCheck) {
                 if (illegalOrphanMessages == null) {
@@ -233,6 +314,21 @@ public class AreaJpaController implements Serializable {
             if (departamentoidDepartamento != null) {
                 departamentoidDepartamento.getAreaList().remove(area);
                 departamentoidDepartamento = em.merge(departamentoidDepartamento);
+            }
+            List<Accesorio> accesorioList = area.getAccesorioList();
+            for (Accesorio accesorioListAccesorio : accesorioList) {
+                accesorioListAccesorio.setAreaidArea(null);
+                accesorioListAccesorio = em.merge(accesorioListAccesorio);
+            }
+            List<Componente> componenteList = area.getComponenteList();
+            for (Componente componenteListComponente : componenteList) {
+                componenteListComponente.setAreaidArea(null);
+                componenteListComponente = em.merge(componenteListComponente);
+            }
+            List<Impresora> impresoraList = area.getImpresoraList();
+            for (Impresora impresoraListImpresora : impresoraList) {
+                impresoraListImpresora.setAreaidArea(null);
+                impresoraListImpresora = em.merge(impresoraListImpresora);
             }
             em.remove(area);
             em.getTransaction().commit();

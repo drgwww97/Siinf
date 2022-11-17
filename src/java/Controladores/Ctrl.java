@@ -1,9 +1,11 @@
+package Controladores;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Controladores;
+
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -18,6 +20,7 @@ public class Ctrl {
     public static AccesorioJpaController ctrlAccesorio = new AccesorioJpaController(emf);
     public static AlmacenJpaController ctrlAlmacen = new AlmacenJpaController(emf);
     public static AreaJpaController ctrlArea = new AreaJpaController(emf);
+    public static EstadoJpaController ctrlEstado = new EstadoJpaController(emf);
     public static ComponenteJpaController ctrlComponente = new ComponenteJpaController(emf);
     public static DepartamentoJpaController ctrlDepartamento = new DepartamentoJpaController(emf);
     public static EntidadJpaController ctrlEntidad = new EntidadJpaController(emf);

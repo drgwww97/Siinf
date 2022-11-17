@@ -1,63 +1,72 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
  */
 package Entidades;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
- * @author David Ruiz
+ * @author David
  */
 @Entity
 @Table(name = "impresora")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Impresora.findAll", query = "SELECT i FROM Impresora i"),
-    @NamedQuery(name = "Impresora.findByNoInventario", query = "SELECT i FROM Impresora i WHERE i.noInventario = :noInventario"),
-    @NamedQuery(name = "Impresora.findByResponsable", query = "SELECT i FROM Impresora i WHERE i.responsable = :responsable")})
+    @NamedQuery(name = "Impresora.findAll", query = "SELECT i FROM Impresora i")
+    , @NamedQuery(name = "Impresora.findByNoInventario", query = "SELECT i FROM Impresora i WHERE i.noInventario = :noInventario")
+    , @NamedQuery(name = "Impresora.findByResponsable", query = "SELECT i FROM Impresora i WHERE i.responsable = :responsable")})
 public class Impresora implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
-    @NotNull
-    @Size(min = 1, max = 255)
     @Column(name = "no_inventario")
     private String noInventario;
-    @Size(max = 255)
     @Column(name = "responsable")
     private String responsable;
+    @ManyToMany(mappedBy = "impresoraList", fetch = FetchType.LAZY)
+    private List<UsuariosCompartidos> usuariosCompartidosList;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "impresoranoInventario", fetch = FetchType.LAZY)
+    private List<RegDatosToner> regDatosTonerList;
     @JoinColumn(name = "areaid_area", referencedColumnName = "id_area")
-    @ManyToOne(optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Area areaidArea;
     @JoinColumn(name = "departamentoid_departamento", referencedColumnName = "id_departamento")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Departamento departamentoidDepartamento;
     @JoinColumn(name = "entidadid_entidad", referencedColumnName = "id_entidad")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Entidad entidadidEntidad;
+    @JoinColumn(name = "estadoid_estado", referencedColumnName = "id_estado")
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    private Estado estadoidEstado;
     @JoinColumn(name = "marcaid_marca", referencedColumnName = "id_marca")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Marca marcaidMarca;
     @JoinColumn(name = "modeloid_modelo", referencedColumnName = "id_modelo")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Modelo modeloidModelo;
     @JoinColumn(name = "t_tonnersn_tonner", referencedColumnName = "sn_tonner")
-    @ManyToOne
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private TTonner tTonnersnTonner;
 
     public Impresora() {
@@ -83,6 +92,24 @@ public class Impresora implements Serializable {
         this.responsable = responsable;
     }
 
+    @XmlTransient
+    public List<UsuariosCompartidos> getUsuariosCompartidosList() {
+        return usuariosCompartidosList;
+    }
+
+    public void setUsuariosCompartidosList(List<UsuariosCompartidos> usuariosCompartidosList) {
+        this.usuariosCompartidosList = usuariosCompartidosList;
+    }
+
+    @XmlTransient
+    public List<RegDatosToner> getRegDatosTonerList() {
+        return regDatosTonerList;
+    }
+
+    public void setRegDatosTonerList(List<RegDatosToner> regDatosTonerList) {
+        this.regDatosTonerList = regDatosTonerList;
+    }
+
     public Area getAreaidArea() {
         return areaidArea;
     }
@@ -105,6 +132,14 @@ public class Impresora implements Serializable {
 
     public void setEntidadidEntidad(Entidad entidadidEntidad) {
         this.entidadidEntidad = entidadidEntidad;
+    }
+
+    public Estado getEstadoidEstado() {
+        return estadoidEstado;
+    }
+
+    public void setEstadoidEstado(Estado estadoidEstado) {
+        this.estadoidEstado = estadoidEstado;
     }
 
     public Marca getMarcaidMarca() {

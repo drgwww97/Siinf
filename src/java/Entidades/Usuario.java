@@ -1,70 +1,71 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
  */
 package Entidades;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
- * @author David Ruiz
+ * @author David
  */
 @Entity
 @Table(name = "usuario")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Usuario.findAll", query = "SELECT u FROM Usuario u"),
-    @NamedQuery(name = "Usuario.findByUsuario", query = "SELECT u FROM Usuario u WHERE u.usuario = :usuario"),
-    @NamedQuery(name = "Usuario.findByPassword", query = "SELECT u FROM Usuario u WHERE u.password = :password"),
-    @NamedQuery(name = "Usuario.findByNombre", query = "SELECT u FROM Usuario u WHERE u.nombre = :nombre"),
-    @NamedQuery(name = "Usuario.findByApellidos", query = "SELECT u FROM Usuario u WHERE u.apellidos = :apellidos"),
-    @NamedQuery(name = "Usuario.findByCorreo", query = "SELECT u FROM Usuario u WHERE u.correo = :correo"),
-    @NamedQuery(name = "Usuario.findByCi", query = "SELECT u FROM Usuario u WHERE u.ci = :ci")})
+    @NamedQuery(name = "Usuario.findAll", query = "SELECT u FROM Usuario u")
+    , @NamedQuery(name = "Usuario.findByUsuario", query = "SELECT u FROM Usuario u WHERE u.usuario = :usuario")
+    , @NamedQuery(name = "Usuario.findByPassword", query = "SELECT u FROM Usuario u WHERE u.password = :password")
+    , @NamedQuery(name = "Usuario.findByNombre", query = "SELECT u FROM Usuario u WHERE u.nombre = :nombre")
+    , @NamedQuery(name = "Usuario.findByApellidos", query = "SELECT u FROM Usuario u WHERE u.apellidos = :apellidos")
+    , @NamedQuery(name = "Usuario.findByCorreo", query = "SELECT u FROM Usuario u WHERE u.correo = :correo")
+    , @NamedQuery(name = "Usuario.findByCi", query = "SELECT u FROM Usuario u WHERE u.ci = :ci")})
 public class Usuario implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
-    @NotNull
-    @Size(min = 1, max = 50)
     @Column(name = "usuario")
     private String usuario;
-    @Size(max = 50)
+    @Basic(optional = false)
     @Column(name = "password")
     private String password;
-    @Size(max = 255)
     @Column(name = "nombre")
     private String nombre;
-    @Size(max = 255)
     @Column(name = "apellidos")
     private String apellidos;
-    @Size(max = 255)
     @Column(name = "correo")
     private String correo;
-    @Size(max = 11)
     @Column(name = "ci")
     private String ci;
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "usuario")
-    private Login login;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "usuario", fetch = FetchType.LAZY)
+    private List<Login> loginList;
 
     public Usuario() {
     }
 
     public Usuario(String usuario) {
         this.usuario = usuario;
+    }
+
+    public Usuario(String usuario, String password) {
+        this.usuario = usuario;
+        this.password = password;
     }
 
     public String getUsuario() {
@@ -115,12 +116,13 @@ public class Usuario implements Serializable {
         this.ci = ci;
     }
 
-    public Login getLogin() {
-        return login;
+    @XmlTransient
+    public List<Login> getLoginList() {
+        return loginList;
     }
 
-    public void setLogin(Login login) {
-        this.login = login;
+    public void setLoginList(List<Login> loginList) {
+        this.loginList = loginList;
     }
 
     @Override

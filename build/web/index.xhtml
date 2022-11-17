@@ -3,9 +3,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core"
-      xmlns:p="http://primefaces.org/ui">
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      >
+
     <h:head>
-        <title>Sistema Inventario</title>
+        <title>Sistema Inventario  </title>
 
         <link rel="stylesheet" href="resources/css/bootstrap.css"/>
         <link rel="stylesheet" href="resources/css/bootstrap-responsive.css"/>
@@ -31,42 +34,37 @@
             <p:growl id="messages"/>
 
             <p:menubar id="menu-bar">
-                <p:menuitem value="Inicio" icon="pi pi-fw pi-home" />
-                <p:menuitem value="Pc" icon="pi pi-fw pi-desktop"/>
-                <p:menuitem value="Impresora" icon="pi pi-fw pi-print"/>
-                <p:menuitem value="Usuarios" icon="pi pi-fw pi-user"/>
+                <p:menuitem value="Inicio" icon="pi pi-fw pi-home" url="index.faces" />
+                <p:menuitem value="Equipos" icon="pi pi-fw pi-desktop" url="pages/invpc.faces"/>
+                <p:menuitem value="Impresoras" icon="pi pi-fw pi-print" url="pages/invimpresora.faces"/>
                 <p:submenu label="Administración" icon="pi pi-fw pi-server" >
-                    <p:menuitem value="Area" url="pages/invarea.faces" />
-                    <p:menuitem value="Componentes" />
-                    <p:menuitem value="Departamento" url="pages/invdepartamento.faces"/>
-                    <p:menuitem value="Entidad" url="pages/inventidad.faces"/>
-                    <p:menuitem value="Marca" />
-                    <p:menuitem value="Modelo" />
-                    <p:menuitem value="Programas" />
-                    <p:menuitem value="SO" />
-                    <p:submenu label="Tipos de entradas" >
-                        <p:menuitem value="Tipo accesorio" />
-                        <p:menuitem value="Tipo componente" />
-                        <p:menuitem value="Tipo conexión" />
-                        <p:menuitem value="Tipo equipo" />
-                        <p:menuitem value="Tipo modicación" />
-                        <p:menuitem value="Tipo tonner" />
+                    <p:menuitem value="Componentes" url="pages/invcomponente.faces"/>
+                    <p:menuitem value="Accesorios" url="pages/invaccesorio.faces"/>
+                    <p:menuitem value="Entidad" url="inventidad.faces"/>
+                    <p:menuitem value="Departamento" url="invdepartamento.faces"/>
+                    <p:menuitem value="Area" url="invarea.faces" />
+                    <p:menuitem value="Marca" url="invmarca.faces"/>
+                    <p:menuitem value="Modelo" url="invmodelo.faces"/>
+                    <p:menuitem value="Programas" url="invprogramas.faces"/>
+                    <p:menuitem value="Sistema Operativo" url="invsoperativo.faces"/>
+                    <p:menuitem value="Modificaciones" url="invmodificacion.faces"/>
+                    <p:submenu label="Tipos" >
+                        <p:menuitem value="Tipos de accesorios" url="invtaccesorio.faces"/>
+                        <p:menuitem value="Tipos de componentes" url="invtcomponente.faces"/>
+                        <p:menuitem value="Tipos de conexiones" url="invtconexion.faces"/>
+                        <p:menuitem value="Tipos de equipos" url="invtequipo.faces"/>
+                        <p:menuitem value="Tipos de modificación" url="invtmodificacion.faces"/>
+                        <p:menuitem value="Tipos de toner" url="invttoner.faces"/>
                     </p:submenu>
-
                 </p:submenu>
-
+                <p:menuitem value="Usuarios" icon="pi pi-fw pi-user"/>
                 <p:divider layout="vertical"/>
 
-                <f:facet name="options">
-                    <div class="ui-input-icon-left mr-2">
-                        <i class="pi pi-fw pi-search" />
-                        <p:inputText placeholder="Search"/>
-                    </div>
-                    <p:button value="Logout" icon="pi pi-fw pi-sign-out" styleClass="ui-button-info"/>
-                </f:facet>
             </p:menubar>
 
         </h:form>
+        <body background="resources/img/fondo1.png" />
+       
     </h:body>
 </html>
 

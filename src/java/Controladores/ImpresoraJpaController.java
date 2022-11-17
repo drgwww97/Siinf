@@ -5,6 +5,7 @@
  */
 package Controladores;
 
+import Controladores.exceptions.IllegalOrphanException;
 import Controladores.exceptions.NonexistentEntityException;
 import Controladores.exceptions.PreexistingEntityException;
 import java.io.Serializable;
@@ -15,17 +16,21 @@ import javax.persistence.criteria.Root;
 import Entidades.Area;
 import Entidades.Departamento;
 import Entidades.Entidad;
+import Entidades.Estado;
 import Entidades.Impresora;
 import Entidades.Marca;
 import Entidades.Modelo;
 import Entidades.TTonner;
+import Entidades.UsuariosCompartidos;
+import java.util.ArrayList;
 import java.util.List;
+import Entidades.RegDatosToner;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
 /**
  *
- * @author Dayana
+ * @author David
  */
 public class ImpresoraJpaController implements Serializable {
 
@@ -39,6 +44,12 @@ public class ImpresoraJpaController implements Serializable {
     }
 
     public void create(Impresora impresora) throws PreexistingEntityException, Exception {
+        if (impresora.getUsuariosCompartidosList() == null) {
+            impresora.setUsuariosCompartidosList(new ArrayList<UsuariosCompartidos>());
+        }
+        if (impresora.getRegDatosTonerList() == null) {
+            impresora.setRegDatosTonerList(new ArrayList<RegDatosToner>());
+        }
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -58,6 +69,11 @@ public class ImpresoraJpaController implements Serializable {
                 entidadidEntidad = em.getReference(entidadidEntidad.getClass(), entidadidEntidad.getIdEntidad());
                 impresora.setEntidadidEntidad(entidadidEntidad);
             }
+            Estado estadoidEstado = impresora.getEstadoidEstado();
+            if (estadoidEstado != null) {
+                estadoidEstado = em.getReference(estadoidEstado.getClass(), estadoidEstado.getIdEstado());
+                impresora.setEstadoidEstado(estadoidEstado);
+            }
             Marca marcaidMarca = impresora.getMarcaidMarca();
             if (marcaidMarca != null) {
                 marcaidMarca = em.getReference(marcaidMarca.getClass(), marcaidMarca.getIdMarca());
@@ -73,6 +89,18 @@ public class ImpresoraJpaController implements Serializable {
                 TTonnersnTonner = em.getReference(TTonnersnTonner.getClass(), TTonnersnTonner.getSnTonner());
                 impresora.setTTonnersnTonner(TTonnersnTonner);
             }
+            List<UsuariosCompartidos> attachedUsuariosCompartidosList = new ArrayList<UsuariosCompartidos>();
+            for (UsuariosCompartidos usuariosCompartidosListUsuariosCompartidosToAttach : impresora.getUsuariosCompartidosList()) {
+                usuariosCompartidosListUsuariosCompartidosToAttach = em.getReference(usuariosCompartidosListUsuariosCompartidosToAttach.getClass(), usuariosCompartidosListUsuariosCompartidosToAttach.getNombreUsuariocomp());
+                attachedUsuariosCompartidosList.add(usuariosCompartidosListUsuariosCompartidosToAttach);
+            }
+            impresora.setUsuariosCompartidosList(attachedUsuariosCompartidosList);
+            List<RegDatosToner> attachedRegDatosTonerList = new ArrayList<RegDatosToner>();
+            for (RegDatosToner regDatosTonerListRegDatosTonerToAttach : impresora.getRegDatosTonerList()) {
+                regDatosTonerListRegDatosTonerToAttach = em.getReference(regDatosTonerListRegDatosTonerToAttach.getClass(), regDatosTonerListRegDatosTonerToAttach.getIdRegToner());
+                attachedRegDatosTonerList.add(regDatosTonerListRegDatosTonerToAttach);
+            }
+            impresora.setRegDatosTonerList(attachedRegDatosTonerList);
             em.persist(impresora);
             if (areaidArea != null) {
                 areaidArea.getImpresoraList().add(impresora);
@@ -86,6 +114,10 @@ public class ImpresoraJpaController implements Serializable {
                 entidadidEntidad.getImpresoraList().add(impresora);
                 entidadidEntidad = em.merge(entidadidEntidad);
             }
+            if (estadoidEstado != null) {
+                estadoidEstado.getImpresoraList().add(impresora);
+                estadoidEstado = em.merge(estadoidEstado);
+            }
             if (marcaidMarca != null) {
                 marcaidMarca.getImpresoraList().add(impresora);
                 marcaidMarca = em.merge(marcaidMarca);
@@ -97,6 +129,19 @@ public class ImpresoraJpaController implements Serializable {
             if (TTonnersnTonner != null) {
                 TTonnersnTonner.getImpresoraList().add(impresora);
                 TTonnersnTonner = em.merge(TTonnersnTonner);
+            }
+            for (UsuariosCompartidos usuariosCompartidosListUsuariosCompartidos : impresora.getUsuariosCompartidosList()) {
+                usuariosCompartidosListUsuariosCompartidos.getImpresoraList().add(impresora);
+                usuariosCompartidosListUsuariosCompartidos = em.merge(usuariosCompartidosListUsuariosCompartidos);
+            }
+            for (RegDatosToner regDatosTonerListRegDatosToner : impresora.getRegDatosTonerList()) {
+                Impresora oldImpresoranoInventarioOfRegDatosTonerListRegDatosToner = regDatosTonerListRegDatosToner.getImpresoranoInventario();
+                regDatosTonerListRegDatosToner.setImpresoranoInventario(impresora);
+                regDatosTonerListRegDatosToner = em.merge(regDatosTonerListRegDatosToner);
+                if (oldImpresoranoInventarioOfRegDatosTonerListRegDatosToner != null) {
+                    oldImpresoranoInventarioOfRegDatosTonerListRegDatosToner.getRegDatosTonerList().remove(regDatosTonerListRegDatosToner);
+                    oldImpresoranoInventarioOfRegDatosTonerListRegDatosToner = em.merge(oldImpresoranoInventarioOfRegDatosTonerListRegDatosToner);
+                }
             }
             em.getTransaction().commit();
         } catch (Exception ex) {
@@ -111,7 +156,7 @@ public class ImpresoraJpaController implements Serializable {
         }
     }
 
-    public void edit(Impresora impresora) throws NonexistentEntityException, Exception {
+    public void edit(Impresora impresora) throws IllegalOrphanException, NonexistentEntityException, Exception {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -123,12 +168,30 @@ public class ImpresoraJpaController implements Serializable {
             Departamento departamentoidDepartamentoNew = impresora.getDepartamentoidDepartamento();
             Entidad entidadidEntidadOld = persistentImpresora.getEntidadidEntidad();
             Entidad entidadidEntidadNew = impresora.getEntidadidEntidad();
+            Estado estadoidEstadoOld = persistentImpresora.getEstadoidEstado();
+            Estado estadoidEstadoNew = impresora.getEstadoidEstado();
             Marca marcaidMarcaOld = persistentImpresora.getMarcaidMarca();
             Marca marcaidMarcaNew = impresora.getMarcaidMarca();
             Modelo modeloidModeloOld = persistentImpresora.getModeloidModelo();
             Modelo modeloidModeloNew = impresora.getModeloidModelo();
             TTonner TTonnersnTonnerOld = persistentImpresora.getTTonnersnTonner();
             TTonner TTonnersnTonnerNew = impresora.getTTonnersnTonner();
+            List<UsuariosCompartidos> usuariosCompartidosListOld = persistentImpresora.getUsuariosCompartidosList();
+            List<UsuariosCompartidos> usuariosCompartidosListNew = impresora.getUsuariosCompartidosList();
+            List<RegDatosToner> regDatosTonerListOld = persistentImpresora.getRegDatosTonerList();
+            List<RegDatosToner> regDatosTonerListNew = impresora.getRegDatosTonerList();
+            List<String> illegalOrphanMessages = null;
+            for (RegDatosToner regDatosTonerListOldRegDatosToner : regDatosTonerListOld) {
+                if (!regDatosTonerListNew.contains(regDatosTonerListOldRegDatosToner)) {
+                    if (illegalOrphanMessages == null) {
+                        illegalOrphanMessages = new ArrayList<String>();
+                    }
+                    illegalOrphanMessages.add("You must retain RegDatosToner " + regDatosTonerListOldRegDatosToner + " since its impresoranoInventario field is not nullable.");
+                }
+            }
+            if (illegalOrphanMessages != null) {
+                throw new IllegalOrphanException(illegalOrphanMessages);
+            }
             if (areaidAreaNew != null) {
                 areaidAreaNew = em.getReference(areaidAreaNew.getClass(), areaidAreaNew.getIdArea());
                 impresora.setAreaidArea(areaidAreaNew);
@@ -140,6 +203,10 @@ public class ImpresoraJpaController implements Serializable {
             if (entidadidEntidadNew != null) {
                 entidadidEntidadNew = em.getReference(entidadidEntidadNew.getClass(), entidadidEntidadNew.getIdEntidad());
                 impresora.setEntidadidEntidad(entidadidEntidadNew);
+            }
+            if (estadoidEstadoNew != null) {
+                estadoidEstadoNew = em.getReference(estadoidEstadoNew.getClass(), estadoidEstadoNew.getIdEstado());
+                impresora.setEstadoidEstado(estadoidEstadoNew);
             }
             if (marcaidMarcaNew != null) {
                 marcaidMarcaNew = em.getReference(marcaidMarcaNew.getClass(), marcaidMarcaNew.getIdMarca());
@@ -153,6 +220,20 @@ public class ImpresoraJpaController implements Serializable {
                 TTonnersnTonnerNew = em.getReference(TTonnersnTonnerNew.getClass(), TTonnersnTonnerNew.getSnTonner());
                 impresora.setTTonnersnTonner(TTonnersnTonnerNew);
             }
+            List<UsuariosCompartidos> attachedUsuariosCompartidosListNew = new ArrayList<UsuariosCompartidos>();
+            for (UsuariosCompartidos usuariosCompartidosListNewUsuariosCompartidosToAttach : usuariosCompartidosListNew) {
+                usuariosCompartidosListNewUsuariosCompartidosToAttach = em.getReference(usuariosCompartidosListNewUsuariosCompartidosToAttach.getClass(), usuariosCompartidosListNewUsuariosCompartidosToAttach.getNombreUsuariocomp());
+                attachedUsuariosCompartidosListNew.add(usuariosCompartidosListNewUsuariosCompartidosToAttach);
+            }
+            usuariosCompartidosListNew = attachedUsuariosCompartidosListNew;
+            impresora.setUsuariosCompartidosList(usuariosCompartidosListNew);
+            List<RegDatosToner> attachedRegDatosTonerListNew = new ArrayList<RegDatosToner>();
+            for (RegDatosToner regDatosTonerListNewRegDatosTonerToAttach : regDatosTonerListNew) {
+                regDatosTonerListNewRegDatosTonerToAttach = em.getReference(regDatosTonerListNewRegDatosTonerToAttach.getClass(), regDatosTonerListNewRegDatosTonerToAttach.getIdRegToner());
+                attachedRegDatosTonerListNew.add(regDatosTonerListNewRegDatosTonerToAttach);
+            }
+            regDatosTonerListNew = attachedRegDatosTonerListNew;
+            impresora.setRegDatosTonerList(regDatosTonerListNew);
             impresora = em.merge(impresora);
             if (areaidAreaOld != null && !areaidAreaOld.equals(areaidAreaNew)) {
                 areaidAreaOld.getImpresoraList().remove(impresora);
@@ -178,6 +259,14 @@ public class ImpresoraJpaController implements Serializable {
                 entidadidEntidadNew.getImpresoraList().add(impresora);
                 entidadidEntidadNew = em.merge(entidadidEntidadNew);
             }
+            if (estadoidEstadoOld != null && !estadoidEstadoOld.equals(estadoidEstadoNew)) {
+                estadoidEstadoOld.getImpresoraList().remove(impresora);
+                estadoidEstadoOld = em.merge(estadoidEstadoOld);
+            }
+            if (estadoidEstadoNew != null && !estadoidEstadoNew.equals(estadoidEstadoOld)) {
+                estadoidEstadoNew.getImpresoraList().add(impresora);
+                estadoidEstadoNew = em.merge(estadoidEstadoNew);
+            }
             if (marcaidMarcaOld != null && !marcaidMarcaOld.equals(marcaidMarcaNew)) {
                 marcaidMarcaOld.getImpresoraList().remove(impresora);
                 marcaidMarcaOld = em.merge(marcaidMarcaOld);
@@ -202,6 +291,29 @@ public class ImpresoraJpaController implements Serializable {
                 TTonnersnTonnerNew.getImpresoraList().add(impresora);
                 TTonnersnTonnerNew = em.merge(TTonnersnTonnerNew);
             }
+            for (UsuariosCompartidos usuariosCompartidosListOldUsuariosCompartidos : usuariosCompartidosListOld) {
+                if (!usuariosCompartidosListNew.contains(usuariosCompartidosListOldUsuariosCompartidos)) {
+                    usuariosCompartidosListOldUsuariosCompartidos.getImpresoraList().remove(impresora);
+                    usuariosCompartidosListOldUsuariosCompartidos = em.merge(usuariosCompartidosListOldUsuariosCompartidos);
+                }
+            }
+            for (UsuariosCompartidos usuariosCompartidosListNewUsuariosCompartidos : usuariosCompartidosListNew) {
+                if (!usuariosCompartidosListOld.contains(usuariosCompartidosListNewUsuariosCompartidos)) {
+                    usuariosCompartidosListNewUsuariosCompartidos.getImpresoraList().add(impresora);
+                    usuariosCompartidosListNewUsuariosCompartidos = em.merge(usuariosCompartidosListNewUsuariosCompartidos);
+                }
+            }
+            for (RegDatosToner regDatosTonerListNewRegDatosToner : regDatosTonerListNew) {
+                if (!regDatosTonerListOld.contains(regDatosTonerListNewRegDatosToner)) {
+                    Impresora oldImpresoranoInventarioOfRegDatosTonerListNewRegDatosToner = regDatosTonerListNewRegDatosToner.getImpresoranoInventario();
+                    regDatosTonerListNewRegDatosToner.setImpresoranoInventario(impresora);
+                    regDatosTonerListNewRegDatosToner = em.merge(regDatosTonerListNewRegDatosToner);
+                    if (oldImpresoranoInventarioOfRegDatosTonerListNewRegDatosToner != null && !oldImpresoranoInventarioOfRegDatosTonerListNewRegDatosToner.equals(impresora)) {
+                        oldImpresoranoInventarioOfRegDatosTonerListNewRegDatosToner.getRegDatosTonerList().remove(regDatosTonerListNewRegDatosToner);
+                        oldImpresoranoInventarioOfRegDatosTonerListNewRegDatosToner = em.merge(oldImpresoranoInventarioOfRegDatosTonerListNewRegDatosToner);
+                    }
+                }
+            }
             em.getTransaction().commit();
         } catch (Exception ex) {
             String msg = ex.getLocalizedMessage();
@@ -219,7 +331,7 @@ public class ImpresoraJpaController implements Serializable {
         }
     }
 
-    public void destroy(String id) throws NonexistentEntityException {
+    public void destroy(String id) throws IllegalOrphanException, NonexistentEntityException {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -230,6 +342,17 @@ public class ImpresoraJpaController implements Serializable {
                 impresora.getNoInventario();
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The impresora with id " + id + " no longer exists.", enfe);
+            }
+            List<String> illegalOrphanMessages = null;
+            List<RegDatosToner> regDatosTonerListOrphanCheck = impresora.getRegDatosTonerList();
+            for (RegDatosToner regDatosTonerListOrphanCheckRegDatosToner : regDatosTonerListOrphanCheck) {
+                if (illegalOrphanMessages == null) {
+                    illegalOrphanMessages = new ArrayList<String>();
+                }
+                illegalOrphanMessages.add("This Impresora (" + impresora + ") cannot be destroyed since the RegDatosToner " + regDatosTonerListOrphanCheckRegDatosToner + " in its regDatosTonerList field has a non-nullable impresoranoInventario field.");
+            }
+            if (illegalOrphanMessages != null) {
+                throw new IllegalOrphanException(illegalOrphanMessages);
             }
             Area areaidArea = impresora.getAreaidArea();
             if (areaidArea != null) {
@@ -246,6 +369,11 @@ public class ImpresoraJpaController implements Serializable {
                 entidadidEntidad.getImpresoraList().remove(impresora);
                 entidadidEntidad = em.merge(entidadidEntidad);
             }
+            Estado estadoidEstado = impresora.getEstadoidEstado();
+            if (estadoidEstado != null) {
+                estadoidEstado.getImpresoraList().remove(impresora);
+                estadoidEstado = em.merge(estadoidEstado);
+            }
             Marca marcaidMarca = impresora.getMarcaidMarca();
             if (marcaidMarca != null) {
                 marcaidMarca.getImpresoraList().remove(impresora);
@@ -260,6 +388,11 @@ public class ImpresoraJpaController implements Serializable {
             if (TTonnersnTonner != null) {
                 TTonnersnTonner.getImpresoraList().remove(impresora);
                 TTonnersnTonner = em.merge(TTonnersnTonner);
+            }
+            List<UsuariosCompartidos> usuariosCompartidosList = impresora.getUsuariosCompartidosList();
+            for (UsuariosCompartidos usuariosCompartidosListUsuariosCompartidos : usuariosCompartidosList) {
+                usuariosCompartidosListUsuariosCompartidos.getImpresoraList().remove(impresora);
+                usuariosCompartidosListUsuariosCompartidos = em.merge(usuariosCompartidosListUsuariosCompartidos);
             }
             em.remove(impresora);
             em.getTransaction().commit();

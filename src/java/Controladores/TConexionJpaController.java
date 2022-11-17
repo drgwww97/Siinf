@@ -5,7 +5,6 @@
  */
 package Controladores;
 
-import Controladores.exceptions.IllegalOrphanException;
 import Controladores.exceptions.NonexistentEntityException;
 import Controladores.exceptions.PreexistingEntityException;
 import java.io.Serializable;
@@ -23,7 +22,7 @@ import javax.persistence.EntityManagerFactory;
 
 /**
  *
- * @author Dayana
+ * @author David
  */
 public class TConexionJpaController implements Serializable {
 
@@ -91,7 +90,7 @@ public class TConexionJpaController implements Serializable {
         }
     }
 
-    public void edit(TConexion TConexion) throws IllegalOrphanException, NonexistentEntityException, Exception {
+    public void edit(TConexion TConexion) throws NonexistentEntityException, Exception {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -101,26 +100,6 @@ public class TConexionJpaController implements Serializable {
             List<Accesorio> accesorioListNew = TConexion.getAccesorioList();
             List<Componente> componenteListOld = persistentTConexion.getComponenteList();
             List<Componente> componenteListNew = TConexion.getComponenteList();
-            List<String> illegalOrphanMessages = null;
-            for (Accesorio accesorioListOldAccesorio : accesorioListOld) {
-                if (!accesorioListNew.contains(accesorioListOldAccesorio)) {
-                    if (illegalOrphanMessages == null) {
-                        illegalOrphanMessages = new ArrayList<String>();
-                    }
-                    illegalOrphanMessages.add("You must retain Accesorio " + accesorioListOldAccesorio + " since its TConexionidConexion field is not nullable.");
-                }
-            }
-            for (Componente componenteListOldComponente : componenteListOld) {
-                if (!componenteListNew.contains(componenteListOldComponente)) {
-                    if (illegalOrphanMessages == null) {
-                        illegalOrphanMessages = new ArrayList<String>();
-                    }
-                    illegalOrphanMessages.add("You must retain Componente " + componenteListOldComponente + " since its TConexionidConexion field is not nullable.");
-                }
-            }
-            if (illegalOrphanMessages != null) {
-                throw new IllegalOrphanException(illegalOrphanMessages);
-            }
             List<Accesorio> attachedAccesorioListNew = new ArrayList<Accesorio>();
             for (Accesorio accesorioListNewAccesorioToAttach : accesorioListNew) {
                 accesorioListNewAccesorioToAttach = em.getReference(accesorioListNewAccesorioToAttach.getClass(), accesorioListNewAccesorioToAttach.getSnAccesorio());
@@ -136,6 +115,12 @@ public class TConexionJpaController implements Serializable {
             componenteListNew = attachedComponenteListNew;
             TConexion.setComponenteList(componenteListNew);
             TConexion = em.merge(TConexion);
+            for (Accesorio accesorioListOldAccesorio : accesorioListOld) {
+                if (!accesorioListNew.contains(accesorioListOldAccesorio)) {
+                    accesorioListOldAccesorio.setTConexionidConexion(null);
+                    accesorioListOldAccesorio = em.merge(accesorioListOldAccesorio);
+                }
+            }
             for (Accesorio accesorioListNewAccesorio : accesorioListNew) {
                 if (!accesorioListOld.contains(accesorioListNewAccesorio)) {
                     TConexion oldTConexionidConexionOfAccesorioListNewAccesorio = accesorioListNewAccesorio.getTConexionidConexion();
@@ -145,6 +130,12 @@ public class TConexionJpaController implements Serializable {
                         oldTConexionidConexionOfAccesorioListNewAccesorio.getAccesorioList().remove(accesorioListNewAccesorio);
                         oldTConexionidConexionOfAccesorioListNewAccesorio = em.merge(oldTConexionidConexionOfAccesorioListNewAccesorio);
                     }
+                }
+            }
+            for (Componente componenteListOldComponente : componenteListOld) {
+                if (!componenteListNew.contains(componenteListOldComponente)) {
+                    componenteListOldComponente.setTConexionidConexion(null);
+                    componenteListOldComponente = em.merge(componenteListOldComponente);
                 }
             }
             for (Componente componenteListNewComponente : componenteListNew) {
@@ -175,7 +166,7 @@ public class TConexionJpaController implements Serializable {
         }
     }
 
-    public void destroy(Integer id) throws IllegalOrphanException, NonexistentEntityException {
+    public void destroy(Integer id) throws NonexistentEntityException {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -187,23 +178,15 @@ public class TConexionJpaController implements Serializable {
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The TConexion with id " + id + " no longer exists.", enfe);
             }
-            List<String> illegalOrphanMessages = null;
-            List<Accesorio> accesorioListOrphanCheck = TConexion.getAccesorioList();
-            for (Accesorio accesorioListOrphanCheckAccesorio : accesorioListOrphanCheck) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("This TConexion (" + TConexion + ") cannot be destroyed since the Accesorio " + accesorioListOrphanCheckAccesorio + " in its accesorioList field has a non-nullable TConexionidConexion field.");
+            List<Accesorio> accesorioList = TConexion.getAccesorioList();
+            for (Accesorio accesorioListAccesorio : accesorioList) {
+                accesorioListAccesorio.setTConexionidConexion(null);
+                accesorioListAccesorio = em.merge(accesorioListAccesorio);
             }
-            List<Componente> componenteListOrphanCheck = TConexion.getComponenteList();
-            for (Componente componenteListOrphanCheckComponente : componenteListOrphanCheck) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("This TConexion (" + TConexion + ") cannot be destroyed since the Componente " + componenteListOrphanCheckComponente + " in its componenteList field has a non-nullable TConexionidConexion field.");
-            }
-            if (illegalOrphanMessages != null) {
-                throw new IllegalOrphanException(illegalOrphanMessages);
+            List<Componente> componenteList = TConexion.getComponenteList();
+            for (Componente componenteListComponente : componenteList) {
+                componenteListComponente.setTConexionidConexion(null);
+                componenteListComponente = em.merge(componenteListComponente);
             }
             em.remove(TConexion);
             em.getTransaction().commit();

@@ -13,20 +13,24 @@ import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import Entidades.Area;
+import Entidades.Departamento;
+import Entidades.Entidad;
+import Entidades.Estado;
 import Entidades.Marca;
 import Entidades.Modelo;
+import Entidades.Pc;
 import Entidades.TAccesorio;
 import Entidades.TConexion;
-import Entidades.Pc;
+import Entidades.Almacen;
 import java.util.ArrayList;
 import java.util.List;
-import Entidades.Almacen;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
 /**
  *
- * @author Dayana
+ * @author David
  */
 public class AccesorioJpaController implements Serializable {
 
@@ -40,9 +44,6 @@ public class AccesorioJpaController implements Serializable {
     }
 
     public void create(Accesorio accesorio) throws PreexistingEntityException, Exception {
-        if (accesorio.getPcList() == null) {
-            accesorio.setPcList(new ArrayList<Pc>());
-        }
         if (accesorio.getAlmacenList() == null) {
             accesorio.setAlmacenList(new ArrayList<Almacen>());
         }
@@ -50,6 +51,26 @@ public class AccesorioJpaController implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
+            Area areaidArea = accesorio.getAreaidArea();
+            if (areaidArea != null) {
+                areaidArea = em.getReference(areaidArea.getClass(), areaidArea.getIdArea());
+                accesorio.setAreaidArea(areaidArea);
+            }
+            Departamento departamentoidDepartamento = accesorio.getDepartamentoidDepartamento();
+            if (departamentoidDepartamento != null) {
+                departamentoidDepartamento = em.getReference(departamentoidDepartamento.getClass(), departamentoidDepartamento.getIdDepartamento());
+                accesorio.setDepartamentoidDepartamento(departamentoidDepartamento);
+            }
+            Entidad entidadidEntidad = accesorio.getEntidadidEntidad();
+            if (entidadidEntidad != null) {
+                entidadidEntidad = em.getReference(entidadidEntidad.getClass(), entidadidEntidad.getIdEntidad());
+                accesorio.setEntidadidEntidad(entidadidEntidad);
+            }
+            Estado estadoidEstado = accesorio.getEstadoidEstado();
+            if (estadoidEstado != null) {
+                estadoidEstado = em.getReference(estadoidEstado.getClass(), estadoidEstado.getIdEstado());
+                accesorio.setEstadoidEstado(estadoidEstado);
+            }
             Marca marcaidMarca = accesorio.getMarcaidMarca();
             if (marcaidMarca != null) {
                 marcaidMarca = em.getReference(marcaidMarca.getClass(), marcaidMarca.getIdMarca());
@@ -59,6 +80,11 @@ public class AccesorioJpaController implements Serializable {
             if (modeloidModelo != null) {
                 modeloidModelo = em.getReference(modeloidModelo.getClass(), modeloidModelo.getIdModelo());
                 accesorio.setModeloidModelo(modeloidModelo);
+            }
+            Pc pcnoInventario = accesorio.getPcnoInventario();
+            if (pcnoInventario != null) {
+                pcnoInventario = em.getReference(pcnoInventario.getClass(), pcnoInventario.getNoInventario());
+                accesorio.setPcnoInventario(pcnoInventario);
             }
             TAccesorio TAccesorioidAccesorio = accesorio.getTAccesorioidAccesorio();
             if (TAccesorioidAccesorio != null) {
@@ -70,12 +96,6 @@ public class AccesorioJpaController implements Serializable {
                 TConexionidConexion = em.getReference(TConexionidConexion.getClass(), TConexionidConexion.getIdConexion());
                 accesorio.setTConexionidConexion(TConexionidConexion);
             }
-            List<Pc> attachedPcList = new ArrayList<Pc>();
-            for (Pc pcListPcToAttach : accesorio.getPcList()) {
-                pcListPcToAttach = em.getReference(pcListPcToAttach.getClass(), pcListPcToAttach.getNoInventario());
-                attachedPcList.add(pcListPcToAttach);
-            }
-            accesorio.setPcList(attachedPcList);
             List<Almacen> attachedAlmacenList = new ArrayList<Almacen>();
             for (Almacen almacenListAlmacenToAttach : accesorio.getAlmacenList()) {
                 almacenListAlmacenToAttach = em.getReference(almacenListAlmacenToAttach.getClass(), almacenListAlmacenToAttach.getIdAlmacen());
@@ -83,6 +103,22 @@ public class AccesorioJpaController implements Serializable {
             }
             accesorio.setAlmacenList(attachedAlmacenList);
             em.persist(accesorio);
+            if (areaidArea != null) {
+                areaidArea.getAccesorioList().add(accesorio);
+                areaidArea = em.merge(areaidArea);
+            }
+            if (departamentoidDepartamento != null) {
+                departamentoidDepartamento.getAccesorioList().add(accesorio);
+                departamentoidDepartamento = em.merge(departamentoidDepartamento);
+            }
+            if (entidadidEntidad != null) {
+                entidadidEntidad.getAccesorioList().add(accesorio);
+                entidadidEntidad = em.merge(entidadidEntidad);
+            }
+            if (estadoidEstado != null) {
+                estadoidEstado.getAccesorioList().add(accesorio);
+                estadoidEstado = em.merge(estadoidEstado);
+            }
             if (marcaidMarca != null) {
                 marcaidMarca.getAccesorioList().add(accesorio);
                 marcaidMarca = em.merge(marcaidMarca);
@@ -91,6 +127,10 @@ public class AccesorioJpaController implements Serializable {
                 modeloidModelo.getAccesorioList().add(accesorio);
                 modeloidModelo = em.merge(modeloidModelo);
             }
+            if (pcnoInventario != null) {
+                pcnoInventario.getAccesorioList().add(accesorio);
+                pcnoInventario = em.merge(pcnoInventario);
+            }
             if (TAccesorioidAccesorio != null) {
                 TAccesorioidAccesorio.getAccesorioList().add(accesorio);
                 TAccesorioidAccesorio = em.merge(TAccesorioidAccesorio);
@@ -98,15 +138,6 @@ public class AccesorioJpaController implements Serializable {
             if (TConexionidConexion != null) {
                 TConexionidConexion.getAccesorioList().add(accesorio);
                 TConexionidConexion = em.merge(TConexionidConexion);
-            }
-            for (Pc pcListPc : accesorio.getPcList()) {
-                Accesorio oldAccesoriosnAccesorioOfPcListPc = pcListPc.getAccesoriosnAccesorio();
-                pcListPc.setAccesoriosnAccesorio(accesorio);
-                pcListPc = em.merge(pcListPc);
-                if (oldAccesoriosnAccesorioOfPcListPc != null) {
-                    oldAccesoriosnAccesorioOfPcListPc.getPcList().remove(pcListPc);
-                    oldAccesoriosnAccesorioOfPcListPc = em.merge(oldAccesoriosnAccesorioOfPcListPc);
-                }
             }
             for (Almacen almacenListAlmacen : accesorio.getAlmacenList()) {
                 Accesorio oldAccesoriosnAccesorioOfAlmacenListAlmacen = almacenListAlmacen.getAccesoriosnAccesorio();
@@ -136,18 +167,42 @@ public class AccesorioJpaController implements Serializable {
             em = getEntityManager();
             em.getTransaction().begin();
             Accesorio persistentAccesorio = em.find(Accesorio.class, accesorio.getSnAccesorio());
+            Area areaidAreaOld = persistentAccesorio.getAreaidArea();
+            Area areaidAreaNew = accesorio.getAreaidArea();
+            Departamento departamentoidDepartamentoOld = persistentAccesorio.getDepartamentoidDepartamento();
+            Departamento departamentoidDepartamentoNew = accesorio.getDepartamentoidDepartamento();
+            Entidad entidadidEntidadOld = persistentAccesorio.getEntidadidEntidad();
+            Entidad entidadidEntidadNew = accesorio.getEntidadidEntidad();
+            Estado estadoidEstadoOld = persistentAccesorio.getEstadoidEstado();
+            Estado estadoidEstadoNew = accesorio.getEstadoidEstado();
             Marca marcaidMarcaOld = persistentAccesorio.getMarcaidMarca();
             Marca marcaidMarcaNew = accesorio.getMarcaidMarca();
             Modelo modeloidModeloOld = persistentAccesorio.getModeloidModelo();
             Modelo modeloidModeloNew = accesorio.getModeloidModelo();
+            Pc pcnoInventarioOld = persistentAccesorio.getPcnoInventario();
+            Pc pcnoInventarioNew = accesorio.getPcnoInventario();
             TAccesorio TAccesorioidAccesorioOld = persistentAccesorio.getTAccesorioidAccesorio();
             TAccesorio TAccesorioidAccesorioNew = accesorio.getTAccesorioidAccesorio();
             TConexion TConexionidConexionOld = persistentAccesorio.getTConexionidConexion();
             TConexion TConexionidConexionNew = accesorio.getTConexionidConexion();
-            List<Pc> pcListOld = persistentAccesorio.getPcList();
-            List<Pc> pcListNew = accesorio.getPcList();
             List<Almacen> almacenListOld = persistentAccesorio.getAlmacenList();
             List<Almacen> almacenListNew = accesorio.getAlmacenList();
+            if (areaidAreaNew != null) {
+                areaidAreaNew = em.getReference(areaidAreaNew.getClass(), areaidAreaNew.getIdArea());
+                accesorio.setAreaidArea(areaidAreaNew);
+            }
+            if (departamentoidDepartamentoNew != null) {
+                departamentoidDepartamentoNew = em.getReference(departamentoidDepartamentoNew.getClass(), departamentoidDepartamentoNew.getIdDepartamento());
+                accesorio.setDepartamentoidDepartamento(departamentoidDepartamentoNew);
+            }
+            if (entidadidEntidadNew != null) {
+                entidadidEntidadNew = em.getReference(entidadidEntidadNew.getClass(), entidadidEntidadNew.getIdEntidad());
+                accesorio.setEntidadidEntidad(entidadidEntidadNew);
+            }
+            if (estadoidEstadoNew != null) {
+                estadoidEstadoNew = em.getReference(estadoidEstadoNew.getClass(), estadoidEstadoNew.getIdEstado());
+                accesorio.setEstadoidEstado(estadoidEstadoNew);
+            }
             if (marcaidMarcaNew != null) {
                 marcaidMarcaNew = em.getReference(marcaidMarcaNew.getClass(), marcaidMarcaNew.getIdMarca());
                 accesorio.setMarcaidMarca(marcaidMarcaNew);
@@ -155,6 +210,10 @@ public class AccesorioJpaController implements Serializable {
             if (modeloidModeloNew != null) {
                 modeloidModeloNew = em.getReference(modeloidModeloNew.getClass(), modeloidModeloNew.getIdModelo());
                 accesorio.setModeloidModelo(modeloidModeloNew);
+            }
+            if (pcnoInventarioNew != null) {
+                pcnoInventarioNew = em.getReference(pcnoInventarioNew.getClass(), pcnoInventarioNew.getNoInventario());
+                accesorio.setPcnoInventario(pcnoInventarioNew);
             }
             if (TAccesorioidAccesorioNew != null) {
                 TAccesorioidAccesorioNew = em.getReference(TAccesorioidAccesorioNew.getClass(), TAccesorioidAccesorioNew.getIdAccesorio());
@@ -164,13 +223,6 @@ public class AccesorioJpaController implements Serializable {
                 TConexionidConexionNew = em.getReference(TConexionidConexionNew.getClass(), TConexionidConexionNew.getIdConexion());
                 accesorio.setTConexionidConexion(TConexionidConexionNew);
             }
-            List<Pc> attachedPcListNew = new ArrayList<Pc>();
-            for (Pc pcListNewPcToAttach : pcListNew) {
-                pcListNewPcToAttach = em.getReference(pcListNewPcToAttach.getClass(), pcListNewPcToAttach.getNoInventario());
-                attachedPcListNew.add(pcListNewPcToAttach);
-            }
-            pcListNew = attachedPcListNew;
-            accesorio.setPcList(pcListNew);
             List<Almacen> attachedAlmacenListNew = new ArrayList<Almacen>();
             for (Almacen almacenListNewAlmacenToAttach : almacenListNew) {
                 almacenListNewAlmacenToAttach = em.getReference(almacenListNewAlmacenToAttach.getClass(), almacenListNewAlmacenToAttach.getIdAlmacen());
@@ -179,6 +231,38 @@ public class AccesorioJpaController implements Serializable {
             almacenListNew = attachedAlmacenListNew;
             accesorio.setAlmacenList(almacenListNew);
             accesorio = em.merge(accesorio);
+            if (areaidAreaOld != null && !areaidAreaOld.equals(areaidAreaNew)) {
+                areaidAreaOld.getAccesorioList().remove(accesorio);
+                areaidAreaOld = em.merge(areaidAreaOld);
+            }
+            if (areaidAreaNew != null && !areaidAreaNew.equals(areaidAreaOld)) {
+                areaidAreaNew.getAccesorioList().add(accesorio);
+                areaidAreaNew = em.merge(areaidAreaNew);
+            }
+            if (departamentoidDepartamentoOld != null && !departamentoidDepartamentoOld.equals(departamentoidDepartamentoNew)) {
+                departamentoidDepartamentoOld.getAccesorioList().remove(accesorio);
+                departamentoidDepartamentoOld = em.merge(departamentoidDepartamentoOld);
+            }
+            if (departamentoidDepartamentoNew != null && !departamentoidDepartamentoNew.equals(departamentoidDepartamentoOld)) {
+                departamentoidDepartamentoNew.getAccesorioList().add(accesorio);
+                departamentoidDepartamentoNew = em.merge(departamentoidDepartamentoNew);
+            }
+            if (entidadidEntidadOld != null && !entidadidEntidadOld.equals(entidadidEntidadNew)) {
+                entidadidEntidadOld.getAccesorioList().remove(accesorio);
+                entidadidEntidadOld = em.merge(entidadidEntidadOld);
+            }
+            if (entidadidEntidadNew != null && !entidadidEntidadNew.equals(entidadidEntidadOld)) {
+                entidadidEntidadNew.getAccesorioList().add(accesorio);
+                entidadidEntidadNew = em.merge(entidadidEntidadNew);
+            }
+            if (estadoidEstadoOld != null && !estadoidEstadoOld.equals(estadoidEstadoNew)) {
+                estadoidEstadoOld.getAccesorioList().remove(accesorio);
+                estadoidEstadoOld = em.merge(estadoidEstadoOld);
+            }
+            if (estadoidEstadoNew != null && !estadoidEstadoNew.equals(estadoidEstadoOld)) {
+                estadoidEstadoNew.getAccesorioList().add(accesorio);
+                estadoidEstadoNew = em.merge(estadoidEstadoNew);
+            }
             if (marcaidMarcaOld != null && !marcaidMarcaOld.equals(marcaidMarcaNew)) {
                 marcaidMarcaOld.getAccesorioList().remove(accesorio);
                 marcaidMarcaOld = em.merge(marcaidMarcaOld);
@@ -195,6 +279,14 @@ public class AccesorioJpaController implements Serializable {
                 modeloidModeloNew.getAccesorioList().add(accesorio);
                 modeloidModeloNew = em.merge(modeloidModeloNew);
             }
+            if (pcnoInventarioOld != null && !pcnoInventarioOld.equals(pcnoInventarioNew)) {
+                pcnoInventarioOld.getAccesorioList().remove(accesorio);
+                pcnoInventarioOld = em.merge(pcnoInventarioOld);
+            }
+            if (pcnoInventarioNew != null && !pcnoInventarioNew.equals(pcnoInventarioOld)) {
+                pcnoInventarioNew.getAccesorioList().add(accesorio);
+                pcnoInventarioNew = em.merge(pcnoInventarioNew);
+            }
             if (TAccesorioidAccesorioOld != null && !TAccesorioidAccesorioOld.equals(TAccesorioidAccesorioNew)) {
                 TAccesorioidAccesorioOld.getAccesorioList().remove(accesorio);
                 TAccesorioidAccesorioOld = em.merge(TAccesorioidAccesorioOld);
@@ -210,23 +302,6 @@ public class AccesorioJpaController implements Serializable {
             if (TConexionidConexionNew != null && !TConexionidConexionNew.equals(TConexionidConexionOld)) {
                 TConexionidConexionNew.getAccesorioList().add(accesorio);
                 TConexionidConexionNew = em.merge(TConexionidConexionNew);
-            }
-            for (Pc pcListOldPc : pcListOld) {
-                if (!pcListNew.contains(pcListOldPc)) {
-                    pcListOldPc.setAccesoriosnAccesorio(null);
-                    pcListOldPc = em.merge(pcListOldPc);
-                }
-            }
-            for (Pc pcListNewPc : pcListNew) {
-                if (!pcListOld.contains(pcListNewPc)) {
-                    Accesorio oldAccesoriosnAccesorioOfPcListNewPc = pcListNewPc.getAccesoriosnAccesorio();
-                    pcListNewPc.setAccesoriosnAccesorio(accesorio);
-                    pcListNewPc = em.merge(pcListNewPc);
-                    if (oldAccesoriosnAccesorioOfPcListNewPc != null && !oldAccesoriosnAccesorioOfPcListNewPc.equals(accesorio)) {
-                        oldAccesoriosnAccesorioOfPcListNewPc.getPcList().remove(pcListNewPc);
-                        oldAccesoriosnAccesorioOfPcListNewPc = em.merge(oldAccesoriosnAccesorioOfPcListNewPc);
-                    }
-                }
             }
             for (Almacen almacenListOldAlmacen : almacenListOld) {
                 if (!almacenListNew.contains(almacenListOldAlmacen)) {
@@ -274,6 +349,26 @@ public class AccesorioJpaController implements Serializable {
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The accesorio with id " + id + " no longer exists.", enfe);
             }
+            Area areaidArea = accesorio.getAreaidArea();
+            if (areaidArea != null) {
+                areaidArea.getAccesorioList().remove(accesorio);
+                areaidArea = em.merge(areaidArea);
+            }
+            Departamento departamentoidDepartamento = accesorio.getDepartamentoidDepartamento();
+            if (departamentoidDepartamento != null) {
+                departamentoidDepartamento.getAccesorioList().remove(accesorio);
+                departamentoidDepartamento = em.merge(departamentoidDepartamento);
+            }
+            Entidad entidadidEntidad = accesorio.getEntidadidEntidad();
+            if (entidadidEntidad != null) {
+                entidadidEntidad.getAccesorioList().remove(accesorio);
+                entidadidEntidad = em.merge(entidadidEntidad);
+            }
+            Estado estadoidEstado = accesorio.getEstadoidEstado();
+            if (estadoidEstado != null) {
+                estadoidEstado.getAccesorioList().remove(accesorio);
+                estadoidEstado = em.merge(estadoidEstado);
+            }
             Marca marcaidMarca = accesorio.getMarcaidMarca();
             if (marcaidMarca != null) {
                 marcaidMarca.getAccesorioList().remove(accesorio);
@@ -284,6 +379,11 @@ public class AccesorioJpaController implements Serializable {
                 modeloidModelo.getAccesorioList().remove(accesorio);
                 modeloidModelo = em.merge(modeloidModelo);
             }
+            Pc pcnoInventario = accesorio.getPcnoInventario();
+            if (pcnoInventario != null) {
+                pcnoInventario.getAccesorioList().remove(accesorio);
+                pcnoInventario = em.merge(pcnoInventario);
+            }
             TAccesorio TAccesorioidAccesorio = accesorio.getTAccesorioidAccesorio();
             if (TAccesorioidAccesorio != null) {
                 TAccesorioidAccesorio.getAccesorioList().remove(accesorio);
@@ -293,11 +393,6 @@ public class AccesorioJpaController implements Serializable {
             if (TConexionidConexion != null) {
                 TConexionidConexion.getAccesorioList().remove(accesorio);
                 TConexionidConexion = em.merge(TConexionidConexion);
-            }
-            List<Pc> pcList = accesorio.getPcList();
-            for (Pc pcListPc : pcList) {
-                pcListPc.setAccesoriosnAccesorio(null);
-                pcListPc = em.merge(pcListPc);
             }
             List<Almacen> almacenList = accesorio.getAlmacenList();
             for (Almacen almacenListAlmacen : almacenList) {

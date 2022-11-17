@@ -13,19 +13,19 @@ import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import Entidades.Impresora;
+import Entidades.Accesorio;
 import java.util.ArrayList;
 import java.util.List;
-import Entidades.Pc;
-import Entidades.Accesorio;
 import Entidades.Componente;
+import Entidades.Impresora;
 import Entidades.Marca;
+import Entidades.Pc;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
 /**
  *
- * @author Dayana
+ * @author David
  */
 public class MarcaJpaController implements Serializable {
 
@@ -39,34 +39,22 @@ public class MarcaJpaController implements Serializable {
     }
 
     public void create(Marca marca) throws PreexistingEntityException, Exception {
-        if (marca.getImpresoraList() == null) {
-            marca.setImpresoraList(new ArrayList<Impresora>());
-        }
-        if (marca.getPcList() == null) {
-            marca.setPcList(new ArrayList<Pc>());
-        }
         if (marca.getAccesorioList() == null) {
             marca.setAccesorioList(new ArrayList<Accesorio>());
         }
         if (marca.getComponenteList() == null) {
             marca.setComponenteList(new ArrayList<Componente>());
         }
+        if (marca.getImpresoraList() == null) {
+            marca.setImpresoraList(new ArrayList<Impresora>());
+        }
+        if (marca.getPcList() == null) {
+            marca.setPcList(new ArrayList<Pc>());
+        }
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            List<Impresora> attachedImpresoraList = new ArrayList<Impresora>();
-            for (Impresora impresoraListImpresoraToAttach : marca.getImpresoraList()) {
-                impresoraListImpresoraToAttach = em.getReference(impresoraListImpresoraToAttach.getClass(), impresoraListImpresoraToAttach.getNoInventario());
-                attachedImpresoraList.add(impresoraListImpresoraToAttach);
-            }
-            marca.setImpresoraList(attachedImpresoraList);
-            List<Pc> attachedPcList = new ArrayList<Pc>();
-            for (Pc pcListPcToAttach : marca.getPcList()) {
-                pcListPcToAttach = em.getReference(pcListPcToAttach.getClass(), pcListPcToAttach.getNoInventario());
-                attachedPcList.add(pcListPcToAttach);
-            }
-            marca.setPcList(attachedPcList);
             List<Accesorio> attachedAccesorioList = new ArrayList<Accesorio>();
             for (Accesorio accesorioListAccesorioToAttach : marca.getAccesorioList()) {
                 accesorioListAccesorioToAttach = em.getReference(accesorioListAccesorioToAttach.getClass(), accesorioListAccesorioToAttach.getSnAccesorio());
@@ -79,25 +67,19 @@ public class MarcaJpaController implements Serializable {
                 attachedComponenteList.add(componenteListComponenteToAttach);
             }
             marca.setComponenteList(attachedComponenteList);
+            List<Impresora> attachedImpresoraList = new ArrayList<Impresora>();
+            for (Impresora impresoraListImpresoraToAttach : marca.getImpresoraList()) {
+                impresoraListImpresoraToAttach = em.getReference(impresoraListImpresoraToAttach.getClass(), impresoraListImpresoraToAttach.getNoInventario());
+                attachedImpresoraList.add(impresoraListImpresoraToAttach);
+            }
+            marca.setImpresoraList(attachedImpresoraList);
+            List<Pc> attachedPcList = new ArrayList<Pc>();
+            for (Pc pcListPcToAttach : marca.getPcList()) {
+                pcListPcToAttach = em.getReference(pcListPcToAttach.getClass(), pcListPcToAttach.getNoInventario());
+                attachedPcList.add(pcListPcToAttach);
+            }
+            marca.setPcList(attachedPcList);
             em.persist(marca);
-            for (Impresora impresoraListImpresora : marca.getImpresoraList()) {
-                Marca oldMarcaidMarcaOfImpresoraListImpresora = impresoraListImpresora.getMarcaidMarca();
-                impresoraListImpresora.setMarcaidMarca(marca);
-                impresoraListImpresora = em.merge(impresoraListImpresora);
-                if (oldMarcaidMarcaOfImpresoraListImpresora != null) {
-                    oldMarcaidMarcaOfImpresoraListImpresora.getImpresoraList().remove(impresoraListImpresora);
-                    oldMarcaidMarcaOfImpresoraListImpresora = em.merge(oldMarcaidMarcaOfImpresoraListImpresora);
-                }
-            }
-            for (Pc pcListPc : marca.getPcList()) {
-                Marca oldMarcaidMarcaOfPcListPc = pcListPc.getMarcaidMarca();
-                pcListPc.setMarcaidMarca(marca);
-                pcListPc = em.merge(pcListPc);
-                if (oldMarcaidMarcaOfPcListPc != null) {
-                    oldMarcaidMarcaOfPcListPc.getPcList().remove(pcListPc);
-                    oldMarcaidMarcaOfPcListPc = em.merge(oldMarcaidMarcaOfPcListPc);
-                }
-            }
             for (Accesorio accesorioListAccesorio : marca.getAccesorioList()) {
                 Marca oldMarcaidMarcaOfAccesorioListAccesorio = accesorioListAccesorio.getMarcaidMarca();
                 accesorioListAccesorio.setMarcaidMarca(marca);
@@ -114,6 +96,24 @@ public class MarcaJpaController implements Serializable {
                 if (oldMarcaidMarcaOfComponenteListComponente != null) {
                     oldMarcaidMarcaOfComponenteListComponente.getComponenteList().remove(componenteListComponente);
                     oldMarcaidMarcaOfComponenteListComponente = em.merge(oldMarcaidMarcaOfComponenteListComponente);
+                }
+            }
+            for (Impresora impresoraListImpresora : marca.getImpresoraList()) {
+                Marca oldMarcaidMarcaOfImpresoraListImpresora = impresoraListImpresora.getMarcaidMarca();
+                impresoraListImpresora.setMarcaidMarca(marca);
+                impresoraListImpresora = em.merge(impresoraListImpresora);
+                if (oldMarcaidMarcaOfImpresoraListImpresora != null) {
+                    oldMarcaidMarcaOfImpresoraListImpresora.getImpresoraList().remove(impresoraListImpresora);
+                    oldMarcaidMarcaOfImpresoraListImpresora = em.merge(oldMarcaidMarcaOfImpresoraListImpresora);
+                }
+            }
+            for (Pc pcListPc : marca.getPcList()) {
+                Marca oldMarcaidMarcaOfPcListPc = pcListPc.getMarcaidMarca();
+                pcListPc.setMarcaidMarca(marca);
+                pcListPc = em.merge(pcListPc);
+                if (oldMarcaidMarcaOfPcListPc != null) {
+                    oldMarcaidMarcaOfPcListPc.getPcList().remove(pcListPc);
+                    oldMarcaidMarcaOfPcListPc = em.merge(oldMarcaidMarcaOfPcListPc);
                 }
             }
             em.getTransaction().commit();
@@ -135,15 +135,23 @@ public class MarcaJpaController implements Serializable {
             em = getEntityManager();
             em.getTransaction().begin();
             Marca persistentMarca = em.find(Marca.class, marca.getIdMarca());
-            List<Impresora> impresoraListOld = persistentMarca.getImpresoraList();
-            List<Impresora> impresoraListNew = marca.getImpresoraList();
-            List<Pc> pcListOld = persistentMarca.getPcList();
-            List<Pc> pcListNew = marca.getPcList();
             List<Accesorio> accesorioListOld = persistentMarca.getAccesorioList();
             List<Accesorio> accesorioListNew = marca.getAccesorioList();
             List<Componente> componenteListOld = persistentMarca.getComponenteList();
             List<Componente> componenteListNew = marca.getComponenteList();
+            List<Impresora> impresoraListOld = persistentMarca.getImpresoraList();
+            List<Impresora> impresoraListNew = marca.getImpresoraList();
+            List<Pc> pcListOld = persistentMarca.getPcList();
+            List<Pc> pcListNew = marca.getPcList();
             List<String> illegalOrphanMessages = null;
+            for (Accesorio accesorioListOldAccesorio : accesorioListOld) {
+                if (!accesorioListNew.contains(accesorioListOldAccesorio)) {
+                    if (illegalOrphanMessages == null) {
+                        illegalOrphanMessages = new ArrayList<String>();
+                    }
+                    illegalOrphanMessages.add("You must retain Accesorio " + accesorioListOldAccesorio + " since its marcaidMarca field is not nullable.");
+                }
+            }
             for (Impresora impresoraListOldImpresora : impresoraListOld) {
                 if (!impresoraListNew.contains(impresoraListOldImpresora)) {
                     if (illegalOrphanMessages == null) {
@@ -160,39 +168,9 @@ public class MarcaJpaController implements Serializable {
                     illegalOrphanMessages.add("You must retain Pc " + pcListOldPc + " since its marcaidMarca field is not nullable.");
                 }
             }
-            for (Accesorio accesorioListOldAccesorio : accesorioListOld) {
-                if (!accesorioListNew.contains(accesorioListOldAccesorio)) {
-                    if (illegalOrphanMessages == null) {
-                        illegalOrphanMessages = new ArrayList<String>();
-                    }
-                    illegalOrphanMessages.add("You must retain Accesorio " + accesorioListOldAccesorio + " since its marcaidMarca field is not nullable.");
-                }
-            }
-            for (Componente componenteListOldComponente : componenteListOld) {
-                if (!componenteListNew.contains(componenteListOldComponente)) {
-                    if (illegalOrphanMessages == null) {
-                        illegalOrphanMessages = new ArrayList<String>();
-                    }
-                    illegalOrphanMessages.add("You must retain Componente " + componenteListOldComponente + " since its marcaidMarca field is not nullable.");
-                }
-            }
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);
             }
-            List<Impresora> attachedImpresoraListNew = new ArrayList<Impresora>();
-            for (Impresora impresoraListNewImpresoraToAttach : impresoraListNew) {
-                impresoraListNewImpresoraToAttach = em.getReference(impresoraListNewImpresoraToAttach.getClass(), impresoraListNewImpresoraToAttach.getNoInventario());
-                attachedImpresoraListNew.add(impresoraListNewImpresoraToAttach);
-            }
-            impresoraListNew = attachedImpresoraListNew;
-            marca.setImpresoraList(impresoraListNew);
-            List<Pc> attachedPcListNew = new ArrayList<Pc>();
-            for (Pc pcListNewPcToAttach : pcListNew) {
-                pcListNewPcToAttach = em.getReference(pcListNewPcToAttach.getClass(), pcListNewPcToAttach.getNoInventario());
-                attachedPcListNew.add(pcListNewPcToAttach);
-            }
-            pcListNew = attachedPcListNew;
-            marca.setPcList(pcListNew);
             List<Accesorio> attachedAccesorioListNew = new ArrayList<Accesorio>();
             for (Accesorio accesorioListNewAccesorioToAttach : accesorioListNew) {
                 accesorioListNewAccesorioToAttach = em.getReference(accesorioListNewAccesorioToAttach.getClass(), accesorioListNewAccesorioToAttach.getSnAccesorio());
@@ -207,7 +185,49 @@ public class MarcaJpaController implements Serializable {
             }
             componenteListNew = attachedComponenteListNew;
             marca.setComponenteList(componenteListNew);
+            List<Impresora> attachedImpresoraListNew = new ArrayList<Impresora>();
+            for (Impresora impresoraListNewImpresoraToAttach : impresoraListNew) {
+                impresoraListNewImpresoraToAttach = em.getReference(impresoraListNewImpresoraToAttach.getClass(), impresoraListNewImpresoraToAttach.getNoInventario());
+                attachedImpresoraListNew.add(impresoraListNewImpresoraToAttach);
+            }
+            impresoraListNew = attachedImpresoraListNew;
+            marca.setImpresoraList(impresoraListNew);
+            List<Pc> attachedPcListNew = new ArrayList<Pc>();
+            for (Pc pcListNewPcToAttach : pcListNew) {
+                pcListNewPcToAttach = em.getReference(pcListNewPcToAttach.getClass(), pcListNewPcToAttach.getNoInventario());
+                attachedPcListNew.add(pcListNewPcToAttach);
+            }
+            pcListNew = attachedPcListNew;
+            marca.setPcList(pcListNew);
             marca = em.merge(marca);
+            for (Accesorio accesorioListNewAccesorio : accesorioListNew) {
+                if (!accesorioListOld.contains(accesorioListNewAccesorio)) {
+                    Marca oldMarcaidMarcaOfAccesorioListNewAccesorio = accesorioListNewAccesorio.getMarcaidMarca();
+                    accesorioListNewAccesorio.setMarcaidMarca(marca);
+                    accesorioListNewAccesorio = em.merge(accesorioListNewAccesorio);
+                    if (oldMarcaidMarcaOfAccesorioListNewAccesorio != null && !oldMarcaidMarcaOfAccesorioListNewAccesorio.equals(marca)) {
+                        oldMarcaidMarcaOfAccesorioListNewAccesorio.getAccesorioList().remove(accesorioListNewAccesorio);
+                        oldMarcaidMarcaOfAccesorioListNewAccesorio = em.merge(oldMarcaidMarcaOfAccesorioListNewAccesorio);
+                    }
+                }
+            }
+            for (Componente componenteListOldComponente : componenteListOld) {
+                if (!componenteListNew.contains(componenteListOldComponente)) {
+                    componenteListOldComponente.setMarcaidMarca(null);
+                    componenteListOldComponente = em.merge(componenteListOldComponente);
+                }
+            }
+            for (Componente componenteListNewComponente : componenteListNew) {
+                if (!componenteListOld.contains(componenteListNewComponente)) {
+                    Marca oldMarcaidMarcaOfComponenteListNewComponente = componenteListNewComponente.getMarcaidMarca();
+                    componenteListNewComponente.setMarcaidMarca(marca);
+                    componenteListNewComponente = em.merge(componenteListNewComponente);
+                    if (oldMarcaidMarcaOfComponenteListNewComponente != null && !oldMarcaidMarcaOfComponenteListNewComponente.equals(marca)) {
+                        oldMarcaidMarcaOfComponenteListNewComponente.getComponenteList().remove(componenteListNewComponente);
+                        oldMarcaidMarcaOfComponenteListNewComponente = em.merge(oldMarcaidMarcaOfComponenteListNewComponente);
+                    }
+                }
+            }
             for (Impresora impresoraListNewImpresora : impresoraListNew) {
                 if (!impresoraListOld.contains(impresoraListNewImpresora)) {
                     Marca oldMarcaidMarcaOfImpresoraListNewImpresora = impresoraListNewImpresora.getMarcaidMarca();
@@ -227,28 +247,6 @@ public class MarcaJpaController implements Serializable {
                     if (oldMarcaidMarcaOfPcListNewPc != null && !oldMarcaidMarcaOfPcListNewPc.equals(marca)) {
                         oldMarcaidMarcaOfPcListNewPc.getPcList().remove(pcListNewPc);
                         oldMarcaidMarcaOfPcListNewPc = em.merge(oldMarcaidMarcaOfPcListNewPc);
-                    }
-                }
-            }
-            for (Accesorio accesorioListNewAccesorio : accesorioListNew) {
-                if (!accesorioListOld.contains(accesorioListNewAccesorio)) {
-                    Marca oldMarcaidMarcaOfAccesorioListNewAccesorio = accesorioListNewAccesorio.getMarcaidMarca();
-                    accesorioListNewAccesorio.setMarcaidMarca(marca);
-                    accesorioListNewAccesorio = em.merge(accesorioListNewAccesorio);
-                    if (oldMarcaidMarcaOfAccesorioListNewAccesorio != null && !oldMarcaidMarcaOfAccesorioListNewAccesorio.equals(marca)) {
-                        oldMarcaidMarcaOfAccesorioListNewAccesorio.getAccesorioList().remove(accesorioListNewAccesorio);
-                        oldMarcaidMarcaOfAccesorioListNewAccesorio = em.merge(oldMarcaidMarcaOfAccesorioListNewAccesorio);
-                    }
-                }
-            }
-            for (Componente componenteListNewComponente : componenteListNew) {
-                if (!componenteListOld.contains(componenteListNewComponente)) {
-                    Marca oldMarcaidMarcaOfComponenteListNewComponente = componenteListNewComponente.getMarcaidMarca();
-                    componenteListNewComponente.setMarcaidMarca(marca);
-                    componenteListNewComponente = em.merge(componenteListNewComponente);
-                    if (oldMarcaidMarcaOfComponenteListNewComponente != null && !oldMarcaidMarcaOfComponenteListNewComponente.equals(marca)) {
-                        oldMarcaidMarcaOfComponenteListNewComponente.getComponenteList().remove(componenteListNewComponente);
-                        oldMarcaidMarcaOfComponenteListNewComponente = em.merge(oldMarcaidMarcaOfComponenteListNewComponente);
                     }
                 }
             }
@@ -282,6 +280,13 @@ public class MarcaJpaController implements Serializable {
                 throw new NonexistentEntityException("The marca with id " + id + " no longer exists.", enfe);
             }
             List<String> illegalOrphanMessages = null;
+            List<Accesorio> accesorioListOrphanCheck = marca.getAccesorioList();
+            for (Accesorio accesorioListOrphanCheckAccesorio : accesorioListOrphanCheck) {
+                if (illegalOrphanMessages == null) {
+                    illegalOrphanMessages = new ArrayList<String>();
+                }
+                illegalOrphanMessages.add("This Marca (" + marca + ") cannot be destroyed since the Accesorio " + accesorioListOrphanCheckAccesorio + " in its accesorioList field has a non-nullable marcaidMarca field.");
+            }
             List<Impresora> impresoraListOrphanCheck = marca.getImpresoraList();
             for (Impresora impresoraListOrphanCheckImpresora : impresoraListOrphanCheck) {
                 if (illegalOrphanMessages == null) {
@@ -296,22 +301,13 @@ public class MarcaJpaController implements Serializable {
                 }
                 illegalOrphanMessages.add("This Marca (" + marca + ") cannot be destroyed since the Pc " + pcListOrphanCheckPc + " in its pcList field has a non-nullable marcaidMarca field.");
             }
-            List<Accesorio> accesorioListOrphanCheck = marca.getAccesorioList();
-            for (Accesorio accesorioListOrphanCheckAccesorio : accesorioListOrphanCheck) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("This Marca (" + marca + ") cannot be destroyed since the Accesorio " + accesorioListOrphanCheckAccesorio + " in its accesorioList field has a non-nullable marcaidMarca field.");
-            }
-            List<Componente> componenteListOrphanCheck = marca.getComponenteList();
-            for (Componente componenteListOrphanCheckComponente : componenteListOrphanCheck) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("This Marca (" + marca + ") cannot be destroyed since the Componente " + componenteListOrphanCheckComponente + " in its componenteList field has a non-nullable marcaidMarca field.");
-            }
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);
+            }
+            List<Componente> componenteList = marca.getComponenteList();
+            for (Componente componenteListComponente : componenteList) {
+                componenteListComponente.setMarcaidMarca(null);
+                componenteListComponente = em.merge(componenteListComponente);
             }
             em.remove(marca);
             em.getTransaction().commit();

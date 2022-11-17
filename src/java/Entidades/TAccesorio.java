@@ -1,6 +1,7 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
  */
 package Entidades;
 
@@ -10,39 +11,36 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
- * @author David Ruiz
+ * @author David
  */
 @Entity
 @Table(name = "t_accesorio")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "TAccesorio.findAll", query = "SELECT t FROM TAccesorio t"),
-    @NamedQuery(name = "TAccesorio.findByIdAccesorio", query = "SELECT t FROM TAccesorio t WHERE t.idAccesorio = :idAccesorio"),
-    @NamedQuery(name = "TAccesorio.findByNombreAccesorio", query = "SELECT t FROM TAccesorio t WHERE t.nombreAccesorio = :nombreAccesorio")})
+    @NamedQuery(name = "TAccesorio.findAll", query = "SELECT t FROM TAccesorio t")
+    , @NamedQuery(name = "TAccesorio.findByIdAccesorio", query = "SELECT t FROM TAccesorio t WHERE t.idAccesorio = :idAccesorio")
+    , @NamedQuery(name = "TAccesorio.findByNombreAccesorio", query = "SELECT t FROM TAccesorio t WHERE t.nombreAccesorio = :nombreAccesorio")})
 public class TAccesorio implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
-    @NotNull
     @Column(name = "id_accesorio")
     private Integer idAccesorio;
-    @Size(max = 255)
     @Column(name = "nombre_accesorio")
     private String nombreAccesorio;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "tAccesorioidAccesorio")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "tAccesorioidAccesorio", fetch = FetchType.LAZY)
     private List<Accesorio> accesorioList;
 
     public TAccesorio() {

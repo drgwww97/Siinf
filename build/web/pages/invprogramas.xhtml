@@ -1,0 +1,181 @@
+<?xml version='1.0' encoding='UTF-8' ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:head>
+        <link rel="stylesheet" href="../resources/css/bootstrap.css"/>
+        <link rel="stylesheet" href="../resources/css/bootstrap-responsive.css"/>
+        <link rel="stylesheet" href="../resources/css/prettyPhoto.css" />
+        <link rel="stylesheet" href="../resources/css/flexslider.css" />
+        <link rel="stylesheet" href="../resources/css/custom-styles.css"/>
+
+        <link rel="shortcut icon" href="../resources/img/icono.jpg"/>
+        <link rel="apple-touch-icon" href="../resources/img/apple-touch-icon.png"/>
+        <link rel="apple-touch-icon" sizes="72x72" href="../resources/img/apple-touch-icon-72x72.png"/>
+        <link rel="apple-touch-icon" sizes="114x114" href="../resources/img/apple-touch-icon-114x114.png"/>
+
+        <script src="../resources/js/bootstrap.js"></script>
+        <script src="../resources/js/jquery.prettyPhoto.js"></script>
+        <script src="../resources/js/jquery.flexslider.js"></script>
+        <script src="../resources/js/jquery.custom.js"></script>
+        <script type="text/javascript"/>
+        <title>Programas</title>
+    </h:head>
+
+    <h:body>
+        <h:form>
+            <p:growl id="messages"/>
+
+            <p:menubar id="menu-bar">
+                <p:menuitem value="Inicio" icon="pi pi-fw pi-home" url="index.faces" />
+                <p:menuitem value="Equipos" icon="pi pi-fw pi-desktop" url="invpc.faces"/>
+                <p:menuitem value="Impresoras" icon="pi pi-fw pi-print" url="pages/invpc.faces"/>
+                <p:submenu label="Administración" icon="pi pi-fw pi-server" >
+                    <p:menuitem value="Componentes" />
+                    <p:menuitem value="Accesorios" />
+                    <p:menuitem value="Entidad" url="inventidad.faces"/>
+                    <p:menuitem value="Departamento" url="invdepartamento.faces"/>
+                    <p:menuitem value="Area" url="invarea.faces" />
+                    <p:menuitem value="Marca" url="invmarca.faces"/>
+                    <p:menuitem value="Modelo" url="invmodelo.faces"/>
+                    <p:menuitem value="Programas" url="invprogramas.faces"/>
+                    <p:menuitem value="Sistema Operativo" url="invsoperativo.faces"/>
+                    <p:menuitem value="Modificaciones" url="invmodificacion.faces"/>
+                    <p:submenu label="Tipos" >
+                        <p:menuitem value="Tipos de accesorios" url="invtaccesorio.faces"/>
+                        <p:menuitem value="Tipos de componentes" url="invtcomponente.faces"/>
+                        <p:menuitem value="Tipos de conexiones" url="invtconexion.faces"/>
+                        <p:menuitem value="Tipos de equipos" url="invtequipo.faces"/>
+                        <p:menuitem value="Tipos de modificación" url="invtmodificacion.faces"/>
+                        <p:menuitem value="Tipos de toner" url="invttoner.faces"/>
+                    </p:submenu>
+                </p:submenu>
+                <p:menuitem value="Usuarios" icon="pi pi-fw pi-user"/>
+                <p:divider layout="vertical"/>
+
+            </p:menubar>
+
+        </h:form>
+
+        #{programasBeans.init()}
+        <div class="card crud-demo">
+            <h:form id="form">
+                <p:growl id="messages" showDetail="true" />
+
+                <p:toolbar>
+                    <p:toolbarGroup>
+                        <p:commandButton value="Nuevo" icon="pi pi-plus" actionListener="#{programasBeans.nuevo}"
+                                         update=":dialogs:manage-product-content" oncomplete="PF('manageProductDialog').show()"
+                                         styleClass="ui-button-success" style="margin-right: .5rem">
+                            <p:resetInput target=":dialogs:manage-product-content" />
+                        </p:commandButton>
+                        <p:commandButton id="delete-products-button" value="#{programasBeans.getdeleteButtonMessage()}" 
+                                         icon="pi pi-trash" actionListener="#{programasBeans.deleteSelectedProducts}"
+                                         styleClass="ui-button-danger" disabled="#{!programasBeans.hasSeleccionadoElementos()}" update="@this">
+                            <p:confirm header="Confirmación" message="¿Desea eliminar los programas seleccionados?"
+                                       icon="pi pi-exclamation-triangle" />
+                        </p:commandButton>
+
+                    </p:toolbarGroup>
+
+                </p:toolbar>
+
+                <p:dataTable id="dt-programas" widgetVar="dtprogramas" var="programas" value="#{programasBeans.programas}" 
+                             reflow="true" styleClass="products-table" selection="#{programasBeans.seleccionados}"
+                             rowKey="#{programas.idProgramas}" paginator="true" rows="10" rowSelectMode="add" paginatorPosition="bottom">
+                    <f:facet name="header">
+                        <div class="products-table-header">
+                            <span style="font-weight: bold">Programas   </span> <span
+                                class="filter-container ui-input-icon-left"> <i class="pi pi-search"></i> <p:inputText
+                                    id="globalFilter" onkeyup="PF('dtprogramas').filter()" placeholder="Buscar" />
+                            </span>
+
+                        </div>
+                    </f:facet>
+
+                    <p:ajax event="rowSelect" update=":form:delete-products-button" />
+                    <p:ajax event="rowUnselect" update=":form:delete-products-button" />
+                    <p:ajax event="rowSelectCheckbox" update=":form:delete-products-button" />
+                    <p:ajax event="rowUnselectCheckbox" update=":form:delete-products-button" />
+                    <p:ajax event="toggleSelect" update=":form:delete-products-button" />
+
+                    <p:column selectionMode="multiple" exportable="false"></p:column>
+
+                    <p:column headerText="ID" sortBy="#{programas.idProgramas}" filterBy="#{programas.idProgramas}">
+                        <h:outputText value="#{programas.idProgramas}" />
+                    </p:column>
+                    <p:column headerText="Nombre" sortBy="#{programas.nombreProg}" filterBy="#{programas.nombreProg}">
+                        <h:outputText value="#{programas.nombreProg}" />
+                    </p:column>
+                    <p:column headerText="Versión" sortBy="#{programas.version}" filterBy="#{programas.version}">
+                        <h:outputText value="#{programas.version}" />
+                    </p:column>
+                   
+                    <p:column exportable="false">
+                        <p:commandButton icon="pi pi-pencil" update=":dialogs:manage-product-content"
+                                         oncomplete="PF('manageProductDialog').show()"
+                                         styleClass="edit-button rounded-button ui-button-success" process="@this">
+                            <f:setPropertyActionListener value="#{programas}" target="#{programasBeans.programaseleccionado}" />
+                            <p:resetInput target=":dialogs:manage-product-content" />
+                        </p:commandButton>
+                        <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash" process="@this"
+                                         oncomplete="PF('deleteProductDialog').show()">
+                            <f:setPropertyActionListener value="#{programas}" target="#{programasBeans.programaseleccionado}" />
+                        </p:commandButton>
+                    </p:column>
+
+                </p:dataTable>
+            </h:form>
+
+            <h:form id="dialogs">
+                <p:dialog header="Detalles" showEffect="fade" modal="true" widgetVar="manageProductDialog"
+                          responsive="true">
+                    <p:outputPanel id="manage-product-content" class="ui-fluid">
+                        <p:outputPanel rendered="#{not empty programasBeans.programaseleccionado}">
+                            <div class="field">
+                                <p:outputLabel for="idProgramas">ID</p:outputLabel>
+                                <p:inputText id="idProgramas" value="#{programasBeans.programaseleccionado.idProgramas}" required="true" />
+                            </div>
+                            <div class="field">
+                                <p:outputLabel for="nombreProgramas">Nombre</p:outputLabel>
+                                <p:inputTextarea id="nombreProgramas" value="#{programasBeans.programaseleccionado.nombreProg}" required="true" />
+                            </div>
+                            <div class="field">
+                                <p:outputLabel for="versionProgramas">Versión</p:outputLabel>
+                                <p:inputTextarea id="versionProgramas" value="#{programasBeans.programaseleccionado.version}" required="false" />
+                            </div>
+                           
+                        </p:outputPanel>
+                    </p:outputPanel>
+
+                    <f:facet name="footer">
+                        <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{programasBeans.guardar()}" ajax="false"
+                                         update="manage-product-content" process="manage-product-content @this" />
+                        <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('manageProductDialog').hide()"
+                                         class="ui-button-secondary" type="button" />
+                    </f:facet>
+                </p:dialog>
+
+                <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300"
+                                 message="¿Desea eliminar este programa?" header="Confirmación" severity="warn">
+                    <p:commandButton value="Si" icon="pi pi-check" actionListener="#{programasBeans.deleteProduct()}" ajax="false"
+                                     process="@this" oncomplete="PF('deleteProductDialog').hide()" />
+                    <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
+                                     onclick="PF('deleteProductDialog').hide()" />
+                </p:confirmDialog>
+
+                <p:confirmDialog global="true" showEffect="fade" width="300">
+                    <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+                    <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary"
+                                     icon="pi pi-times" />
+                </p:confirmDialog>
+            </h:form>
+        </div>
+
+    </h:body>
+
+
+</html>
